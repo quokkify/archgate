@@ -56,7 +56,7 @@ ArchGate запускает архитектурные правила как ш�
   <dependency>
     <groupId>dev.quokkify.archgate</groupId>
     <artifactId>archgate-rules-archunit</artifactId>
-    <version>${archgate.version}</version>
+    <version>0.1.0</version>
     <scope>test</scope>
   </dependency>
 </dependencies>
@@ -66,7 +66,7 @@ ArchGate запускает архитектурные правила как ш�
     <plugin>
       <groupId>dev.quokkify.archgate</groupId>
       <artifactId>archgate-maven-plugin</artifactId>
-      <version>${archgate.version}</version>
+      <version>0.1.0</version>
       <executions><execution><goals><goal>check</goal></goals></execution></executions>
       <configuration>
         <rootPackage>com.acme.tests</rootPackage>
@@ -107,7 +107,7 @@ Failure policy (failOn=WARNING):
 ```groovy
 plugins {
     id 'java'
-    id 'dev.quokkify.archgate'
+    id 'dev.quokkify.archgate' version '0.1.0'
 }
 
 archgate {
@@ -141,7 +141,7 @@ dependencies {
 <dependency>
   <groupId>dev.quokkify.archgate</groupId>
   <artifactId>archgate-context-archunit</artifactId>
-  <version>${archgate.version}</version>
+  <version>0.1.0</version>
   <scope>test</scope>
 </dependency>
 ```

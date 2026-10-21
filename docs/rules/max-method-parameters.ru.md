@@ -32,7 +32,7 @@ dev.quokkify.archgate.rules.archunit.MaxMethodParametersRule
 
 ```java
 public class MaxThreeParametersRule extends MaxMethodParametersRule {
-  protected MaxThreeParametersRule() {
+  public MaxThreeParametersRule() {
     super(3);
   }
 }

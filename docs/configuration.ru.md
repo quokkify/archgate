@@ -8,7 +8,7 @@
 |---|---|---|---|
 | `rootPackage` | обязателен | `archgate.rootPackage` | `-Parchgate.rootPackage` |
 | `failOn` | `WARNING` (`INFO`, `WARNING`, `ERROR`, `NEVER`) | `archgate.failOn` | `-Parchgate.failOn` |
-| `modules` | Maven: текущий модуль и все reactor-модули, от которых он зависит. Gradle: только текущий проект | — | — |
+| `modules` | Maven: текущий модуль и reactor-модули, от которых он напрямую зависит, кроме модулей с упаковкой `pom`; записи — artifactId, а заданный список полностью заменяет умолчание. Gradle: только текущий проект | — | — |
 | `skip` | `false` | `archgate.skip` | `-Parchgate.skip` |
 
 Проверка падает, если у любой находки severity не ниже `failOn`. С `NEVER` она только выводит отчёт. Например, `-Darchgate.failOn=ERROR` (Maven) или `-Parchgate.failOn=ERROR` (Gradle) пропускает предупреждения. `UnableToVerifyError` роняет сборку при любом `failOn`, в том числе при `NEVER`.
@@ -20,7 +20,7 @@
 ```groovy
 plugins {
     id 'java'
-    id 'dev.quokkify.archgate'
+    id 'dev.quokkify.archgate' version '0.1.0'
 }
 
 archgate {
@@ -70,7 +70,7 @@ archgate {
 ```
 
 - Каждый проект из `modules(...)` должен сам подключать `dev.quokkify.archgate`, обычно с `skip = true`. Иначе задача падает с сообщением, содержащим `does not apply dev.quokkify.archgate`.
-- Такой проект отдаёт каталоги классов (main и test) и каталоги исходников через consumable-конфигурацию, а проект с проверкой их читает.
+- Такой проект отдаёт каталоги классов (main и test), каталоги их обработанных ресурсов (правила для файлов services читают из них `META-INF/services`) и каталоги исходников через consumable-конфигурацию, а проект с проверкой их читает.
 - Известное ограничение: каталоги исходников соседних проектов фиксируются на этапе конфигурации. Каталог, добавленный в соседний проект после завершения его конфигурации, проверка не увидит.
 
 ### Загрузка классов
@@ -83,14 +83,14 @@ archgate {
 |---|---|---|
 | `rootPackage` | обязателен | `archgate.rootPackage` |
 | `failOn` | `WARNING` | `archgate.failOn` |
-| `modules` | текущий модуль и все reactor-модули, от которых он зависит | — |
+| `modules` | текущий модуль и reactor-модули, от которых он напрямую зависит, кроме модулей с упаковкой `pom` | — |
 | `skip` | `false` | `archgate.skip` |
 
 - Минимальная версия Maven — 3.9.0.
 - Цель выполняется на `verify`, в том числе с `-DskipTests`.
 - Отчёт также записывается в `target/archgate/report.txt`.
 - Упавшая проверка роняет сборку через `MojoFailureException`; ошибка регистрации и другие случаи «не удалось проверить» — через `MojoExecutionException`.
-- `modules` заменяет выбор по умолчанию.
+- `modules` полностью заменяет выбор по умолчанию. Записи — `artifactId` reactor-модулей. Текущий модуль проверяется, только если ты его перечислил; неизвестная запись роняет сборку.
 
 ## Выравнивание версий
 
@@ -104,7 +104,7 @@ Maven:
     <dependency>
       <groupId>dev.quokkify.archgate</groupId>
       <artifactId>archgate-bom</artifactId>
-      <version>${archgate.version}</version>
+      <version>0.1.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -133,7 +133,7 @@ Maven:
   <configuration>
     <archive>
       <manifestEntries>
-        <Archgate-Api-Version>${archgate.version}</Archgate-Api-Version>
+        <Archgate-Api-Version>0.1.0</Archgate-Api-Version>
       </manifestEntries>
     </archive>
   </configuration>

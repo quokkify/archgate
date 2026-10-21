@@ -116,7 +116,7 @@ A change that alters user-visible behaviour is not done until its docs match:
 
 `DocsLinkTest` fails the build when a relative link breaks, a README table names a rule that does not exist, or the two READMEs list different rules.
 
-Each rule page follows the same shape: title, language switch, `FQCN · SEVERITY · scopes · backend`, why it matters, a violation and fix example, a **Register** block with the class name, a **Configure** block (subclassing, or why there is nothing to configure), and a link back to the README table.
+Each rule page follows the same shape: title, language switch, `FQCN · SEVERITY · scopes` (the two JavaParser/ClassGraph pages add the backend), why it matters, a violation and fix example, a **Register** block with the class name, a **Configure** block (subclassing, or why there is nothing to configure), and a link back to the README table.
 
 ## Definition of done
 

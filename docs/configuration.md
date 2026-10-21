@@ -8,7 +8,7 @@ English · [Русский](configuration.ru.md)
 |---|---|---|---|
 | `rootPackage` | required | `archgate.rootPackage` | `-Parchgate.rootPackage` |
 | `failOn` | `WARNING` (`INFO`, `WARNING`, `ERROR`, `NEVER`) | `archgate.failOn` | `-Parchgate.failOn` |
-| `modules` | Maven: the current module plus every reactor module it depends on. Gradle: only the current project | — | — |
+| `modules` | Maven: the current module plus the reactor modules it directly depends on, except `pom` packaging; entries are artifactIds and a list replaces the default entirely. Gradle: only the current project | — | — |
 | `skip` | `false` | `archgate.skip` | `-Parchgate.skip` |
 
 The gate fails when any finding has a severity at or above `failOn`. With `NEVER` it only reports. For example, `-Darchgate.failOn=ERROR` (Maven) or `-Parchgate.failOn=ERROR` (Gradle) lets warnings through. `UnableToVerifyError` fails the build whatever `failOn` says, `NEVER` included.
@@ -20,7 +20,7 @@ The Maven plugin is the goal `check` of `dev.quokkify.archgate:archgate-maven-pl
 ```groovy
 plugins {
     id 'java'
-    id 'dev.quokkify.archgate'
+    id 'dev.quokkify.archgate' version '0.1.0'
 }
 
 archgate {
@@ -70,7 +70,7 @@ archgate {
 ```
 
 - Every project named in `modules(...)` must apply `dev.quokkify.archgate` itself, usually with `skip = true`. Otherwise the task fails with a message that contains `does not apply dev.quokkify.archgate`.
-- Each such project exposes its main and test class directories and source directories through a consumable configuration, and the gate project reads them.
+- Each such project exposes its main and test class directories, their processed-resources directories (the service-file rules read `META-INF/services` from them) and source directories through a consumable configuration, and the gate project reads them.
 - Known limitation: the source directories of sibling projects are captured at configuration time. A source directory added to a sibling project after its configuration has finished is not seen by the gate.
 
 ### Class loading
@@ -83,14 +83,14 @@ The rules run in a Gradle worker with class loader isolation. The worker classpa
 |---|---|---|
 | `rootPackage` | required | `archgate.rootPackage` |
 | `failOn` | `WARNING` | `archgate.failOn` |
-| `modules` | the current module plus every reactor module it depends on | — |
+| `modules` | the current module plus the reactor modules it directly depends on, except those with `pom` packaging | — |
 | `skip` | `false` | `archgate.skip` |
 
 - The minimum Maven version is 3.9.0.
 - The goal runs in `verify` and also with `-DskipTests`.
 - The report is also written to `target/archgate/report.txt`.
 - A failing gate fails the build with a `MojoFailureException`; a registration problem or another unable-to-verify condition fails it with a `MojoExecutionException`.
-- `modules` replaces the default selection.
+- `modules` replaces the default selection entirely. Entries are the `artifactId`s of reactor modules. The current module is checked only if you list it; an unknown entry fails the build.
 
 ## Version alignment
 
@@ -104,7 +104,7 @@ Maven:
     <dependency>
       <groupId>dev.quokkify.archgate</groupId>
       <artifactId>archgate-bom</artifactId>
-      <version>${archgate.version}</version>
+      <version>0.1.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -133,7 +133,7 @@ Maven:
   <configuration>
     <archive>
       <manifestEntries>
-        <Archgate-Api-Version>${archgate.version}</Archgate-Api-Version>
+        <Archgate-Api-Version>0.1.0</Archgate-Api-Version>
       </manifestEntries>
     </archive>
   </configuration>

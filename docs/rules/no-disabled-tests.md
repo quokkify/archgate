@@ -37,7 +37,7 @@ dev.quokkify.archgate.rules.archunit.NoDisabledTestsRule
 
 ```java
 public class MyNoDisabledTestsRule extends NoDisabledTestsRule {
-  protected MyNoDisabledTestsRule() {
+  public MyNoDisabledTestsRule() {
     super(Set.of("my.framework.Test"), Set.of("my.framework.Disable"));
   }
 }

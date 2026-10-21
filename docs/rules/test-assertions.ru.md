@@ -39,7 +39,7 @@ dev.quokkify.archgate.rules.archunit.TestAssertionsRule
 
 ```java
 public class MyTestAssertionsRule extends TestAssertionsRule {
-  protected MyTestAssertionsRule() {
+  public MyTestAssertionsRule() {
     super(Set.of("my.framework.Test"), Set.of("my.framework.Assertions"));
   }
 }
