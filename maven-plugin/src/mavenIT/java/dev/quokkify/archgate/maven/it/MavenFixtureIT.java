@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
+import dev.quokkify.archgate.testing.ForkedMaven;
 import dev.quokkify.archgate.testing.MavenCache;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -52,7 +53,7 @@ class MavenFixtureIT {
     }
 
     private static void run(Path project, Path localRepo, MavenCache cache, Expectation expectation) throws Exception {
-        Verifier verifier = new Verifier(project.toString());
+        Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(project.toString()));
         verifier.setLocalRepo(localRepo.toString());
         verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
         List<String> arguments =

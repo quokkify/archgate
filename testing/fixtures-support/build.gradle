@@ -2,6 +2,11 @@ plugins {
     id 'archgate.java-conventions'
 }
 
+dependencies {
+    implementation libs.maven.verifier
+    testRuntimeOnly libs.maven.core
+}
+
 tasks.named('test', Test) {
     systemProperty 'archgate.fixtures', rootProject.file('fixtures').absolutePath
     systemProperty 'archgate.root', rootProject.projectDir.absolutePath

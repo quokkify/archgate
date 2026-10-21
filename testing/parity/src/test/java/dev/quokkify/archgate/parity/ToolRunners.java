@@ -4,6 +4,7 @@ import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
 import dev.quokkify.archgate.testing.FixtureSpec;
+import dev.quokkify.archgate.testing.ForkedMaven;
 import dev.quokkify.archgate.testing.MavenCache;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -50,7 +51,7 @@ final class ToolRunners {
 
     private static BuildResultView runMaven(Path project, Path localRepo, Path report, Expectation expectation) {
         try {
-            Verifier verifier = new Verifier(project.toString());
+            Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(project.toString()));
             verifier.setLocalRepo(localRepo.toString());
             verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
             MavenCache cache = MavenCache.fromSystemProperty();
