@@ -13,11 +13,14 @@ feature branch ──PR──► main ──► Release Please opens "release PR
 - `version.txt` holds the last released version, `0.0.0` before the first release. Between releases builds are `X.Y.Z-SNAPSHOT`.
 - Merging the release PR creates the tag `vX.Y.Z` and the GitHub Release.
 - The tag does not trigger publishing directly. A release created with the workflow `GITHUB_TOKEN` does not fire `release` events, so the project-local workflow `publish.yml` is triggered by `workflow_run` of the Release Please workflow instead. It:
-  1. checks out the release tag;
+  1. checks out the commit the Release Please run built (`workflow_run.head_sha`) and looks for a `vX.Y.Z` tag on it; a run without a release tag, such as an ordinary push to `main`, ends quietly without publishing;
   2. asserts that `v$(cat version.txt)` equals the tag;
-  3. runs `publishToMavenCentral` for all artifacts, signed;
-  4. runs `publishPlugins` to the Gradle Plugin Portal.
-- The Maven Central deployment is created with `automaticRelease = false`, so it is released from the Central Portal after a look at the staged files.
+  3. builds the release without secrets (`build` without `mavenIT` and the parity test, which CI already ran on `main`);
+  4. runs `publishAndReleaseToMavenCentral` for all artifacts, signed, and waits until Central reports the deployment as published;
+  5. only then runs `publishPlugins` to the Gradle Plugin Portal, so the Portal never points at artifacts that are not on Central yet.
+- The secrets are passed only to the publishing step, and the job runs in the `release` environment.
+- A release build (`-Prelease=true`) refuses to publish without the signing key and stops with a message that names the missing `signingInMemoryKey` property.
+- To publish by hand, run the workflow with `workflow_dispatch` and the tag, for example `v0.1.0`. A tag that does not exist fails the run.
 
 ## First release
 
@@ -34,7 +37,7 @@ After that, Release Please derives versions from the commit types: `fix` bumps t
 1. Merge the changes into `main` through pull requests.
 2. Open the release PR that Release Please maintains and check the changelog and the new version.
 3. Merge it. The tag and the GitHub Release are created.
-4. `publish.yml` publishes the artifacts. Watch the run; when it is green, release the staged deployment in the Central Portal.
+4. `publish.yml` publishes and releases the artifacts on Maven Central, then publishes the Gradle plugin. Watch the run; when it is green, the release is out.
 
 ## Fix something before the release is out
 
@@ -53,15 +56,16 @@ Treat a published version as immutable. Never redeploy, delete or re-tag `X.Y.Z`
 | Unblock consumers right now | They pin the previous version, for example `1.4.1`. |
 | Withdraw the change | Merge a `fix:` commit that reverts it into `main`, then merge the release PR. Consumers move to `1.4.3`. |
 
-Do not move or reuse a tag. If a release never published because `publish.yml` failed after the tag was created, fix the cause and re-run the failed workflow run for the same tag; do not create a new tag for the same version.
+Do not move or reuse a tag. If a release never published because `publish.yml` failed after the tag was created, fix the cause and publish the same tag again (see the next section); do not create a new tag for the same version.
 
 ## When `publish.yml` fails
 
 | Step failed | What to do |
 |---|---|
 | Tag assertion | `version.txt` and the tag disagree. Do not publish. Fix the release PR flow, then release the next patch. |
-| `publishToMavenCentral` | Fix the cause (credentials, signing key, namespace), then re-run the workflow. Nothing was released if the deployment was not staged. |
-| `publishPlugins` | Maven Central already has the release. Fix the Plugin Portal credentials and re-run only this step through the workflow. |
+| Build the release | Nothing was published. Fix the cause on `main` and release the next patch, or, if the failure was transient, re-run the failed run. |
+| `publishAndReleaseToMavenCentral` | If Central did not publish the deployment, nothing was released: fix the cause (credentials, signing key, namespace) and re-run the failed run. If the deployment was published but the wait timed out, check the Central Portal and continue as in the next row. |
+| `publishPlugins` | Maven Central already has the release, so re-running the whole run would fail on the existing version. Fix the Plugin Portal credentials, then run the workflow by hand with the tag and `plugin-portal-only` checked. |
 
 If the publish can never succeed and you abandon `X.Y.Z`, release the next patch.
 
@@ -69,5 +73,5 @@ If the publish can never succeed and you abandon `X.Y.Z`, release the next patch
 
 - Verify the `dev.quokkify` namespace in the Central Portal (DNS TXT record).
 - Create a Gradle Plugin Portal API key.
-- Add the repository secrets: GPG signing key and passphrase, Central Portal token (user and password), Plugin Portal key and secret.
+- Create the `release` environment and add its secrets: GPG signing key and passphrase (`SIGNING_IN_MEMORY_KEY`, `SIGNING_IN_MEMORY_KEY_PASSWORD`), Central Portal token (`MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`), Plugin Portal key and secret (`GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`).
 - Protect `main`: pull requests only, with the required status checks.
