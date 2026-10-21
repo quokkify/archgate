@@ -51,6 +51,7 @@ A rules artifact depends on its context artifact, so adding the rules is enough 
 
 **1. Add the plugin and the rules to the pom** of the module that holds your tests (Maven 3.9.0 or newer):
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependencies>
   <dependency>
@@ -75,6 +76,7 @@ A rules artifact depends on its context artifact, so adding the rules is enough 
   </plugins>
 </build>
 ```
+<!-- x-release-please-end -->
 
 **2. List the rules to run** in `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`:
 
@@ -104,6 +106,7 @@ Requires Gradle 9.7.1 or newer.
 
 **1. Apply the plugin and add the rules** in the `build.gradle` of the module that holds your tests:
 
+<!-- x-release-please-start-version -->
 ```groovy
 plugins {
     id 'java'
@@ -122,6 +125,7 @@ dependencies {
     testImplementation 'dev.quokkify.archgate:archgate-rules-archunit'
 }
 ```
+<!-- x-release-please-end -->
 
 **2. List the rules to run** in `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`, the same file as for Maven.
 
@@ -137,6 +141,7 @@ For a multi-module project, keep custom rules in a dedicated last module named `
 
 **1. Add the backend context** as a test dependency (it brings `archgate-api`):
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependency>
   <groupId>dev.quokkify.archgate</groupId>
@@ -145,6 +150,7 @@ For a multi-module project, keep custom rules in a dedicated last module named `
   <scope>test</scope>
 </dependency>
 ```
+<!-- x-release-please-end -->
 
 **2. Implement `ArchitectureRule`** in `src/test/java`. The type parameter is the context of the backend the rule uses:
 

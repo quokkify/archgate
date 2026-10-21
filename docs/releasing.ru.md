@@ -10,6 +10,7 @@ feature-ветка ──PR──► main ──► Release Please открыв�
 
 - `main` — единственная долгоживущая ветка. Любое изменение попадает в неё через pull request.
 - Коммиты следуют [Conventional Commits](https://www.conventionalcommits.org/). Release Please (режим одного пакета) читает их и держит один открытый **release PR**, который обновляет `version.txt`, свой манифест и changelog.
+- Release PR также обновляет версию в примерах из `README*.md` и `docs/configuration*.md`: каждый такой блок кода стоит между `<!-- x-release-please-start-version -->` и `<!-- x-release-please-end -->`, а Release Please читает эти файлы как `extra-files` с updater-ом `generic`. Новый пример с версией ArchGate оборачивай так же.
 - В `version.txt` лежит последняя выпущенная версия, до первого релиза это `0.0.0`. Между релизами сборки имеют вид `X.Y.Z-SNAPSHOT`.
 - Merge release PR создаёт тег `vX.Y.Z` и GitHub Release.
 - Публикацию тег напрямую не запускает. Релиз, созданный через `GITHUB_TOKEN` workflow, не вызывает события `release`, поэтому локальный для проекта workflow `publish.yml` запускается по `workflow_run` от workflow Release Please. Он:

@@ -51,6 +51,7 @@ ArchGate запускает архитектурные правила как ш�
 
 **1. Добавь плагин и правила в pom** модуля, где лежат твои тесты (Maven 3.9.0 или новее):
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependencies>
   <dependency>
@@ -75,6 +76,7 @@ ArchGate запускает архитектурные правила как ш�
   </plugins>
 </build>
 ```
+<!-- x-release-please-end -->
 
 **2. Перечисли правила для запуска** в `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`:
 
@@ -104,6 +106,7 @@ Failure policy (failOn=WARNING):
 
 **1. Подключи плагин и правила** в `build.gradle` модуля, где лежат твои тесты:
 
+<!-- x-release-please-start-version -->
 ```groovy
 plugins {
     id 'java'
@@ -122,6 +125,7 @@ dependencies {
     testImplementation 'dev.quokkify.archgate:archgate-rules-archunit'
 }
 ```
+<!-- x-release-please-end -->
 
 **2. Перечисли правила для запуска** в `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`, это тот же файл, что и для Maven.
 
@@ -137,6 +141,7 @@ dependencies {
 
 **1. Добавь контекст backend** как test-зависимость (он приносит `archgate-api`):
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependency>
   <groupId>dev.quokkify.archgate</groupId>
@@ -145,6 +150,7 @@ dependencies {
   <scope>test</scope>
 </dependency>
 ```
+<!-- x-release-please-end -->
 
 **2. Реализуй `ArchitectureRule`** в `src/test/java`. Параметр типа — контекст того backend, который использует правило:
 

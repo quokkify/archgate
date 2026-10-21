@@ -17,6 +17,7 @@ The Maven plugin is the goal `check` of `dev.quokkify.archgate:archgate-maven-pl
 
 ## Gradle
 
+<!-- x-release-please-start-version -->
 ```groovy
 plugins {
     id 'java'
@@ -30,6 +31,7 @@ archgate {
     modules(':api', ':domain')
 }
 ```
+<!-- x-release-please-end -->
 
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
@@ -100,6 +102,7 @@ Import `archgate-bom` so that every ArchGate artifact resolves to the same versi
 
 Maven:
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependencyManagement>
   <dependencies>
@@ -113,14 +116,17 @@ Maven:
   </dependencies>
 </dependencyManagement>
 ```
+<!-- x-release-please-end -->
 
 Gradle:
 
+<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
     testImplementation platform('dev.quokkify.archgate:archgate-bom:0.1.0')
 }
 ```
+<!-- x-release-please-end -->
 
 ### Rule libraries
 
@@ -128,6 +134,7 @@ A jar that ships rules declares, in `META-INF/MANIFEST.MF`, the `archgate-api` v
 
 Maven:
 
+<!-- x-release-please-start-version -->
 ```xml
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
@@ -141,9 +148,11 @@ Maven:
   </configuration>
 </plugin>
 ```
+<!-- x-release-please-end -->
 
 Gradle:
 
+<!-- x-release-please-start-version -->
 ```groovy
 tasks.named('jar') {
     manifest {
@@ -151,6 +160,7 @@ tasks.named('jar') {
     }
 }
 ```
+<!-- x-release-please-end -->
 
 `archgate-api` declares its own version the same way, and so does every `archgate-rules-*` jar. Before any rule is created, the engine compares each library's value with the running `archgate-api`. If a library needs a newer API, or its value is not a version, the build fails and names the jar. See [ADR 0002](adr/0002-api-version-manifest.md) for the reasoning.
 

@@ -10,6 +10,7 @@ feature branch ──PR──► main ──► Release Please opens "release PR
 
 - `main` is the only long-lived branch. Every change reaches it through a pull request.
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Release Please (single-package mode) reads them and keeps one open **release PR** that updates `version.txt`, its manifest and the changelog.
+- The release PR also updates the version in the snippets of `README*.md` and `docs/configuration*.md`: each such code block sits between `<!-- x-release-please-start-version -->` and `<!-- x-release-please-end -->`, which Release Please reads as `extra-files` with the `generic` updater. Wrap a new snippet that names the ArchGate version the same way.
 - `version.txt` holds the last released version, `0.0.0` before the first release. Between releases builds are `X.Y.Z-SNAPSHOT`.
 - Merging the release PR creates the tag `vX.Y.Z` and the GitHub Release.
 - The tag does not trigger publishing directly. A release created with the workflow `GITHUB_TOKEN` does not fire `release` events, so the project-local workflow `publish.yml` is triggered by `workflow_run` of the Release Please workflow instead. It:

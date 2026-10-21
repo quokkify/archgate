@@ -17,6 +17,7 @@
 
 ## Gradle
 
+<!-- x-release-please-start-version -->
 ```groovy
 plugins {
     id 'java'
@@ -30,6 +31,7 @@ archgate {
     modules(':api', ':domain')
 }
 ```
+<!-- x-release-please-end -->
 
 Поддерживаемая версия Gradle у потребителя: 9.7.1 и новее. Более старые версии не тестируются.
 
@@ -100,6 +102,7 @@ archgate {
 
 Maven:
 
+<!-- x-release-please-start-version -->
 ```xml
 <dependencyManagement>
   <dependencies>
@@ -113,14 +116,17 @@ Maven:
   </dependencies>
 </dependencyManagement>
 ```
+<!-- x-release-please-end -->
 
 Gradle:
 
+<!-- x-release-please-start-version -->
 ```groovy
 dependencies {
     testImplementation platform('dev.quokkify.archgate:archgate-bom:0.1.0')
 }
 ```
+<!-- x-release-please-end -->
 
 ### Библиотеки правил
 
@@ -128,6 +134,7 @@ Jar с правилами указывает в `META-INF/MANIFEST.MF` верс�
 
 Maven:
 
+<!-- x-release-please-start-version -->
 ```xml
 <plugin>
   <groupId>org.apache.maven.plugins</groupId>
@@ -141,9 +148,11 @@ Maven:
   </configuration>
 </plugin>
 ```
+<!-- x-release-please-end -->
 
 Gradle:
 
+<!-- x-release-please-start-version -->
 ```groovy
 tasks.named('jar') {
     manifest {
@@ -151,6 +160,7 @@ tasks.named('jar') {
     }
 }
 ```
+<!-- x-release-please-end -->
 
 Так же свою версию указывают `archgate-api` и каждый jar `archgate-rules-*`. Прежде чем создать хоть одно правило, движок сравнивает значение каждой библиотеки с выполняющимся `archgate-api`. Если библиотеке нужен более новый API или значение не является версией, сборка падает и называет jar. Обоснование — в [ADR 0002](adr/0002-api-version-manifest.md).
 
