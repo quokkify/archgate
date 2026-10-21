@@ -1,6 +1,5 @@
 package dev.quokkify.archgate.core;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -16,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
 import java.util.Set;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -121,9 +121,13 @@ class RegistrationCheckTest {
     void unreadableDirectoryIsUnableToVerify() throws IOException {
         Path dir = copyFixtures("ValidRule");
         Path locked = dir.resolve(FIXTURE_PACKAGE_DIR);
-        Files.setPosixFilePermissions(locked, Set.of());
         try {
-            assertThat(Files.isReadable(locked)).isFalse();
+            Files.setPosixFilePermissions(locked, Set.of());
+        } catch (UnsupportedOperationException notPosix) {
+            Assumptions.abort("POSIX permissions are not supported on this file system");
+        }
+        try {
+            Assumptions.assumeFalse(Files.isReadable(locked), "directory stays readable (running as root)");
             assertThatThrownBy(() -> RegistrationCheck.verify(List.of(dir), List.of(), LOADER))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining(dir.toString());
