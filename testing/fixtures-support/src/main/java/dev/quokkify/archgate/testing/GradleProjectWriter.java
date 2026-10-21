@@ -46,6 +46,10 @@ public final class GradleProjectWriter {
                     languageVersion = JavaLanguageVersion.of(21)
                 }
             }
+
+            tasks.named('test') {
+                failOnNoDiscoveredTests = false
+            }
             """;
 
     private GradleProjectWriter() {}

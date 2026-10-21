@@ -16,6 +16,7 @@ mavenApi = "3.9.0"
 mavenRuntime = "3.9.16"
 mavenPluginAnnotations = "3.16.0"
 mavenVerifier = "2.0.0"
+pluginPublish = "2.2.1"
 
 [libraries]
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
@@ -36,3 +37,6 @@ maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" 
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }
 maven-verifier = { module = "org.apache.maven.shared:maven-verifier", version.ref = "mavenVerifier" }
 apache-maven-distribution = { module = "org.apache.maven:apache-maven", version.ref = "mavenRuntime" }
+
+[plugins]
+plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "pluginPublish" }

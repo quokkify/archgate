@@ -76,7 +76,8 @@ class GradleProjectWriterTest {
 
         assertThat(Files.readString(project.resolve("build.gradle")))
                 .contains("id 'dev.quokkify.archgate'")
-                .contains("rootPackage = 'com.example'");
+                .contains("rootPackage = 'com.example'")
+                .contains("failOnNoDiscoveredTests = false");
         assertThat(Files.readString(project.resolve("settings.gradle"))).doesNotContain("include ");
     }
 }
