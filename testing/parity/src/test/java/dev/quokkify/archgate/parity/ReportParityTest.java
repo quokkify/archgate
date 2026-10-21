@@ -23,9 +23,19 @@ class ReportParityTest {
         BuildRun maven = ToolRunners.maven(scenario, temp.resolve("maven"));
         BuildRun gradle = ToolRunners.gradle(scenario, temp.resolve("gradle"));
         List<Expectation> expectations = Expectation.load(Fixture.root().resolve(scenario));
+        assertThat(expectations)
+                .as("scenario %s needs a run with contains entries to prove the report content", scenario)
+                .anyMatch(expectation -> !expectation.contains(BuildTool.MAVEN).isEmpty());
         for (Expectation expectation : expectations) {
             BuildResultView m = maven.run(expectation);
             BuildResultView g = gradle.run(expectation);
+            assertThat(m.reportPath()).as("Maven report %s", m.reportPath()).isRegularFile();
+            assertThat(g.reportPath()).as("Gradle report %s", g.reportPath()).isRegularFile();
+            String[] expected = expectation.contains(BuildTool.MAVEN).toArray(String[]::new);
+            if (expected.length > 0) {
+                assertThat(m.report()).as("Maven report %s", m.reportPath()).contains(expected);
+                assertThat(g.report()).as("Gradle report %s", g.reportPath()).contains(expected);
+            }
             assertThat(m.success())
                     .as("maven success, run %d", expectation.run())
                     .isEqualTo(expectation.success());
