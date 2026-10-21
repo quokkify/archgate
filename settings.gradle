@@ -6,3 +6,5 @@ rootProject.name = 'archgate'
 
 include 'api'
 include 'core'
+include 'context-archunit'
+include 'rules-archunit'

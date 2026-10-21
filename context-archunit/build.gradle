@@ -1,0 +1,11 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+}
+
+dependencies {
+    api project(':api')
+    api libs.archunit
+
+    testImplementation libs.querydsl.core
+}

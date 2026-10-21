@@ -1,0 +1,3 @@
+# full line comment
+
+archfixtures.services.ValidGreeter # trailing comment
