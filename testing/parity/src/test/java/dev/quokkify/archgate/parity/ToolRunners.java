@@ -62,7 +62,10 @@ final class ToolRunners {
                 succeeded = false;
             }
             return new BuildResultView(
-                    succeeded, Files.readString(project.resolve(verifier.getLogFileName())), readReport(report));
+                    succeeded,
+                    Files.readString(project.resolve(verifier.getLogFileName())),
+                    readReport(report),
+                    report);
         } catch (VerificationException | IOException e) {
             throw new IllegalStateException("Maven run " + expectation.run() + " could not be executed", e);
         }
@@ -76,12 +79,12 @@ final class ToolRunners {
                 .withPluginClasspath()
                 .withArguments(arguments);
         BuildResult result = expectation.success() ? runner.build() : runner.buildAndFail();
-        return new BuildResultView(expectation.success(), result.getOutput(), readReport(report));
+        return new BuildResultView(expectation.success(), result.getOutput(), readReport(report), report);
     }
 
     private static String readReport(Path report) {
         if (!Files.isRegularFile(report)) {
-            return "";
+            return null;
         }
         try {
             return Files.readString(report);

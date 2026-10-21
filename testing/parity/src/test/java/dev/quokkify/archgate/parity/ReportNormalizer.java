@@ -5,8 +5,8 @@ import java.util.regex.Pattern;
 
 final class ReportNormalizer {
 
-    private static final Pattern MILLIS = Pattern.compile("\\d+ ms");
-    private static final Pattern SECONDS = Pattern.compile("\\d+\\.\\d s");
+    private static final Pattern MILLIS = Pattern.compile("\\b\\d+ ms\\b");
+    private static final Pattern SECONDS = Pattern.compile("\\b\\d+\\.\\d s\\b");
     private static final Pattern MAVEN_PREFIX = Pattern.compile("^\\[ERROR\\]\\s?");
     private static final Pattern MAVEN_GOAL_WRAPPER = Pattern.compile("^Failed to execute goal .+? on project \\S+: ");
     private static final Pattern MAVEN_HELP_SUFFIX = Pattern.compile(" -> \\[Help \\d+\\]$");

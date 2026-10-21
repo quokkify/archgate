@@ -7,6 +7,7 @@ import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
 import java.nio.file.Path;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -49,6 +50,9 @@ class ReportParityTest {
             BuildResultView g = gradle.run(expectation);
             assertThat(m.success()).isFalse();
             assertThat(g.success()).isFalse();
+            assertThat(expectation.contains(BuildTool.MAVEN))
+                    .as("scenario %s needs a contains entry to locate the message", scenario)
+                    .isNotEmpty();
             String needle = expectation.contains(BuildTool.MAVEN).get(0);
             assertThat(ReportNormalizer.messageLine(g.log(), needle))
                     .as("message line containing '%s'", needle)
@@ -65,8 +69,14 @@ class ReportParityTest {
         assertThat(ReportNormalizer.normalize("took " + duration + " total")).isEqualTo("took N ms total");
     }
 
-    @org.junit.jupiter.api.Test
+    @Test
     void normalizesLineEndings() {
         assertThat(ReportNormalizer.normalize("a\r\nb\rc\n")).isEqualTo("a\nb\nc\n");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"5 rules, 12 findings", "1.2 services", "3 msgs", "v1.2 sec"})
+    void leavesNonDurationsUnchanged(String text) {
+        assertThat(ReportNormalizer.normalize(text)).isEqualTo(text);
     }
 }
