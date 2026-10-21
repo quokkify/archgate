@@ -6,6 +6,7 @@ import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,7 @@ public final class ContextResolver implements AutoCloseable {
 
     private final ProjectLayout layout;
     private final ClassLoader loader;
-    private final Map<Class<?>, FutureTask<AnalysisContext>> contexts = new ConcurrentHashMap<>();
+    private final Map<Class<?>, FutureTask<Built>> contexts = new ConcurrentHashMap<>();
     private volatile Map<Class<?>, List<ContextProvider<?>>> providers;
 
     public ContextResolver(ProjectLayout layout, ClassLoader loader) {
@@ -33,10 +34,10 @@ public final class ContextResolver implements AutoCloseable {
     }
 
     public <C extends AnalysisContext> C get(Class<C> type) {
-        FutureTask<AnalysisContext> task = contexts.computeIfAbsent(type, key -> new FutureTask<>(() -> create(type)));
+        FutureTask<Built> task = contexts.computeIfAbsent(type, key -> new FutureTask<>(() -> create(type)));
         task.run();
         try {
-            return type.cast(task.get());
+            return type.cast(task.get().context());
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
             throw new UnableToVerifyError("Interrupted while building " + type.getName() + ".", interrupted);
@@ -47,20 +48,24 @@ public final class ContextResolver implements AutoCloseable {
 
     public Map<String, Duration> buildTimes() {
         Map<String, Duration> merged = new TreeMap<>();
-        contexts.values().stream()
-                .filter(FutureTask::isDone)
-                .map(ContextResolver::completed)
-                .filter(Objects::nonNull)
-                .forEach(context -> merged.putAll(context.buildTimes()));
+        contexts.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey(Comparator.comparing(Class::getName)))
+                .forEach(entry -> {
+                    Built built = completed(entry.getValue());
+                    if (Objects.nonNull(built)) {
+                        merged.put(entry.getKey().getSimpleName(), built.createTime());
+                        merged.putAll(built.context().buildTimes());
+                    }
+                });
         return Map.copyOf(merged);
     }
 
     @Override
     public void close() {
         UnableToVerifyError failure = null;
-        for (FutureTask<AnalysisContext> task : contexts.values()) {
-            AnalysisContext context = completed(task);
-            if (context instanceof AutoCloseable closeable) {
+        for (FutureTask<Built> task : contexts.values()) {
+            Built built = completed(task);
+            if (Objects.nonNull(built) && built.context() instanceof AutoCloseable closeable) {
                 try {
                     closeable.close();
                 } catch (Exception e) {
@@ -76,7 +81,7 @@ public final class ContextResolver implements AutoCloseable {
         }
     }
 
-    private AnalysisContext create(Class<? extends AnalysisContext> type) {
+    private Built create(Class<? extends AnalysisContext> type) {
         List<ContextProvider<?>> candidates = providers().getOrDefault(type, List.of());
         if (candidates.isEmpty()) {
             throw new UnableToVerifyError(missingMessage(type));
@@ -89,7 +94,9 @@ public final class ContextResolver implements AutoCloseable {
                             .toList());
             throw new UnableToVerifyError("More than one ContextProvider for " + type.getName() + ": " + names + ".");
         }
-        return candidates.get(0).create(layout);
+        long startedAt = System.nanoTime();
+        AnalysisContext context = candidates.get(0).create(layout);
+        return new Built(context, Duration.ofNanos(System.nanoTime() - startedAt));
     }
 
     private Map<Class<?>, List<ContextProvider<?>>> providers() {
@@ -130,12 +137,12 @@ public final class ContextResolver implements AutoCloseable {
 
     private static UnableToVerifyError unableToBuild(Class<?> type, Throwable cause) {
         if (cause instanceof UnableToVerifyError error) {
-            return error;
+            return new UnableToVerifyError(error.getMessage(), error);
         }
         return new UnableToVerifyError("Cannot build " + type.getName() + ": " + cause, cause);
     }
 
-    private static AnalysisContext completed(FutureTask<AnalysisContext> task) {
+    private static Built completed(FutureTask<Built> task) {
         try {
             return task.get();
         } catch (InterruptedException interrupted) {
@@ -145,4 +152,6 @@ public final class ContextResolver implements AutoCloseable {
             return null;
         }
     }
+
+    private record Built(AnalysisContext context, Duration createTime) {}
 }

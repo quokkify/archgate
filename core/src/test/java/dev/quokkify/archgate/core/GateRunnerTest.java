@@ -9,6 +9,7 @@ import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
+import dev.quokkify.archgate.context.archunit.ArchUnitContext;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
@@ -146,5 +147,31 @@ class GateRunnerTest {
         } catch (InterruptedException interrupted) {
             Thread.currentThread().interrupt();
         }
+    }
+
+    private record NeedsMissingProvider(String name) implements ArchitectureRule<ArchUnitContext> {
+
+        @Override
+        public Severity severity() {
+            return Severity.ERROR;
+        }
+
+        @Override
+        public Class<ArchUnitContext> contextType() {
+            return ArchUnitContext.class;
+        }
+
+        @Override
+        public void verify(ArchUnitContext context) {}
+    }
+
+    @Test
+    void twoRulesSharingAMissingProviderReportOneUnableToVerify() {
+        // regression: shared cached failure was self-suppressed by keepFirst
+        assertThatThrownBy(() ->
+                        GateRunner.run(List.of(new NeedsMissingProvider("a"), new NeedsMissingProvider("b")), context))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("No ContextProvider for dev.quokkify.archgate.context.archunit.ArchUnitContext")
+                .hasMessageContaining("dev.quokkify.archgate:archgate-context-archunit");
     }
 }

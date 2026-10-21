@@ -24,9 +24,10 @@ public final class RegistrationCheck {
                 registered.stream().map(rule -> rule.getClass().getName()).collect(Collectors.toSet());
         List<String> missing = ownClassDirs.stream()
                 .filter(Files::isDirectory)
-                .flatMap(RegistrationCheck::classNames)
+                .flatMap(dir -> classNames(dir).map(name -> new Candidate(dir, name)))
+                .filter(candidate -> isInstantiableRule(candidate, loader))
+                .map(Candidate::name)
                 .distinct()
-                .filter(name -> isInstantiableRule(name, loader))
                 .filter(name -> !registeredNames.contains(name))
                 .sorted()
                 .toList();
@@ -42,11 +43,11 @@ public final class RegistrationCheck {
                     .map(path -> dir.relativize(path).toString())
                     .map(relative -> relative.substring(0, relative.length() - CLASS_SUFFIX.length())
                             .replace(dir.getFileSystem().getSeparator(), "."))
-                    .filter(name -> !name.contains("$") && !SKIPPED_NAMES.contains(simpleName(name)))
+                    .filter(name -> !SKIPPED_NAMES.contains(simpleName(name)))
                     .toList()
                     .stream();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } catch (IOException | UncheckedIOException e) {
+            throw new UnableToVerifyError("Cannot read class files under " + dir + ": " + e.getMessage(), e);
         }
     }
 
@@ -54,14 +55,22 @@ public final class RegistrationCheck {
         return name.substring(name.lastIndexOf('.') + 1);
     }
 
-    private static boolean isInstantiableRule(String name, ClassLoader loader) {
+    private static boolean isInstantiableRule(Candidate candidate, ClassLoader loader) {
         Class<?> type;
         try {
-            type = Class.forName(name, false, loader);
-        } catch (ClassNotFoundException | LinkageError unloadable) {
+            type = Class.forName(candidate.name(), false, loader);
+        } catch (ClassNotFoundException e) {
+            throw new UnableToVerifyError(
+                    "Cannot load %s from %s with the test class loader; the class directory is not on its classpath."
+                            .formatted(candidate.name(), candidate.dir()),
+                    e);
+        } catch (LinkageError unloadable) {
             return false;
         }
-        return ArchitectureRule.class.isAssignableFrom(type)
+        return !type.isAnonymousClass()
+                && !type.isLocalClass()
+                && !type.isSynthetic()
+                && ArchitectureRule.class.isAssignableFrom(type)
                 && !type.isInterface()
                 && Modifier.isPublic(type.getModifiers())
                 && !Modifier.isAbstract(type.getModifiers())
@@ -83,4 +92,6 @@ public final class RegistrationCheck {
         missing.forEach(name -> text.append(System.lineSeparator()).append("  ").append(name));
         return text.toString();
     }
+
+    private record Candidate(Path dir, String name) {}
 }

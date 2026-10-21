@@ -2,6 +2,7 @@ package dev.quokkify.archgate.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.example.CustomContext;
 import dev.quokkify.archgate.api.AnalysisContext;
@@ -249,7 +250,51 @@ class ContextResolverTest {
 
             assertThat(resolver.buildTimes())
                     .containsEntry("main", Duration.ofMillis(7))
-                    .hasSize(1);
+                    .containsKeys("TimedContext", "CountedContext")
+                    .hasSize(3);
+        }
+    }
+
+    public static final class CollidingContext implements AnalysisContext {
+
+        @Override
+        public Map<String, Duration> buildTimes() {
+            return Map.of("CollidingContext", Duration.ofDays(1));
+        }
+    }
+
+    public static final class CollidingProvider implements ContextProvider<CollidingContext> {
+
+        @Override
+        public Class<CollidingContext> type() {
+            return CollidingContext.class;
+        }
+
+        @Override
+        public CollidingContext create(ProjectLayout layout) {
+            return new CollidingContext();
+        }
+    }
+
+    @Test
+    void contextOwnBuildTimeWinsOverMeasuredCreateTime() throws IOException {
+        try (ContextResolver resolver = resolverWith(CollidingProvider.class)) {
+            resolver.get(CollidingContext.class);
+
+            assertThat(resolver.buildTimes()).containsExactly(Map.entry("CollidingContext", Duration.ofDays(1)));
+        }
+    }
+
+    @Test
+    void failedCreationIsCachedButEachCallGetsAFreshError() throws IOException {
+        try (ContextResolver resolver = resolverWith()) {
+            Throwable first = catchThrowable(() -> resolver.get(ArchUnitContext.class));
+            Throwable second = catchThrowable(() -> resolver.get(ArchUnitContext.class));
+
+            assertThat(first).isInstanceOf(UnableToVerifyError.class);
+            assertThat(second).isInstanceOf(UnableToVerifyError.class).isNotSameAs(first);
+            assertThat(second).hasMessage(first.getMessage());
+            assertThat(second.getCause()).isNotNull();
         }
     }
 }

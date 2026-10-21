@@ -98,7 +98,9 @@ public final class GateRunner {
         if (Objects.isNull(first)) {
             return next;
         }
-        first.addSuppressed(next);
+        if (first != next) {
+            first.addSuppressed(next);
+        }
         return first;
     }
 

@@ -1,15 +1,21 @@
 package dev.quokkify.archgate.core;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import archfixtures.registry.NestedHolder;
 import archfixtures.registry.ValidRule;
 import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -73,21 +79,78 @@ class RegistrationCheckTest {
 
     @Test
     void moduleInfoAndPackageInfoAreIgnored() throws IOException {
-        Path dir = copyFixtures("ValidRule");
+        Path dir = Files.createDirectories(tempDir.resolve(FIXTURE_PACKAGE_DIR));
         Files.write(tempDir.resolve("module-info.class"), new byte[] {1});
-        Files.write(dir.resolve(FIXTURE_PACKAGE_DIR).resolve("package-info.class"), new byte[] {1});
+        Files.write(dir.resolve("package-info.class"), new byte[] {1});
 
-        assertThatCode(() -> RegistrationCheck.verify(List.of(dir), List.of(new ValidRule()), LOADER))
+        assertThatCode(() -> RegistrationCheck.verify(List.of(tempDir), List.of(), blindLoader()))
                 .doesNotThrowAnyException();
     }
 
     @Test
-    void missingDirectoryAndUnloadableClassAreSkipped() throws IOException {
+    void classFileTheLoaderCannotSeeIsUnableToVerify() throws IOException {
+        Path dir = copyFixtures("UnregisteredRule");
+
+        assertThatThrownBy(() -> RegistrationCheck.verify(List.of(dir), List.of(), blindLoader()))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("Cannot load archfixtures.registry.UnregisteredRule from " + dir)
+                .hasMessageContaining("test class loader");
+    }
+
+    @Test
+    void linkageErrorOfAClassIsSkipped() throws Exception {
         Path dir = copyFixtures("ValidRule");
-        Files.write(tempDir.resolve("Broken.class"), new byte[] {1});
+        Files.write(dir.resolve(FIXTURE_PACKAGE_DIR).resolve("Broken.class"), new byte[] {1});
+
+        try (URLClassLoader loader = new URLClassLoader(new URL[] {dir.toUri().toURL()}, blindLoader())) {
+            assertThatCode(() -> RegistrationCheck.verify(List.of(dir), List.of(new ValidRule()), loader))
+                    .doesNotThrowAnyException();
+        }
+    }
+
+    @Test
+    void missingDirectoryIsSkipped() throws IOException {
+        Path dir = copyFixtures("ValidRule");
 
         assertThatCode(() -> RegistrationCheck.verify(
                         List.of(tempDir.resolve("absent"), dir), List.of(new ValidRule()), LOADER))
                 .doesNotThrowAnyException();
+    }
+
+    @Test
+    void unreadableDirectoryIsUnableToVerify() throws IOException {
+        Path dir = copyFixtures("ValidRule");
+        Path locked = dir.resolve(FIXTURE_PACKAGE_DIR);
+        Files.setPosixFilePermissions(locked, Set.of());
+        try {
+            assertThat(Files.isReadable(locked)).isFalse();
+            assertThatThrownBy(() -> RegistrationCheck.verify(List.of(dir), List.of(), LOADER))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining(dir.toString());
+        } finally {
+            Files.setPosixFilePermissions(locked, PosixFilePermissions.fromString("rwxr-xr-x"));
+        }
+    }
+
+    @Test
+    void unregisteredPublicStaticNestedRuleFails() throws IOException {
+        Path dir = copyFixtures("NestedHolder", "NestedHolder$NestedRule");
+
+        assertThatThrownBy(() -> RegistrationCheck.verify(List.of(dir), List.of(), LOADER))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("archfixtures.registry.NestedHolder$NestedRule")
+                .hasMessageNotContaining("archfixtures.registry.NestedHolder" + System.lineSeparator());
+    }
+
+    @Test
+    void registeredPublicStaticNestedRulePasses() throws IOException {
+        Path dir = copyFixtures("NestedHolder", "NestedHolder$NestedRule");
+
+        assertThatCode(() -> RegistrationCheck.verify(List.of(dir), List.of(new NestedHolder.NestedRule()), LOADER))
+                .doesNotThrowAnyException();
+    }
+
+    private static ClassLoader blindLoader() {
+        return new URLClassLoader(new URL[0], null);
     }
 }
