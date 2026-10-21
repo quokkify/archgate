@@ -19,6 +19,7 @@ public record Expectation(
         List<String> args,
         boolean success,
         boolean skipped,
+        boolean unableToVerify,
         List<String> contains,
         List<String> absent,
         List<String> mavenContains,
@@ -32,7 +33,7 @@ public record Expectation(
     private static final String MAVEN_PROPERTY_FLAG = "-D";
     private static final String GRADLE_PROPERTY_FLAG = "-P";
     private static final Pattern RUN_KEY = Pattern.compile(
-            "run\\.(\\d+)\\.(args|outcome|skipped|((maven|gradle)\\.)?(contains|absent|matches)\\.\\d+)");
+            "run\\.(\\d+)\\.(args|outcome|skipped|unableToVerify|((maven|gradle)\\.)?(contains|absent|matches)\\.\\d+)");
 
     public static List<Expectation> load(Path fixtureDir) {
         Properties properties = PropertyFiles.load(fixtureDir.resolve("expected.properties"));
@@ -51,6 +52,9 @@ public record Expectation(
                                     .trim()),
                     Boolean.parseBoolean(
                             properties.getProperty(prefix + "skipped", "false").trim()),
+                    Boolean.parseBoolean(properties
+                            .getProperty(prefix + "unableToVerify", "false")
+                            .trim()),
                     numbered(properties, prefix + "contains."),
                     numbered(properties, prefix + "absent."),
                     numbered(properties, prefix + "maven.contains."),

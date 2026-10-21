@@ -18,7 +18,7 @@ English · [Русский](development.ru.md)
 - unit tests of every module;
 - `functionalTest` of `:gradle-plugin`: the shared fixtures run through real Gradle builds with TestKit;
 - `mavenIT` of `:maven-plugin`: the same fixtures run through a real Maven build with `maven-verifier`;
-- `:testing:parity:test`: every fixture runs under Maven and Gradle, and the two reports must be identical;
+- `:testing:parity:test`: every fixture except `skip` runs under Maven and Gradle; the two reports must be identical, and for a run marked `unableToVerify=true` in `expected.properties` neither tool may write a report and both must print the same message line;
 - Spotless (palantir-java-format) and Checkstyle (`config/checkstyle/checkstyle.xml`);
 - JaCoCo coverage verification (80 % of lines) for `:api`, `:core`, `:context-*` and `:rules-*`;
 - `DocsLinkTest`: relative links in the Markdown files resolve, the README rule tables name existing rule classes, and `README.md` and `README.ru.md` list the same rules;
@@ -33,7 +33,7 @@ To fix formatting: `./gradlew spotlessApply`.
 | `./gradlew build` | everything above |
 | `./gradlew :gradle-plugin:functionalTest` | the Gradle plugin through TestKit |
 | `./gradlew :maven-plugin:mavenIT` | the Maven plugin through `maven-verifier` |
-| `./gradlew :testing:parity:test` | Maven and Gradle reports compared for every fixture |
+| `./gradlew :testing:parity:test` | Maven and Gradle results compared for every fixture except `skip` |
 | `./gradlew publishToItRepo` | publishes every module to `build/it-repo`, the local repository the integration tests resolve from |
 | `./gradlew :testing:fixtures-support:test --tests '*DocsLinkTest'` | only the documentation checks |
 
@@ -41,7 +41,7 @@ To fix formatting: `./gradlew spotlessApply`.
 
 ### Shared fixtures
 
-`fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support module generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; it is picked up by `functionalTest`, `mavenIT` and the parity test.
+`fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support module generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; it is picked up by `functionalTest`, `mavenIT` and the parity test. Mark a run that must end with an "unable to verify" error with `run.N.unableToVerify=true`, so the parity test compares its message instead of a report.
 
 ## Version
 

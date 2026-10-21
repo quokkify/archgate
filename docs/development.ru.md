@@ -18,7 +18,7 @@
 - unit-тесты всех модулей;
 - `functionalTest` в `:gradle-plugin`: общие фикстуры прогоняются через настоящие сборки Gradle с TestKit;
 - `mavenIT` в `:maven-plugin`: те же фикстуры прогоняются через настоящую сборку Maven с `maven-verifier`;
-- `:testing:parity:test`: каждая фикстура запускается и под Maven, и под Gradle, а отчёты должны совпасть;
+- `:testing:parity:test`: каждая фикстура, кроме `skip`, запускается и под Maven, и под Gradle; отчёты должны совпасть, а для запуска с пометкой `unableToVerify=true` в `expected.properties` ни один инструмент не должен писать отчёт, и оба должны вывести одну и ту же строку сообщения;
 - Spotless (palantir-java-format) и Checkstyle (`config/checkstyle/checkstyle.xml`);
 - проверку покрытия JaCoCo (80 % строк) для `:api`, `:core`, `:context-*` и `:rules-*`;
 - `DocsLinkTest`: относительные ссылки в Markdown-файлах ведут на существующие файлы, таблицы правил в README называют существующие классы, а `README.md` и `README.ru.md` перечисляют одни и те же правила;
@@ -33,7 +33,7 @@
 | `./gradlew build` | всё перечисленное выше |
 | `./gradlew :gradle-plugin:functionalTest` | плагин Gradle через TestKit |
 | `./gradlew :maven-plugin:mavenIT` | плагин Maven через `maven-verifier` |
-| `./gradlew :testing:parity:test` | отчёты Maven и Gradle сравниваются для каждой фикстуры |
+| `./gradlew :testing:parity:test` | результаты Maven и Gradle сравниваются для каждой фикстуры, кроме `skip` |
 | `./gradlew publishToItRepo` | публикует каждый модуль в `build/it-repo`, локальный репозиторий, из которого берут артефакты интеграционные тесты |
 | `./gradlew :testing:fixtures-support:test --tests '*DocsLinkTest'` | только проверки документации |
 
@@ -41,7 +41,7 @@
 
 ### Общие фикстуры
 
-В `fixtures/<scenario>/` лежат исходники и файл services одного сценария, а также `fixture.properties` и `expected.properties`. Модуль поддержки тестов генерирует вокруг них `build.gradle` или `pom.xml`, так что один и тот же сценарий выполняется под обоими инструментами. Чтобы добавить сценарий, добавь каталог: его подхватят `functionalTest`, `mavenIT` и parity-тест.
+В `fixtures/<scenario>/` лежат исходники и файл services одного сценария, а также `fixture.properties` и `expected.properties`. Модуль поддержки тестов генерирует вокруг них `build.gradle` или `pom.xml`, так что один и тот же сценарий выполняется под обоими инструментами. Чтобы добавить сценарий, добавь каталог: его подхватят `functionalTest`, `mavenIT` и parity-тест. Запуск, который должен закончиться ошибкой «невозможно проверить», пометь `run.N.unableToVerify=true`: тогда parity-тест сравнит сообщение, а не отчёт.
 
 ## Версия
 

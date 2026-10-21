@@ -26,7 +26,7 @@ The repository is public. Nothing from a private employer, internal host, regist
 | `gradle-plugin` | `dev.quokkify.archgate.gradle` | Plugin id `dev.quokkify.archgate`, task `archgateCheck` (`ArchgateCheckTask`), `ArchgateExtension`, `ArchgateElements`, worker action | Thin adapter over core; configuration-cache safe |
 | `bom` | — | `java-platform` over every published artifact | No sources |
 | `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, `DocsLinkTest` | Test support only, not published |
-| `testing/parity` | — | Runs every fixture under Maven and Gradle and compares the reports | Test only, not published |
+| `testing/parity` | — | Runs every fixture except `skip` under Maven and Gradle and compares the reports or, for `unableToVerify` runs, the message | Test only, not published |
 | `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.it-repo`, `ArchgateVersions` | |
 
 Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted).

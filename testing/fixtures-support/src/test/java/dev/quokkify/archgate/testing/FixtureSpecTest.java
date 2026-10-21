@@ -22,7 +22,9 @@ class FixtureSpecTest {
             "multi-module",
             "multi-module-violation",
             "incompatible-rule-library",
-            "missing-context-provider");
+            "missing-context-provider",
+            "javaparser-wildcard",
+            "service-registration");
 
     @Test
     void loadsMultiModuleViolation() {
@@ -59,6 +61,16 @@ class FixtureSpecTest {
         assertThat(skip.contains(BuildTool.MAVEN)).containsExactly("archgate: skipped");
         assertThat(skip.contains(BuildTool.GRADLE)).isEmpty();
         assertThat(skip.args(BuildTool.GRADLE)).containsExactly("-Parchgate.skip");
+    }
+
+    @Test
+    void unableToVerifyRunsAreFlagged() {
+        assertThat(Expectation.load(Fixture.root().resolve("missing-services"))
+                        .get(0)
+                        .unableToVerify())
+                .isTrue();
+        assertThat(Expectation.load(Fixture.root().resolve("pass")).get(0).unableToVerify())
+                .isFalse();
     }
 
     @Test
