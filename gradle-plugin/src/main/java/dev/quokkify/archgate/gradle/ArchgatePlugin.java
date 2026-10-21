@@ -3,6 +3,7 @@ package dev.quokkify.archgate.gradle;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.plugins.JavaBasePlugin;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.provider.Provider;
@@ -46,6 +47,8 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
         SourceSet test = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
         Provider<String> rootPackage =
                 project.getProviders().gradleProperty(ROOT_PACKAGE_PROPERTY).orElse(extension.getRootPackage());
+        ArchgateElements.expose(project, main, test);
+        Configuration modules = ArchgateElements.consume(project, extension);
         TaskProvider<ArchgateCheckTask> check = project.getTasks()
                 .register(TASK_NAME, ArchgateCheckTask.class, task -> {
                     task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
@@ -54,10 +57,23 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.getRootPackage().set(rootPackage);
                     task.getFailOn().set(extension.getFailOn());
                     task.getRuleClasspath().from(test.getRuntimeClasspath());
-                    task.getMainClassesDirs().from(main.getOutput().getClassesDirs());
-                    task.getTestClassesDirs().from(test.getOutput().getClassesDirs());
-                    task.getMainSourceDirs().from(main.getJava().getSourceDirectories());
-                    task.getTestSourceDirs().from(test.getJava().getSourceDirectories());
+                    task.getMainClassesDirs()
+                            .from(
+                                    main.getOutput().getClassesDirs(),
+                                    ArchgateElements.files(modules, ArchgateElements.MAIN_CLASSES));
+                    task.getTestClassesDirs()
+                            .from(
+                                    test.getOutput().getClassesDirs(),
+                                    ArchgateElements.files(modules, ArchgateElements.TEST_CLASSES));
+                    task.getMainSourceDirs()
+                            .from(
+                                    main.getJava().getSourceDirectories(),
+                                    ArchgateElements.files(modules, ArchgateElements.MAIN_SOURCES));
+                    task.getTestSourceDirs()
+                            .from(
+                                    test.getJava().getSourceDirectories(),
+                                    ArchgateElements.files(modules, ArchgateElements.TEST_SOURCES));
+                    task.getModuleGraph().set(ArchgateElements.graph(modules));
                     task.getOwnDirs()
                             .from(
                                     main.getOutput().getClassesDirs(),
@@ -65,8 +81,20 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.getReportFile()
                             .set(project.getLayout().getBuildDirectory().file(REPORT_PATH));
                     task.onlyIf("archgate.skip is not set", new NotSkipped(extension.getSkip()));
+                    task.onlyIf("archgate.rootPackage is set", new RootPackageSet(task.getRootPackage()));
+                    task.doFirst(
+                            "verify archgate.modules",
+                            new ArchgateElements.RequireArchgateModules(task.getModuleGraph()));
                 });
         project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(task -> task.dependsOn(check));
+    }
+
+    private record RootPackageSet(Provider<String> rootPackage) implements Spec<Task> {
+
+        @Override
+        public boolean isSatisfiedBy(Task task) {
+            return rootPackage.isPresent();
+        }
     }
 
     private record NotSkipped(Provider<Boolean> skip) implements Spec<Task> {

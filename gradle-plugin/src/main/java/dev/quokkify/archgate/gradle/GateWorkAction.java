@@ -26,7 +26,7 @@ public abstract class GateWorkAction implements WorkAction<GateWorkParameters> {
         try {
             GateLauncher.run(request(getParameters()), GateWorkAction::log);
         } catch (GateFailure | UnableToVerifyError e) {
-            throw new GradleException(e.getMessage());
+            throw new GradleException(FailureMessage.describe(e));
         }
     }
 

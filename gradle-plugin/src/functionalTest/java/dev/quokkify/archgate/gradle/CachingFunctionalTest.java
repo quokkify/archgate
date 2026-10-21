@@ -17,6 +17,8 @@ import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class CachingFunctionalTest {
 
@@ -26,6 +28,7 @@ class CachingFunctionalTest {
     private static final String REUSED = "Reusing configuration cache.";
     private static final String PASSED = "Gate PASSED: 2 rules, no findings";
     private static final String OLDER_ARCHUNIT = "com.tngtech.archunit:archunit:1.4.1";
+    private static final String FORCED_RESOLUTION = "1.5.1 -> 1.4.1";
 
     @TempDir
     Path temp;
@@ -46,11 +49,13 @@ class CachingFunctionalTest {
         assertThat(second.task(TASK).getOutcome()).isEqualTo(TaskOutcome.UP_TO_DATE);
     }
 
-    @Test
-    void configurationCacheIsReused() {
-        runner(project, List.of(CONFIGURATION_CACHE)).build();
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {SCENARIO, "multi-module"})
+    void configurationCacheIsReused(String scenario) {
+        Path build = materialize(scenario, temp.resolve(scenario));
+        runner(build, List.of(CONFIGURATION_CACHE)).build();
 
-        BuildResult second = runner(project, List.of(CONFIGURATION_CACHE)).build();
+        BuildResult second = runner(build, List.of(CONFIGURATION_CACHE)).build();
 
         assertThat(second.getOutput()).contains(REUSED);
     }
@@ -117,7 +122,7 @@ class CachingFunctionalTest {
                 .build();
         BuildResult result = runner(project, List.of()).build();
 
-        assertThat(insight.getOutput()).contains(OLDER_ARCHUNIT);
+        assertThat(insight.getOutput()).contains(FORCED_RESOLUTION);
         assertThat(result.task(TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         assertThat(result.getOutput()).contains(PASSED);
     }

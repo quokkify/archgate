@@ -10,6 +10,7 @@ import java.util.Objects;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.GradleException;
+import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
@@ -18,6 +19,7 @@ import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
 import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
@@ -32,6 +34,7 @@ public abstract class ArchgateCheckTask extends DefaultTask {
             List.of(GateLauncher.class, ArchitectureRule.class, GateWorkAction.class);
 
     @Input
+    @Optional
     public abstract Property<String> getRootPackage();
 
     @Input
@@ -58,6 +61,9 @@ public abstract class ArchgateCheckTask extends DefaultTask {
 
     @Internal
     public abstract ConfigurableFileCollection getOwnDirs();
+
+    @Internal
+    public abstract Property<ResolvedComponentResult> getModuleGraph();
 
     @OutputFile
     public abstract RegularFileProperty getReportFile();

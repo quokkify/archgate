@@ -23,13 +23,12 @@ class GradleFixtureFunctionalTest {
     static final String IT_REPO = "archgate.itRepo";
     static final String VERSION = "archgate.version";
     static final String TASK = ":archgateCheck";
-    private static final String MULTI_MODULE_PREFIX = "multi-module";
 
     @TempDir
     Path temp;
 
     static Stream<String> scenarios() {
-        return Fixture.scenarios().stream().filter(scenario -> !scenario.startsWith(MULTI_MODULE_PREFIX));
+        return Fixture.scenarios().stream();
     }
 
     static Path materialize(String scenario, Path target) {
