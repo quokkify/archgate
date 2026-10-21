@@ -1,5 +1,6 @@
 plugins {
     id 'base'
+    id 'org.gradlex.maven-plugin-development' version '1.0.3' apply false
 }
 
 def baseVersion = file('version.txt').text.trim()

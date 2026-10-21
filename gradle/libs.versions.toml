@@ -12,6 +12,10 @@ awaitility = "4.3.0"
 log4j = "2.26.1"
 testng = "7.12.0"
 slf4j = "2.0.20"
+mavenApi = "3.9.0"
+mavenRuntime = "3.9.16"
+mavenPluginAnnotations = "3.16.0"
+mavenVerifier = "2.0.0"
 
 [libraries]
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
@@ -27,3 +31,8 @@ log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4
 testng = { module = "org.testng:testng", version.ref = "testng" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+maven-plugin-api = { module = "org.apache.maven:maven-plugin-api", version.ref = "mavenApi" }
+maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" }
+maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }
+maven-verifier = { module = "org.apache.maven.shared:maven-verifier", version.ref = "mavenVerifier" }
+apache-maven-distribution = { module = "org.apache.maven:apache-maven", version.ref = "mavenRuntime" }
