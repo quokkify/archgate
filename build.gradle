@@ -1,0 +1,21 @@
+def baseVersion = file('version.txt').text.trim()
+def isRelease = providers.gradleProperty('release').map { it == 'true' }.getOrElse(false)
+
+allprojects {
+    group = 'dev.quokkify.archgate'
+    version = isRelease ? baseVersion : "${baseVersion}-SNAPSHOT"
+}
+
+tasks.register('publishToItRepo') {
+    group = 'publishing'
+    description = 'Publishes every module to the local integration-test repository.'
+}
+
+subprojects {
+    def modulePath = path
+    plugins.withId('archgate.it-repo') {
+        rootProject.tasks.named('publishToItRepo') {
+            dependsOn("${modulePath}:publishAllPublicationsToItRepository")
+        }
+    }
+}

@@ -1,0 +1,14 @@
+[versions]
+spotless = "8.10.4"
+palantirJavaFormat = "2.102.0"
+vanniktechPublish = "0.37.0"
+checkstyle = "14.3.0"
+jacoco = "0.8.15"
+junit = "6.1.3"
+
+[libraries]
+spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
+vanniktech-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktechPublish" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }

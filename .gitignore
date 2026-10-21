@@ -1,0 +1,10 @@
+.gradle/
+build/
+.superpowers/
+.omc/
+.idea/
+*.iml
+.vscode/
+.DS_Store
+out/
+local.properties

@@ -1,0 +1,78 @@
+plugins {
+    id 'java-library'
+    id 'checkstyle'
+    id 'jacoco'
+    id 'com.diffplug.spotless'
+}
+
+def catalog = extensions.getByType(VersionCatalogsExtension).named('libs')
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 21
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation platform(catalog.findLibrary('junit-bom').get())
+    testImplementation catalog.findLibrary('junit-jupiter').get()
+    testRuntimeOnly catalog.findLibrary('junit-platform-launcher').get()
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        palantirJavaFormat(catalog.findVersion('palantirJavaFormat').get().requiredVersion)
+        removeUnusedImports()
+    }
+}
+
+checkstyle {
+    toolVersion = catalog.findVersion('checkstyle').get().requiredVersion
+    configFile = rootProject.file('config/checkstyle/checkstyle.xml')
+}
+
+jacoco {
+    toolVersion = catalog.findVersion('jacoco').get().requiredVersion
+}
+
+tasks.named('jacocoTestCoverageVerification') {
+    dependsOn tasks.named('test')
+    violationRules {
+        rule {
+            limit {
+                counter = 'LINE'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+        }
+    }
+}
+
+if (path ==~ /:(api|core|context-.+|rules-.+)/) {
+    tasks.named('check') {
+        dependsOn tasks.named('jacocoTestCoverageVerification')
+    }
+}
+
+tasks.named('jar', Jar) {
+    manifest {
+        attributes(
+            'Archgate-Api-Version': ArchgateVersions.apiVersionStamp(project.version.toString()),
+            'Implementation-Title': base.archivesName.get(),
+            'Implementation-Version': project.version.toString()
+        )
+    }
+}

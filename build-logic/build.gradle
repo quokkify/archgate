@@ -1,0 +1,21 @@
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation libs.spotless.plugin
+    implementation libs.vanniktech.publish.plugin
+
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}

@@ -1,0 +1,37 @@
+plugins {
+    id 'com.vanniktech.maven.publish'
+    id 'archgate.it-repo'
+}
+
+mavenPublishing {
+    publishToMavenCentral(false)
+    if (providers.gradleProperty('signingInMemoryKey').isPresent()) {
+        signAllPublications()
+    }
+    coordinates('dev.quokkify.archgate', base.archivesName.get(), project.version.toString())
+
+    pom {
+        name = base.archivesName.get()
+        description = project.description ?: 'ArchGate architecture checks for Java projects'
+        url = 'https://github.com/quokkify/archgate'
+        licenses {
+            license {
+                name = 'The Apache License, Version 2.0'
+                url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution = 'repo'
+            }
+        }
+        developers {
+            developer {
+                id = 'quokkify'
+                name = 'quokkify'
+                url = 'https://github.com/quokkify'
+            }
+        }
+        scm {
+            url = 'https://github.com/quokkify/archgate'
+            connection = 'scm:git:git://github.com/quokkify/archgate.git'
+            developerConnection = 'scm:git:ssh://git@github.com/quokkify/archgate.git'
+        }
+    }
+}
