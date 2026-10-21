@@ -1,5 +1,6 @@
 package dev.quokkify.archgate.gradle;
 
+import dev.quokkify.archgate.core.FailOn;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -21,7 +22,6 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
     private static final String ROOT_PACKAGE_PROPERTY = "archgate.rootPackage";
     private static final String FAIL_ON_PROPERTY = "archgate.failOn";
     private static final String SKIP_PROPERTY = "archgate.skip";
-    private static final String DEFAULT_FAIL_ON = "WARNING";
     private static final String REPORT_PATH = "reports/archgate/report.txt";
 
     @Override
@@ -31,7 +31,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
         extension.getRootPackage().convention(providers.gradleProperty(ROOT_PACKAGE_PROPERTY));
         extension
                 .getFailOn()
-                .convention(providers.gradleProperty(FAIL_ON_PROPERTY).orElse(DEFAULT_FAIL_ON));
+                .convention(providers.gradleProperty(FAIL_ON_PROPERTY).orElse(FailOn.DEFAULT.name()));
         extension
                 .getSkip()
                 .convention(providers
