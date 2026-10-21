@@ -4,4 +4,8 @@ plugins {
 
 tasks.named('test', Test) {
     systemProperty 'archgate.fixtures', rootProject.file('fixtures').absolutePath
+    systemProperty 'archgate.root', rootProject.projectDir.absolutePath
+    inputs.files(rootProject.fileTree(rootProject.projectDir) {
+        include 'README*.md', 'AGENTS.md', 'docs/**/*.md', 'rules-*/src/main/java/**/*.java'
+    }).withPropertyName('docs').withPathSensitivity(PathSensitivity.RELATIVE)
 }
