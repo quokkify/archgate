@@ -8,10 +8,8 @@ mavenPublishing {
     if (providers.gradleProperty('signingInMemoryKey').isPresent()) {
         signAllPublications()
     }
-    coordinates('dev.quokkify.archgate', base.archivesName.get(), project.version.toString())
-
     pom {
-        name = base.archivesName.get()
+        name = base.archivesName
         description = project.description ?: 'ArchGate architecture checks for Java projects'
         url = 'https://github.com/quokkify/archgate'
         licenses {
@@ -33,5 +31,11 @@ mavenPublishing {
             connection = 'scm:git:git://github.com/quokkify/archgate.git'
             developerConnection = 'scm:git:ssh://git@github.com/quokkify/archgate.git'
         }
+    }
+}
+
+afterEvaluate {
+    mavenPublishing {
+        coordinates('dev.quokkify.archgate', base.archivesName.get(), project.version.toString())
     }
 }

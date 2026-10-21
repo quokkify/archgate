@@ -1,3 +1,7 @@
+plugins {
+    id 'base'
+}
+
 def baseVersion = file('version.txt').text.trim()
 def isRelease = providers.gradleProperty('release').map { it == 'true' }.getOrElse(false)
 
@@ -18,4 +22,15 @@ subprojects {
             dependsOn("${modulePath}:publishAllPublicationsToItRepository")
         }
     }
+}
+
+def denylistHookTest = tasks.register('denylistHookTest', Exec) {
+    group = 'verification'
+    description = 'Exercises the blocking paths of scripts/pre-push-denylist.sh.'
+    inputs.files('scripts/pre-push-denylist.sh', 'scripts/test-pre-push-denylist.sh')
+    commandLine 'sh', 'scripts/test-pre-push-denylist.sh'
+}
+
+tasks.named('check') {
+    dependsOn denylistHookTest
 }

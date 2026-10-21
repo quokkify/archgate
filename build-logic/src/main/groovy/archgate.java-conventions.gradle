@@ -5,6 +5,8 @@ plugins {
     id 'com.diffplug.spotless'
 }
 
+base.archivesName = "archgate-${project.name}"
+
 def catalog = extensions.getByType(VersionCatalogsExtension).named('libs')
 
 java {
