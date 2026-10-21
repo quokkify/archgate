@@ -12,6 +12,16 @@ allprojects {
     version = isRelease ? baseVersion : "${baseVersion}-SNAPSHOT"
 }
 
+def itRepoDir = layout.buildDirectory.dir('it-repo')
+def itRepoArtifacts = objects.fileCollection()
+ext.itRepoArtifacts = itRepoArtifacts
+ext.mavenItCache = layout.buildDirectory.dir('maven-it-cache')
+
+def cleanItRepo = tasks.register('cleanItRepo', Delete) {
+    description = 'Deletes the integration-test repository, so it holds only the artifacts of this build.'
+    delete itRepoDir
+}
+
 tasks.register('publishToItRepo') {
     group = 'publishing'
     description = 'Publishes every module to the local integration-test repository.'
@@ -22,6 +32,12 @@ subprojects {
     plugins.withId('archgate.it-repo') {
         rootProject.tasks.named('publishToItRepo') {
             dependsOn("${modulePath}:publishAllPublicationsToItRepository")
+        }
+        tasks.withType(PublishToMavenRepository).configureEach { task ->
+            if (task.name.endsWith('ToItRepository')) {
+                task.dependsOn(cleanItRepo)
+                itRepoArtifacts.from(task.inputs.files)
+            }
         }
     }
 }

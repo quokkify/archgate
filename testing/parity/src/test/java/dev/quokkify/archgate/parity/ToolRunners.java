@@ -4,6 +4,7 @@ import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
 import dev.quokkify.archgate.testing.FixtureSpec;
+import dev.quokkify.archgate.testing.MavenCache;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -52,7 +53,9 @@ final class ToolRunners {
             Verifier verifier = new Verifier(project.toString());
             verifier.setLocalRepo(localRepo.toString());
             verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
-            List<String> arguments = new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", "verify"));
+            MavenCache cache = MavenCache.fromSystemProperty();
+            List<String> arguments =
+                    new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", cache.tailArgument(), "verify"));
             arguments.addAll(expectation.args(BuildTool.MAVEN));
             verifier.addCliArguments(arguments.toArray(String[]::new));
             boolean succeeded = true;
@@ -60,6 +63,8 @@ final class ToolRunners {
                 verifier.execute();
             } catch (VerificationException e) {
                 succeeded = false;
+            } finally {
+                cache.promote(localRepo);
             }
             return new BuildResultView(
                     succeeded,

@@ -37,7 +37,7 @@ To fix formatting: `./gradlew spotlessApply`.
 | `./gradlew publishToItRepo` | publishes every module to `build/it-repo`, the local repository the integration tests resolve from |
 | `./gradlew :testing:fixtures-support:test --tests '*DocsLinkTest'` | only the documentation checks |
 
-`functionalTest`, `mavenIT` and the parity test depend on `publishToItRepo`, so they always test freshly built artifacts.
+`functionalTest`, `mavenIT` and the parity test depend on `publishToItRepo`, so they always test freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
 
 ### Shared fixtures
 

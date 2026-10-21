@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
+import dev.quokkify.archgate.testing.MavenCache;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,16 +41,22 @@ class MavenFixtureIT {
                 Path.of(System.getProperty(IT_REPO)),
                 System.getProperty(VERSION));
         Path localRepo = temp.resolve("m2");
-        for (Expectation expectation : Expectation.load(Fixture.root().resolve(scenario))) {
-            run(project, localRepo, expectation);
+        MavenCache cache = MavenCache.fromSystemProperty();
+        try {
+            for (Expectation expectation : Expectation.load(Fixture.root().resolve(scenario))) {
+                run(project, localRepo, cache, expectation);
+            }
+        } finally {
+            cache.promote(localRepo);
         }
     }
 
-    private static void run(Path project, Path localRepo, Expectation expectation) throws Exception {
+    private static void run(Path project, Path localRepo, MavenCache cache, Expectation expectation) throws Exception {
         Verifier verifier = new Verifier(project.toString());
         verifier.setLocalRepo(localRepo.toString());
         verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
-        List<String> arguments = new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", "verify"));
+        List<String> arguments =
+                new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", cache.tailArgument(), "verify"));
         arguments.addAll(expectation.args(BuildTool.MAVEN));
         verifier.addCliArguments(arguments.toArray(String[]::new));
         boolean succeeded = true;

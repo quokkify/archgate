@@ -37,7 +37,7 @@
 | `./gradlew publishToItRepo` | публикует каждый модуль в `build/it-repo`, локальный репозиторий, из которого берут артефакты интеграционные тесты |
 | `./gradlew :testing:fixtures-support:test --tests '*DocsLinkTest'` | только проверки документации |
 
-`functionalTest`, `mavenIT` и parity-тест зависят от `publishToItRepo`, поэтому всегда тестируют свежесобранные артефакты.
+`functionalTest`, `mavenIT` и parity-тест зависят от `publishToItRepo`, поэтому всегда тестируют свежесобранные артефакты. `publishToItRepo` сначала очищает `build/it-repo`, а тесты берут на вход опубликованные jar и POM, поэтому они остаются up to date, пока код и фикстуры не менялись. Каждый запуск Maven получает свежий локальный репозиторий для снапшотов ArchGate и читает сторонние плагины и библиотеки из `build/maven-it-cache` (`-Dmaven.repo.local.tail`), который запуски пополняют по ходу работы, так что каждый артефакт скачивается один раз до `clean`.
 
 ### Общие фикстуры
 
