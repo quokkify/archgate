@@ -40,13 +40,15 @@ Supported consumer Gradle version: 9.7.1 and newer. Older versions are not teste
 
 ### Precedence
 
+Both plugins follow one rule: a value set in the build file wins, and the command-line property is only a default for a parameter the build file leaves unset.
+
 | Parameter | Order, highest first |
 |---|---|
-| `rootPackage` | `-Parchgate.rootPackage`, then `archgate { rootPackage = … }` |
-| `failOn` | `archgate { failOn = … }` set explicitly, then `-Parchgate.failOn`, then `WARNING` |
-| `skip` | `archgate { skip = … }` set explicitly, then `-Parchgate.skip`, then `false` |
+| `rootPackage` | `archgate { rootPackage = … }`, then `-Parchgate.rootPackage`; unset fails the build |
+| `failOn` | `archgate { failOn = … }`, then `-Parchgate.failOn`, then `WARNING` |
+| `skip` | `archgate { skip = … }`, then `-Parchgate.skip`, then `false` |
 
-So the command line replaces the DSL value of `rootPackage`, but it is only a default for `failOn` and `skip`: an explicit value in the build script wins over it.
+Maven behaves the same: `<configuration>` in the POM wins over `-Darchgate.rootPackage`, `-Darchgate.failOn` and `-Darchgate.skip`. To drive a parameter from the command line, leave it out of the build file.
 
 ### `rootPackage` is required
 

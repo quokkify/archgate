@@ -62,6 +62,27 @@ class ArchgateElementsFunctionalTest {
     }
 
     @Test
+    void buildScriptRootPackageWinsOverCommandLine() {
+        Path project = materialize("multi-module-violation", temp.resolve("project"));
+
+        BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=org.elsewhere"))
+                .buildAndFail();
+
+        assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+    }
+
+    @Test
+    void commandLineRootPackageIsTheDefault() throws IOException {
+        Path project = materialize("multi-module-violation", temp.resolve("project"));
+        edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
+
+        BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=com.example"))
+                .buildAndFail();
+
+        assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+    }
+
+    @Test
     void elementsOnlyModulesStaySkipped() {
         Path project = materialize("multi-module", temp.resolve("project"));
 

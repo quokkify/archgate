@@ -98,7 +98,7 @@ A project named in `archgate { modules(...) }` has not applied the plugin. Apply
 
 ### Why does `-Parchgate.failOn=ERROR` have no effect?
 
-An explicit `failOn` in the build script wins over the command-line property, which only supplies the default. `-Parchgate.rootPackage` is the other way round: it overrides the script. See [Precedence](configuration.md#precedence).
+An explicit value in the build script wins over the command-line property, which only supplies the default. This holds for `rootPackage`, `failOn` and `skip`, and in Maven too. See [Precedence](configuration.md#precedence).
 
 ### Why are sibling modules not checked automatically?
 

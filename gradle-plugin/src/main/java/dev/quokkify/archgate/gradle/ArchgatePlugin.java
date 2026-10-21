@@ -28,6 +28,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
     public void apply(Project project) {
         ArchgateExtension extension = project.getExtensions().create(EXTENSION_NAME, ArchgateExtension.class);
         ProviderFactory providers = project.getProviders();
+        extension.getRootPackage().convention(providers.gradleProperty(ROOT_PACKAGE_PROPERTY));
         extension
                 .getFailOn()
                 .convention(providers.gradleProperty(FAIL_ON_PROPERTY).orElse(DEFAULT_FAIL_ON));
@@ -45,8 +46,6 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                 project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
         SourceSet main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
         SourceSet test = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
-        Provider<String> rootPackage =
-                project.getProviders().gradleProperty(ROOT_PACKAGE_PROPERTY).orElse(extension.getRootPackage());
         ArchgateElements.expose(project, main, test);
         Configuration modules = ArchgateElements.consume(project, extension);
         TaskProvider<ArchgateCheckTask> check = project.getTasks()
@@ -54,7 +53,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
                     task.setDescription("Runs the ArchGate architecture rules.");
                     task.dependsOn(test.getClassesTaskName());
-                    task.getRootPackage().set(rootPackage);
+                    task.getRootPackage().set(extension.getRootPackage());
                     task.getProjectPath().set(project.getPath());
                     task.getFailOn().set(extension.getFailOn());
                     task.getRuleClasspath().from(test.getRuntimeClasspath());

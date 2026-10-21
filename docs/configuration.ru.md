@@ -40,13 +40,15 @@ archgate {
 
 ### Приоритеты
 
+Оба плагина следуют одному правилу: значение из файла сборки сильнее, а свойство командной строки — лишь значение по умолчанию для параметра, который файл сборки не задаёт.
+
 | Параметр | Порядок, от высшего приоритета |
 |---|---|
-| `rootPackage` | `-Parchgate.rootPackage`, затем `archgate { rootPackage = … }` |
-| `failOn` | явно заданный `archgate { failOn = … }`, затем `-Parchgate.failOn`, затем `WARNING` |
-| `skip` | явно заданный `archgate { skip = … }`, затем `-Parchgate.skip`, затем `false` |
+| `rootPackage` | `archgate { rootPackage = … }`, затем `-Parchgate.rootPackage`; без значения сборка падает |
+| `failOn` | `archgate { failOn = … }`, затем `-Parchgate.failOn`, затем `WARNING` |
+| `skip` | `archgate { skip = … }`, затем `-Parchgate.skip`, затем `false` |
 
-Командная строка заменяет значение `rootPackage` из DSL, но для `failOn` и `skip` служит лишь значением по умолчанию: явное значение в скрипте сборки сильнее.
+Maven ведёт себя так же: `<configuration>` в POM сильнее `-Darchgate.rootPackage`, `-Darchgate.failOn` и `-Darchgate.skip`. Чтобы управлять параметром из командной строки, не задавай его в файле сборки.
 
 ### `rootPackage` обязателен
 
