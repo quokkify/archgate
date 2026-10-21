@@ -24,8 +24,13 @@ class GradleProjectWriterTest {
                 .contains("modules(':api', ':tests')")
                 .contains("implementation project(':api')")
                 .contains("'dev.quokkify.archgate:archgate-rules-archunit:1.2.3'");
-        assertThat(Files.readString(project.resolve("api/build.gradle"))).contains("id 'dev.quokkify.archgate'");
-        assertThat(Files.readString(project.resolve("tests/build.gradle"))).contains("id 'dev.quokkify.archgate'");
+        assertThat(Files.readString(project.resolve("api/build.gradle")))
+                .contains("id 'dev.quokkify.archgate'")
+                .contains("archgate {\n    skip = true\n}");
+        assertThat(Files.readString(project.resolve("tests/build.gradle")))
+                .contains("id 'dev.quokkify.archgate'")
+                .contains("archgate {\n    skip = true\n}");
+        assertThat(gate).doesNotContain("skip = true");
         assertThat(Files.readString(project.resolve("settings.gradle")))
                 .contains("rootProject.name = 'multi-module-violation'")
                 .contains("include 'architecture'")

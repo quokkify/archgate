@@ -55,6 +55,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.setDescription("Runs the ArchGate architecture rules.");
                     task.dependsOn(test.getClassesTaskName());
                     task.getRootPackage().set(rootPackage);
+                    task.getProjectPath().set(project.getPath());
                     task.getFailOn().set(extension.getFailOn());
                     task.getRuleClasspath().from(test.getRuntimeClasspath());
                     task.getMainClassesDirs()
@@ -81,20 +82,11 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.getReportFile()
                             .set(project.getLayout().getBuildDirectory().file(REPORT_PATH));
                     task.onlyIf("archgate.skip is not set", new NotSkipped(extension.getSkip()));
-                    task.onlyIf("archgate.rootPackage is set", new RootPackageSet(task.getRootPackage()));
                     task.doFirst(
                             "verify archgate.modules",
                             new ArchgateElements.RequireArchgateModules(task.getModuleGraph()));
                 });
         project.getTasks().named(JavaBasePlugin.CHECK_TASK_NAME).configure(task -> task.dependsOn(check));
-    }
-
-    private record RootPackageSet(Provider<String> rootPackage) implements Spec<Task> {
-
-        @Override
-        public boolean isSatisfiedBy(Task task) {
-            return rootPackage.isPresent();
-        }
     }
 
     private record NotSkipped(Provider<Boolean> skip) implements Spec<Task> {

@@ -237,6 +237,8 @@ dependencies {
     Gradle has no cheap, correct way to reach sibling test classes.
   - Every module named in `modules(...)` must apply the plugin itself. Otherwise the task fails
     with a message that contains `does not apply dev.quokkify.archgate`.
+  - Modules that only expose their classes to a gate set `archgate { skip = true }`. On a project
+    that is not skipped, an unset `rootPackage` fails the build.
 - Supported consumer Gradle version for 0.1.0: 9.7.1 and newer. Older versions are not tested.
 - Errors: `GateFailure` and `UnableToVerifyError` become `GradleException`. The message contains
   the report, or the "not verified" reason.

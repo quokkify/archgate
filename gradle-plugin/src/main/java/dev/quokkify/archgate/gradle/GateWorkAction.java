@@ -37,8 +37,8 @@ public abstract class GateWorkAction implements WorkAction<GateWorkParameters> {
                 new ModuleDirs(
                         paths(parameters.getMainClassesDirs()),
                         paths(parameters.getTestClassesDirs()),
-                        paths(parameters.getMainSourceDirs()),
-                        paths(parameters.getTestSourceDirs())),
+                        ExistingDirectories.of(parameters.getMainSourceDirs().getFiles()),
+                        ExistingDirectories.of(parameters.getTestSourceDirs().getFiles())),
                 paths(parameters.getOwnDirs()),
                 paths(parameters.getRuleClasspath()),
                 Optional.of(parameters.getReportFile().get().getAsFile().toPath()));

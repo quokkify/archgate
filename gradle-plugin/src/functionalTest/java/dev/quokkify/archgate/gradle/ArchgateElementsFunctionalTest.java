@@ -7,14 +7,19 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.GradleRunner;
+import org.gradle.testkit.runner.TaskOutcome;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 class ArchgateElementsFunctionalTest {
 
@@ -22,21 +27,51 @@ class ArchgateElementsFunctionalTest {
     private static final String PLUGIN_LINE = "    id 'dev.quokkify.archgate'\n";
     private static final String MODULES_LINE = "    modules(':api', ':tests')\n";
     private static final String GATE_BUILD = "architecture/build.gradle";
+    private static final String SKIP_BLOCK = "\narchgate {\n    skip = true\n}\n";
+    private static final String ROOT_PACKAGE_LINE = "    rootPackage = 'com.example'\n";
+    private static final String MISSING_ROOT_PACKAGE = "archgate: rootPackage is not set for project ':architecture'."
+            + " Set archgate { rootPackage = '...' }, or archgate { skip = true } for a module that only exposes"
+            + " archgateElements to a gate.";
     private static final String OWN_MAIN_CLASS = "architecture/src/main/java/com/example/architecture/Layers.java";
 
     @TempDir
     Path temp;
 
-    @Test
-    void moduleWithoutPluginFailsWithHint() throws IOException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("cacheModes")
+    void moduleWithoutPluginFailsWithHint(List<String> extraArgs) throws IOException {
         Path project = materialize("multi-module", temp.resolve("project"));
-        edit(project.resolve("api/build.gradle"), text -> remove(text, PLUGIN_LINE));
+        edit(project.resolve("api/build.gradle"), text -> remove(remove(text, PLUGIN_LINE), SKIP_BLOCK));
 
-        BuildResult result = runner(project, GATE_TASK).buildAndFail();
+        BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
 
         assertThat(result.getOutput())
                 .contains("does not apply dev.quokkify.archgate")
                 .contains("project ':api'");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("cacheModes")
+    void gateWithoutRootPackageFails(List<String> extraArgs) throws IOException {
+        Path project = materialize("multi-module", temp.resolve("project"));
+        edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
+
+        BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
+
+        assertThat(result.getOutput()).contains(MISSING_ROOT_PACKAGE);
+    }
+
+    @Test
+    void elementsOnlyModulesStaySkipped() {
+        Path project = materialize("multi-module", temp.resolve("project"));
+
+        BuildResult result = runner(
+                        project, "check", List.of("-Parchgate.skip=false", "-Parchgate.rootPackage=com.example"))
+                .build();
+
+        assertThat(result.task(":api:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
+        assertThat(result.task(":tests:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
+        assertThat(result.task(GATE_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
     }
 
     @Test
@@ -72,11 +107,21 @@ class ArchgateElementsFunctionalTest {
                 .doesNotContain("com.example.tests.LegacyFlow");
     }
 
+    static Stream<List<String>> cacheModes() {
+        return Stream.of(List.of(), List.of("--configuration-cache"));
+    }
+
     private static GradleRunner runner(Path project, String task) {
+        return runner(project, task, List.of());
+    }
+
+    private static GradleRunner runner(Path project, String task, List<String> extraArgs) {
+        List<String> arguments = new ArrayList<>(List.of(task, "--stacktrace"));
+        arguments.addAll(extraArgs);
         return GradleRunner.create()
                 .withProjectDir(project.toFile())
                 .withPluginClasspath()
-                .withArguments(task, "--stacktrace");
+                .withArguments(arguments);
     }
 
     private static String remove(String text, String line) {

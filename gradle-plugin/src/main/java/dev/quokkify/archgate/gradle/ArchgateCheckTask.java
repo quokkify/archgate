@@ -32,6 +32,9 @@ public abstract class ArchgateCheckTask extends DefaultTask {
 
     private static final List<Class<?>> WORKER_CLASSES =
             List.of(GateLauncher.class, ArchitectureRule.class, GateWorkAction.class);
+    private static final String MISSING_ROOT_PACKAGE = "archgate: rootPackage is not set for project '%s'."
+            + " Set archgate { rootPackage = '...' }, or archgate { skip = true } for a module that only exposes"
+            + " archgateElements to a gate.";
 
     @Input
     @Optional
@@ -65,6 +68,9 @@ public abstract class ArchgateCheckTask extends DefaultTask {
     @Internal
     public abstract Property<ResolvedComponentResult> getModuleGraph();
 
+    @Internal
+    public abstract Property<String> getProjectPath();
+
     @OutputFile
     public abstract RegularFileProperty getReportFile();
 
@@ -73,6 +79,10 @@ public abstract class ArchgateCheckTask extends DefaultTask {
 
     @TaskAction
     public void check() {
+        if (!getRootPackage().isPresent()) {
+            throw new GradleException(
+                    MISSING_ROOT_PACKAGE.formatted(getProjectPath().get()));
+        }
         List<File> workerClasspath = workerClasspath();
         getLogger().info("ArchGate worker classpath: {}", workerClasspath);
         WorkQueue queue = getWorkerExecutor()

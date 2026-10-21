@@ -52,6 +52,13 @@ public final class GradleProjectWriter {
             }
             """;
 
+    private static final String ELEMENTS_ONLY_BLOCK = """
+
+            archgate {
+                skip = true
+            }
+            """;
+
     private GradleProjectWriter() {}
 
     public static void write(
@@ -103,6 +110,8 @@ public final class GradleProjectWriter {
         }
         if (isGate) {
             out.append(archgateBlock(spec));
+        } else if (exposesElements) {
+            out.append(ELEMENTS_ONLY_BLOCK);
         }
         out.append(dependencies(spec, module, archgateVersion, isGate, ruleLibrary != null));
         return out.toString();
