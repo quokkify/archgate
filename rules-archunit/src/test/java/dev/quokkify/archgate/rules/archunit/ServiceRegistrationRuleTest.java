@@ -69,6 +69,14 @@ class ServiceRegistrationRuleTest {
     }
 
     @Test
+    void providerFileIsShownRelativeToItsClassDirectory() {
+        assertThatThrownBy(() -> verifyCase("missing"))
+                .isInstanceOf(ArchitectureViolation.class)
+                .hasMessageContaining(PROVIDER_FILE + ": archfixtures.services.NoSuchGreeter class not found")
+                .hasMessageNotContaining("missing/" + PROVIDER_FILE);
+    }
+
+    @Test
     void providerNotImplementingSpiIsReported() {
         assertViolation(
                 "not-spi",

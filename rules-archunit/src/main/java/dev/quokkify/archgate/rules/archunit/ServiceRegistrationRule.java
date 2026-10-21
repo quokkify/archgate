@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext> {
 
     private static final String SERVICES_DIR = "META-INF/services";
-    private static final int DISPLAYED_NAME_COUNT = 6;
     private static final String COMMENT_MARK = "#";
     private static final String EXPECTED_CONTRACT = """
       Every class listed in a META-INF/services provider file must exist, implement the service interface named \
@@ -70,7 +69,7 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
     }
 
     void verify(List<Path> classDirs, ClassLoader loader) {
-        List<Path> providerFiles = classDirs.stream()
+        List<ProviderFile> providerFiles = classDirs.stream()
                 .flatMap(ServiceRegistrationRule::providerFiles)
                 .toList();
         if (providerFiles.isEmpty()) {
@@ -79,7 +78,7 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
           the class directories passed to the verification.""".formatted(SERVICES_DIR, classDirs));
         }
         List<String> violations = new ArrayList<>();
-        for (Path file : providerFiles) {
+        for (ProviderFile file : providerFiles) {
             violations.addAll(violationsOf(file, loader));
         }
         checkViolations(EXPECTED_CONTRACT, violations);
@@ -93,20 +92,22 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         }
     }
 
-    private static Stream<Path> providerFiles(Path classDir) {
+    private static Stream<ProviderFile> providerFiles(Path classDir) {
         Path servicesDir = classDir.resolve(SERVICES_DIR);
         if (!Files.isDirectory(servicesDir)) {
             return Stream.empty();
         }
         try (Stream<Path> files = Files.list(servicesDir)) {
-            return files.filter(Files::isRegularFile).sorted().toList().stream();
+            return files.filter(Files::isRegularFile).sorted().toList().stream()
+                    .map(file -> new ProviderFile(classDir, file));
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot list " + servicesDir, e);
         }
     }
 
-    private static List<String> violationsOf(Path file, ClassLoader loader) {
-        String location = displayPath(file);
+    private static List<String> violationsOf(ProviderFile providerFile, ClassLoader loader) {
+        Path file = providerFile.file();
+        String location = providerFile.displayPath();
         String serviceName = file.toFile().getName();
         Class<?> service;
         try {
@@ -160,9 +161,10 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         }
     }
 
-    private static String displayPath(Path file) {
-        int count = file.getNameCount();
-        Path shown = count > DISPLAYED_NAME_COUNT ? file.subpath(count - DISPLAYED_NAME_COUNT, count) : file;
-        return shown.toString().replace('\\', '/');
+    private record ProviderFile(Path classDir, Path file) {
+
+        String displayPath() {
+            return classDir.relativize(file).toString().replace('\\', '/');
+        }
     }
 }
