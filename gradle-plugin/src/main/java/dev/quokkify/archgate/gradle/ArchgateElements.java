@@ -107,6 +107,10 @@ final class ArchgateElements {
             artifact.setType(ArtifactTypeDefinition.JVM_CLASS_DIRECTORY);
             artifact.builtBy(sourceSet.getCompileJavaTaskName());
         });
+        variant.artifact(sourceSet.getOutput().getResourcesDir(), artifact -> {
+            artifact.setType(ArtifactTypeDefinition.JVM_RESOURCES_DIRECTORY);
+            artifact.builtBy(sourceSet.getProcessResourcesTaskName());
+        });
     }
 
     private static void sources(ConfigurationVariant variant, SourceSet sourceSet) {

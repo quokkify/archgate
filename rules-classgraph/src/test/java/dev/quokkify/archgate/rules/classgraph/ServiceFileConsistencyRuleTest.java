@@ -125,8 +125,19 @@ class ServiceFileConsistencyRuleTest {
     }
 
     @Test
-    void architectureRuleServiceIsLeftToTheRegistrationCheck() throws Exception {
+    void architectureRuleServiceAloneDoesNotCountAsAServicesFile() throws Exception {
         try (ClassGraphContext context = mainCase("architecture-rule")) {
+            assertThatThrownBy(() -> rule.verify(context))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("No META-INF/services file was found in");
+        }
+    }
+
+    @Test
+    void architectureRuleServiceIsLeftToTheRegistrationCheck() throws Exception {
+        Path classes = testClasses();
+        try (ClassGraphContext context =
+                context(List.of(classes, caseDir("listed")), List.of(classes, caseDir("architecture-rule")))) {
             assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
         }
     }

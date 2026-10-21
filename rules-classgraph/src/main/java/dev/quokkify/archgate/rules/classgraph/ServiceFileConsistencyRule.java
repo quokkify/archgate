@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 
 public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassGraphContext> {
 
@@ -61,7 +62,8 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
             }
             ScanResult scan = context.scan(scope);
             Map<String, Set<String>> listed = listedProviders(scan);
-            serviceFileFound |= !listed.isEmpty();
+            serviceFileFound |=
+                    listed.keySet().stream().anyMatch(service -> !REGISTRATION_CHECKED_SERVICE.equals(service));
             listed.forEach((service, providers) -> violations.addAll(unlisted(scan, service, providers)));
         }
         if (!serviceFileFound) {
@@ -77,7 +79,7 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
     }
 
     private static List<Path> allClassDirs(ClassGraphContext context) {
-        return java.util.stream.Stream.of(Scope.values())
+        return Stream.of(Scope.values())
                 .flatMap(scope -> context.layout().classDirs(scope).stream())
                 .toList();
     }

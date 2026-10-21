@@ -18,7 +18,15 @@ class ReportParityTest {
     Path temp;
 
     @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"pass", "fail-on-threshold", "multi-module", "multi-module-violation"})
+    @ValueSource(
+            strings = {
+                "pass",
+                "fail-on-threshold",
+                "multi-module",
+                "multi-module-violation",
+                "classgraph-unlisted",
+                "classgraph-multi-module"
+            })
     void sameReportOnMavenAndGradle(String scenario) {
         BuildRun maven = ToolRunners.maven(scenario, temp.resolve("maven"));
         BuildRun gradle = ToolRunners.gradle(scenario, temp.resolve("gradle"));

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.quokkify.archgate.api.ContextProvider;
+import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
@@ -128,6 +129,35 @@ class ClassGraphContextTest {
             assertThatThrownBy(() -> context.scan(Scope.TEST))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining("No test class directory exists");
+        }
+    }
+
+    @Test
+    void errorFromTheScanIsRethrownUnwrapped() {
+        LinkageError failure = new LinkageError("boom");
+        ProjectLayout layout = new ProjectLayout() {
+            @Override
+            public String rootPackage() {
+                return ROOT;
+            }
+
+            @Override
+            public List<Path> classDirs(Scope scope) {
+                throw failure;
+            }
+
+            @Override
+            public List<Path> sourceDirs(Scope scope) {
+                return List.of();
+            }
+
+            @Override
+            public ClassLoader classLoader() {
+                return ClassGraphContextTest.class.getClassLoader();
+            }
+        };
+        try (ClassGraphContext context = new ClassGraphContextProvider().create(layout)) {
+            assertThatThrownBy(() -> context.scan(Scope.MAIN)).isSameAs(failure);
         }
     }
 

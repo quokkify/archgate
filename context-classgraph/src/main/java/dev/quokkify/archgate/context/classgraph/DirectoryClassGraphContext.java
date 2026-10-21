@@ -70,6 +70,9 @@ final class DirectoryClassGraphContext implements ClassGraphContext {
             if (failed.getCause() instanceof RuntimeException runtime) {
                 throw runtime;
             }
+            if (failed.getCause() instanceof Error error) {
+                throw error;
+            }
             throw new UnableToVerifyError("Cannot scan the " + label(scope) + " classes.", failed.getCause());
         }
     }
