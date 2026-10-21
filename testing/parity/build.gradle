@@ -1,0 +1,35 @@
+plugins {
+    id 'archgate.java-conventions'
+}
+
+evaluationDependsOn(':maven-plugin')
+evaluationDependsOn(':gradle-plugin')
+
+def gradlePlugin = project(':gradle-plugin')
+def mavenPlugin = project(':maven-plugin')
+def pluginMetadata = gradlePlugin.tasks.named('pluginUnderTestMetadata')
+
+dependencies {
+    testImplementation project(':testing:fixtures-support')
+    testImplementation libs.maven.verifier
+    testRuntimeOnly libs.maven.core
+    testImplementation gradleTestKit()
+    testRuntimeOnly files(pluginMetadata.map { it.outputDirectory }) {
+        builtBy pluginMetadata
+    }
+}
+
+tasks.named('test', Test) {
+    description = 'Runs every shared fixture through Maven and Gradle and compares the results.'
+    dependsOn mavenPlugin.tasks.named('unpackMaven'), rootProject.tasks.named('publishToItRepo')
+    inputs.dir(rootProject.layout.buildDirectory.dir('it-repo')).withPropertyName('itRepo').optional()
+    inputs.dir(rootProject.file('fixtures')).withPropertyName('fixtures')
+    systemProperty 'maven.home', mavenPlugin.layout.buildDirectory.dir("maven/apache-maven-${libs.versions.mavenRuntime.get()}").get().asFile.path
+    systemProperty 'archgate.itRepo', rootProject.layout.buildDirectory.dir('it-repo').get().asFile.path
+    systemProperty 'archgate.fixtures', rootProject.file('fixtures').path
+    systemProperty 'archgate.version', project.version.toString()
+    testLogging {
+        events 'failed'
+        exceptionFormat = 'full'
+    }
+}
