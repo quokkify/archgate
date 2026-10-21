@@ -28,6 +28,7 @@ public final class GateLauncher {
     private GateLauncher() {}
 
     public static GateResult run(LaunchRequest request, ReportSink sink) {
+        request.reportFile().ifPresent(GateLauncher::delete);
         String rootPackage = RootPackage.validate(request.rootPackage());
         Optional<Severity> threshold = FailOn.parse(request.failOn());
         Thread thread = Thread.currentThread();
@@ -80,6 +81,14 @@ public final class GateLauncher {
             Files.writeString(file, String.join("\n", lines), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UnableToVerifyError("Cannot write the report file " + file + ": " + e.getMessage(), e);
+        }
+    }
+
+    private static void delete(Path file) {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            throw new UnableToVerifyError("Cannot delete the previous report file " + file + ": " + e.getMessage(), e);
         }
     }
 

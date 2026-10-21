@@ -126,6 +126,23 @@ class GateLauncherTest {
         assertThat(texts).isEmpty();
     }
 
+    @Test
+    void unableToVerifyRemovesReportOfPreviousRun() throws IOException {
+        Path report = tempDir.resolve("gate.txt");
+        Files.writeString(report, "Gate PASSED: stale");
+        LaunchRequest bad = new LaunchRequest(
+                "not a package!",
+                "WARNING",
+                dirs(),
+                List.of(),
+                List.of(rulesDir(CleanLaunchRule.class)),
+                Optional.of(report));
+
+        assertThatThrownBy(() -> GateLauncher.run(bad, sink)).isInstanceOf(UnableToVerifyError.class);
+
+        assertThat(report).doesNotExist();
+    }
+
     private LaunchRequest request(String failOn, List<Path> ownDirs, Path report, Class<?> rule) {
         return new LaunchRequest("com.example", failOn, dirs(), ownDirs, List.of(rulesDir(rule)), Optional.of(report));
     }
