@@ -61,10 +61,12 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.getMainClassesDirs()
                             .from(
                                     main.getOutput().getClassesDirs(),
+                                    main.getOutput().getResourcesDir(),
                                     ArchgateElements.files(modules, ArchgateElements.MAIN_CLASSES));
                     task.getTestClassesDirs()
                             .from(
                                     test.getOutput().getClassesDirs(),
+                                    test.getOutput().getResourcesDir(),
                                     ArchgateElements.files(modules, ArchgateElements.TEST_CLASSES));
                     task.getMainSourceDirs()
                             .from(
