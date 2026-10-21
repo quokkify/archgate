@@ -10,4 +10,6 @@ public interface JavaParserContext extends AnalysisContext {
     String rootPackage();
 
     List<CompilationUnit> compilationUnits(Scope scope);
+
+    String relativePath(CompilationUnit unit);
 }

@@ -6,7 +6,6 @@ import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.context.javaparser.JavaParserContext;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -43,7 +42,7 @@ public class NoWildcardImportsRule implements ArchitectureRule<JavaParserContext
         List<String> violations = new ArrayList<>();
         for (Scope scope : List.of(Scope.MAIN, Scope.TEST)) {
             for (CompilationUnit unit : context.compilationUnits(scope)) {
-                String location = location(unit);
+                String location = context.relativePath(unit);
                 for (ImportDeclaration declaration : unit.getImports()) {
                     if (declaration.isAsterisk() && !declaration.isStatic()) {
                         int line = declaration
@@ -56,19 +55,5 @@ public class NoWildcardImportsRule implements ArchitectureRule<JavaParserContext
             }
         }
         checkViolations(EXPECTED_CONTRACT, violations);
-    }
-
-    private static String location(CompilationUnit unit) {
-        return unit.getStorage()
-                .map(storage -> {
-                    Path file = storage.getPath();
-                    Path relative = relativeToSourceRoot(storage.getSourceRoot(), file);
-                    return relative.toString().replace('\\', '/');
-                })
-                .orElse("<unknown>");
-    }
-
-    private static Path relativeToSourceRoot(Path sourceRoot, Path file) {
-        return file.startsWith(sourceRoot) ? sourceRoot.relativize(file) : file.getFileName();
     }
 }

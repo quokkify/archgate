@@ -83,4 +83,21 @@ class JavaParserContextTest {
     void providerTypeIsJavaParserContext() {
         assertThat(new JavaParserContextProvider().type()).isEqualTo(JavaParserContext.class);
     }
+
+    @Test
+    void relativePathIsRelativeToOwningSourceDir() throws URISyntaxException {
+        JavaParserContext context = context(ROOT, List.of(resource("main")), List.of());
+
+        assertThat(context.compilationUnits(Scope.MAIN))
+                .extracting(context::relativePath)
+                .containsExactly("com/example/Alpha.java", "com/example/sub/Beta.java");
+    }
+
+    @Test
+    void foreignUnitHasNoRelativePath() {
+        JavaParserContext context = context(ROOT, List.of(), List.of());
+
+        assertThatThrownBy(() -> context.relativePath(new CompilationUnit()))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
 }

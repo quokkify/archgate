@@ -13,8 +13,10 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -30,6 +32,7 @@ final class DirectoryJavaParserContext implements JavaParserContext {
 
     private final Map<String, Duration> buildTimes = new ConcurrentSkipListMap<>();
     private final Map<Scope, List<CompilationUnit>> parsed = new EnumMap<>(Scope.class);
+    private final Map<CompilationUnit, String> relativePaths = new IdentityHashMap<>();
 
     private final ProjectLayout layout;
     private final String rootPackage;
@@ -63,17 +66,33 @@ final class DirectoryJavaParserContext implements JavaParserContext {
         return Collections.unmodifiableMap(new TreeMap<>(buildTimes));
     }
 
+    @Override
+    public synchronized String relativePath(CompilationUnit unit) {
+        String path = relativePaths.get(unit);
+        if (Objects.isNull(path)) {
+            throw new IllegalArgumentException("Compilation unit was not produced by this context");
+        }
+        return path;
+    }
+
     private List<CompilationUnit> parse(Scope scope) {
         List<Path> configured = List.copyOf(layout.sourceDirs(scope));
         ParserConfiguration configuration =
                 new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
         JavaParser parser = new JavaParser(configuration);
-        List<CompilationUnit> units = configured.stream()
-                .filter(Files::isDirectory)
-                .flatMap(DirectoryJavaParserContext::javaFiles)
-                .map(file -> parseFile(parser, file))
-                .filter(this::inRootPackage)
-                .toList();
+        List<CompilationUnit> units = new ArrayList<>();
+        for (Path dir : configured) {
+            if (!Files.isDirectory(dir)) {
+                continue;
+            }
+            for (Path file : javaFiles(dir)) {
+                CompilationUnit unit = parseFile(parser, file);
+                if (inRootPackage(unit)) {
+                    units.add(unit);
+                    relativePaths.put(unit, dir.relativize(file).toString().replace('\\', '/'));
+                }
+            }
+        }
         if (units.isEmpty()) {
             throw new UnableToVerifyError(
                     "No Java source under %s was found in the %s source directories %s. Make the sources available, otherwise every rule using this view would pass without checking anything."
@@ -82,16 +101,14 @@ final class DirectoryJavaParserContext implements JavaParserContext {
         return List.copyOf(units);
     }
 
-    private static Stream<Path> javaFiles(Path dir) {
+    private static List<Path> javaFiles(Path dir) {
         try (Stream<Path> walk = Files.walk(dir)) {
-            return walk
-                    .filter(Files::isRegularFile)
+            return walk.filter(Files::isRegularFile)
                     .filter(path -> path.getFileName().toString().endsWith(JAVA_SUFFIX))
                     .sorted()
-                    .toList()
-                    .stream();
-        } catch (IOException e) {
-            throw new UncheckedIOException("Cannot read " + dir, e);
+                    .toList();
+        } catch (IOException | UncheckedIOException e) {
+            throw new UnableToVerifyError("Cannot read " + dir + ": " + e.getMessage(), e);
         }
     }
 
