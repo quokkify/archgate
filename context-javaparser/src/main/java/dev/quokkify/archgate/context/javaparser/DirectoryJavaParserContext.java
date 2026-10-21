@@ -78,7 +78,7 @@ final class DirectoryJavaParserContext implements JavaParserContext {
     private List<CompilationUnit> parse(Scope scope) {
         List<Path> configured = List.copyOf(layout.sourceDirs(scope));
         ParserConfiguration configuration =
-                new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_21);
+                new ParserConfiguration().setLanguageLevel(ParserConfiguration.LanguageLevel.JAVA_26);
         JavaParser parser = new JavaParser(configuration);
         List<CompilationUnit> units = new ArrayList<>();
         for (Path dir : configured) {

@@ -80,6 +80,29 @@ class JavaParserContextTest {
     }
 
     @Test
+    void parsesUnnamedVariables(@TempDir Path tmp) throws IOException {
+        Path pkg = Files.createDirectories(tmp.resolve("com/example"));
+        Files.writeString(pkg.resolve("Modern.java"), """
+                package com.example;
+
+                import java.util.List;
+
+                public class Modern {
+                    int count(List<String> values) {
+                        int total = 0;
+                        for (var _ : values) {
+                            total++;
+                        }
+                        return total;
+                    }
+                }
+                """);
+        JavaParserContext context = context(ROOT, List.of(tmp), List.of());
+
+        assertThat(typeNames(context.compilationUnits(Scope.MAIN))).containsExactly("Modern");
+    }
+
+    @Test
     void providerTypeIsJavaParserContext() {
         assertThat(new JavaParserContextProvider().type()).isEqualTo(JavaParserContext.class);
     }
