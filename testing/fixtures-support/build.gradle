@@ -1,0 +1,7 @@
+plugins {
+    id 'archgate.java-conventions'
+}
+
+tasks.named('test', Test) {
+    systemProperty 'archgate.fixtures', rootProject.file('fixtures').absolutePath
+}

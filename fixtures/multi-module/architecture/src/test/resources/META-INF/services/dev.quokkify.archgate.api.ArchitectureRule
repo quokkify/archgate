@@ -1,0 +1,2 @@
+com.example.architecture.NoLegacyClassesRule
+dev.quokkify.archgate.rules.archunit.NoThreadSleepRule
