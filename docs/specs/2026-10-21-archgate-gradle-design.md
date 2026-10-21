@@ -1,7 +1,7 @@
 # ArchGate on Gradle: two build plugins and pluggable analysis contexts
 
 Date: 2026-10-21
-Status: approved design, pending implementation plan
+Status: approved design; implementation plan in `docs/plans/2026-10-21-archgate-gradle.md`
 
 ## 1. Goal
 
@@ -45,8 +45,8 @@ The source of the port is an existing, working Maven implementation (modules `ap
 | Package | `dev.quokkify.archgate.*` (replaces the original package) |
 | Toolchain | Java 21, Gradle 9.7 wrapper |
 | Maven plugin build | `org.gradlex.maven-plugin-development`; fallback: a hand-written `plugin.xml` guarded by a descriptor test |
-| Branching | trunk on `main` via pull requests; Release Please owns the version and tags `vX.Y.Z` |
-| First version | `0.1.0`; `version.txt` holds the next version, local builds append `-SNAPSHOT` |
+| Branching | trunk on `main` via pull requests; Release Please tags `vX.Y.Z` |
+| First version | `0.1.0`, forced with a `Release-As: 0.1.0` commit. `version.txt` holds the last released version (`0.0.0` before the first release); non-release builds append `-SNAPSHOT` |
 | Repository history | new `main` starts from an orphan commit; the earlier migration branch is discarded |
 
 ## 3. Modules
@@ -89,7 +89,9 @@ public interface ArchitectureRule<C extends AnalysisContext> {
     void verify(C context);
 }
 
-public interface AnalysisContext {}
+public interface AnalysisContext {
+    default Map<String, Duration> buildTimes() { return Map.of(); }
+}
 
 public interface ProjectLayout {
     String rootPackage();
@@ -109,14 +111,17 @@ public interface ContextProvider<C extends AnalysisContext> {
 - `UnableToVerifyError` means the check could not run. It always fails the build, whatever the
   threshold.
 - Context instances that hold resources implement `AutoCloseable`; core closes them after the run.
+- `buildTimes()` reports how long each model took to build, keyed by model name. The report prints
+  these timings as the original did.
 - The `api` jar manifest carries `Archgate-Api-Version`. Rule jars carry the API version they were
-  built against.
+  built against. Release builds stamp the release version; every `-SNAPSHOT` build stamps
+  `dev-SNAPSHOT`, the only non-`X.Y.Z` value the compatibility check accepts.
 
 ## 5. Analysis contexts
 
 | Module | Context | Content | Built from |
 |---|---|---|---|
-| `context-archunit` | `ArchUnitContext` | `main()`, `test()`, `all()` → `JavaClasses` filtered by `rootPackage..`; helpers `ArchRuleChecks`, `GeneratedCode` | `classDirs` |
+| `context-archunit` | `ArchUnitContext` | `main()`, `test()`, `all()` → `JavaClasses` filtered by `rootPackage..`; `layout()` → `ProjectLayout` (needed by `ServiceRegistrationRule`); helpers `ArchRuleChecks`, `GeneratedCode` | `classDirs` |
 | `context-javaparser` | `JavaParserContext` | `compilationUnits(Scope)` → `List<CompilationUnit>` | `sourceDirs` |
 | `context-classgraph` | `ClassGraphContext` (`AutoCloseable`) | `scan(Scope)` → `ScanResult` | `classDirs` + resources |
 
@@ -125,6 +130,15 @@ is the only services file a published module may contain.
 
 An empty model for a scope a rule requests raises `UnableToVerifyError`. This is the original
 `ClassDirsContext` behaviour, applied to every backend.
+
+Example rules:
+
+- `NoWildcardImportsRule` (JavaParser) reports `import x.*;` declarations, which exist only in the
+  sources.
+- `ServiceFileConsistencyRule` (ClassGraph) reports public concrete classes under `rootPackage` that
+  implement an interface the module has a `META-INF/services` file for but are not listed in that
+  file. This complements `ServiceRegistrationRule`, which checks the opposite direction (entries
+  in services files that point to classes that do not exist or do not implement the interface).
 
 ## 6. Engine (`core`)
 
@@ -135,7 +149,11 @@ An empty model for a scope a rule requests raises `UnableToVerifyError`. This is
     API fails fast.
   - An empty registry is an error.
 - **`RegistrationCheck`** fails when a public concrete rule class in the gate module's own class
-  dirs is not listed in its services file.
+  dirs is not listed in its services file. It uses plain reflection over the class files, so `core`
+  depends on no analysis library, and the consumer's ArchUnit version never conflicts with the
+  plugin's.
+- **`FailOn`** accepts `INFO | WARNING | ERROR | NEVER`, default `WARNING`. `NEVER` reports but
+  never fails on findings; `UnableToVerifyError` still fails the build.
 - **`ContextResolver`**
   - Maps `contextType()` to a provider found through `ServiceLoader`.
   - Creates each context lazily, at most once per run, and closes it after the run.
@@ -217,6 +235,9 @@ dependencies {
   - `modules(':x')` adds a project dependency on `:x`'s `archgateElements`.
   - Without `modules`, only the current project is checked. This differs from Maven on purpose:
     Gradle has no cheap, correct way to reach sibling test classes.
+  - Every module named in `modules(...)` must apply the plugin itself. Otherwise the task fails
+    with a message that contains `does not apply dev.quokkify.archgate`.
+- Supported consumer Gradle version for 0.1.0: 9.7.1 and newer. Older versions are not tested.
 - Errors: `GateFailure` and `UnableToVerifyError` become `GradleException`. The message contains
   the report, or the "not verified" reason.
 
@@ -271,14 +292,18 @@ dependencies {
   - the publishing setup (`com.vanniktech.maven.publish`, Central Portal, signing, POM metadata,
     Apache-2.0);
   - writing the `Archgate-Api-Version` manifest attribute.
-- CI is generated from the org template `quokkify/project-toolkit` (Copier) and calls its reusable
-  workflows pinned to an exact release tag:
-  - **CI:** `java-ci.yml` on pull requests and pushes to `main` (JDK 21, Gradle). It runs
-    `./gradlew build functionalTest mavenIT`.
-  - **Releases:** `release-please.yml` in single-package mode. Release Please owns the version in
-    its manifest and in `version.txt`, which the Gradle build reads. Merging the release PR creates
-    the tag `vX.Y.Z` and the GitHub Release.
-  - **Publishing:** a project-local job runs on `release: published`:
+- CI is generated from the org template `quokkify/ci-kit` v3.3.0 (Copier, module `legacy`, the only
+  module that offers Release Please). The generated workflows call its reusable workflows pinned to
+  that tag:
+  - **CI:** `validate.yml` calls `java-ci.yml` on pull requests and pushes to `main` (JDK 21,
+    Gradle). `functionalTest` and `mavenIT` are wired into `check`, so the default Gradle commands
+    run them.
+  - **Releases:** Release Please in single-package mode. Its manifest and `version.txt` hold the
+    last released version. Merging the release PR creates the tag `vX.Y.Z` and the GitHub Release.
+  - **Publishing:** a project-local `publish.yml` triggered by `workflow_run` of the Release Please
+    workflow. A release created with `GITHUB_TOKEN` does not fire `release` events, so
+    `release: published` cannot be used. The job checks out the release tag, asserts
+    `v$(cat version.txt)` equals the tag, then runs:
     1. `publishToMavenCentral` (all artifacts, signed);
     2. `publishPlugins` to the Gradle Plugin Portal.
 - Renovate uses the toolkit presets and the Gradle manager.
