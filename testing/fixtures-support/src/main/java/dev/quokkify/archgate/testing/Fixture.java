@@ -35,13 +35,18 @@ public final class Fixture {
     }
 
     public static Path materialize(String scenario, BuildTool tool, Path target, Path itRepo, String archgateVersion) {
+        return materialize(scenario, tool, target, itRepo, archgateVersion, PluginMode.TESTKIT);
+    }
+
+    public static Path materialize(
+            String scenario, BuildTool tool, Path target, Path itRepo, String archgateVersion, PluginMode mode) {
         Path source = root().resolve(scenario);
         FixtureSpec spec = FixtureSpec.load(source);
         copySources(source, target);
         if (tool == BuildTool.MAVEN) {
             MavenProjectWriter.write(scenario, spec, target, itRepo, archgateVersion);
         } else {
-            GradleProjectWriter.write(scenario, spec, target, itRepo, archgateVersion);
+            GradleProjectWriter.write(scenario, spec, target, itRepo, archgateVersion, mode);
         }
         return target;
     }

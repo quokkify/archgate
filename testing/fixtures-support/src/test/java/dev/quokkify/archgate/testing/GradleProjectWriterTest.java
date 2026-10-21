@@ -30,7 +30,29 @@ class GradleProjectWriterTest {
                 .contains("rootProject.name = 'multi-module-violation'")
                 .contains("include 'architecture'")
                 .contains(work.resolve("repo").toUri().toString())
-                .contains("mavenCentral()");
+                .contains("mavenCentral()")
+                .doesNotContain("pluginManagement")
+                .doesNotContain("version '1.2.3'");
+        assertThat(gate).doesNotContain("version '");
+    }
+
+    @Test
+    void publishedModePinsPluginVersionFromRepo() throws Exception {
+        Path project = Fixture.materialize(
+                "multi-module-violation",
+                BuildTool.GRADLE,
+                work.resolve("p"),
+                work.resolve("repo"),
+                "1.2.3",
+                PluginMode.PUBLISHED);
+
+        assertThat(Files.readString(project.resolve("settings.gradle")))
+                .contains("pluginManagement")
+                .contains("id 'dev.quokkify.archgate' version '1.2.3'")
+                .contains(work.resolve("repo").toUri().toString());
+        assertThat(Files.readString(project.resolve("architecture/build.gradle")))
+                .contains("id 'dev.quokkify.archgate'")
+                .contains("'dev.quokkify.archgate:archgate-rules-archunit:1.2.3'");
     }
 
     @Test

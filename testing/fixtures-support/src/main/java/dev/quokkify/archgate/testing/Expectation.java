@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -23,14 +24,20 @@ public record Expectation(
         List<String> mavenContains,
         List<String> gradleContains,
         List<String> mavenAbsent,
-        List<String> gradleAbsent) {
+        List<String> gradleAbsent,
+        List<Pattern> matches,
+        List<Pattern> mavenMatches,
+        List<Pattern> gradleMatches) {
 
     private static final String MAVEN_PROPERTY_FLAG = "-D";
     private static final String GRADLE_PROPERTY_FLAG = "-P";
+    private static final Pattern RUN_KEY = Pattern.compile(
+            "run\\.(\\d+)\\.(args|outcome|skipped|((maven|gradle)\\.)?(contains|absent|matches)\\.\\d+)");
 
     public static List<Expectation> load(Path fixtureDir) {
         Properties properties = PropertyFiles.load(fixtureDir.resolve("expected.properties"));
         int runs = Integer.parseInt(properties.getProperty("runs", "0").trim());
+        validateKeys(properties, runs, fixtureDir.resolve("expected.properties"));
         List<Expectation> expectations = new ArrayList<>();
         for (int run = 1; run <= runs; run++) {
             String prefix = "run." + run + ".";
@@ -49,9 +56,38 @@ public record Expectation(
                     numbered(properties, prefix + "maven.contains."),
                     numbered(properties, prefix + "gradle.contains."),
                     numbered(properties, prefix + "maven.absent."),
-                    numbered(properties, prefix + "gradle.absent.")));
+                    numbered(properties, prefix + "gradle.absent."),
+                    patterns(numbered(properties, prefix + "matches.")),
+                    patterns(numbered(properties, prefix + "maven.matches.")),
+                    patterns(numbered(properties, prefix + "gradle.matches."))));
         }
         return List.copyOf(expectations);
+    }
+
+    public List<Pattern> matches(BuildTool tool) {
+        return Stream.concat(matches.stream(), (tool == BuildTool.MAVEN ? mavenMatches : gradleMatches).stream())
+                .toList();
+    }
+
+    private static void validateKeys(Properties properties, int runs, Path file) {
+        for (String key : properties.stringPropertyNames()) {
+            if (key.equals("runs")) {
+                continue;
+            }
+            java.util.regex.Matcher matcher = RUN_KEY.matcher(key);
+            if (!matcher.matches()) {
+                throw new IllegalArgumentException("Unknown or malformed key '" + key + "' in " + file);
+            }
+            int run = Integer.parseInt(matcher.group(1));
+            if (run < 1 || run > runs) {
+                throw new IllegalArgumentException(
+                        "Key '" + key + "' in " + file + " refers to run " + run + " but runs=" + runs);
+            }
+        }
+    }
+
+    private static List<Pattern> patterns(List<String> regexes) {
+        return regexes.stream().map(Pattern::compile).toList();
     }
 
     public List<String> contains(BuildTool tool) {

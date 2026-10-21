@@ -11,7 +11,7 @@ public final class GradleProjectWriter {
     static final String ARCHGATE_GROUP = "dev.quokkify.archgate";
     static final String PLUGIN_ID = "dev.quokkify.archgate";
 
-    private static final String SETTINGS = """
+    private static final String PUBLISHED_PLUGIN_MANAGEMENT = """
             pluginManagement {
                 repositories {
                     maven { url = '%1$s' }
@@ -22,7 +22,9 @@ public final class GradleProjectWriter {
                 }
             }
 
-            dependencyResolutionManagement {
+            """;
+    private static final String SETTINGS = """
+            %6$sdependencyResolutionManagement {
                 repositories {
                     maven { url = '%1$s' }
                     mavenCentral()
@@ -48,8 +50,9 @@ public final class GradleProjectWriter {
 
     private GradleProjectWriter() {}
 
-    public static void write(String scenario, FixtureSpec spec, Path target, Path itRepo, String archgateVersion) {
-        writeFile(target.resolve("settings.gradle"), settings(scenario, spec, itRepo, archgateVersion));
+    public static void write(
+            String scenario, FixtureSpec spec, Path target, Path itRepo, String archgateVersion, PluginMode mode) {
+        writeFile(target.resolve("settings.gradle"), settings(scenario, spec, itRepo, archgateVersion, mode));
         if (spec.singleModule()) {
             writeFile(target.resolve("build.gradle"), buildFile(spec, null, archgateVersion, true, false));
             return;
@@ -64,11 +67,14 @@ public final class GradleProjectWriter {
         }
     }
 
-    static String settings(String scenario, FixtureSpec spec, Path itRepo, String archgateVersion) {
+    static String settings(String scenario, FixtureSpec spec, Path itRepo, String archgateVersion, PluginMode mode) {
         String includes = spec.modules().stream()
                 .map(module -> "include '" + module + "'\n")
                 .collect(Collectors.joining());
-        return SETTINGS.formatted(itRepo.toUri(), PLUGIN_ID, archgateVersion, scenario, includes);
+        String pluginManagement = mode == PluginMode.PUBLISHED
+                ? PUBLISHED_PLUGIN_MANAGEMENT.formatted(itRepo.toUri(), PLUGIN_ID, archgateVersion)
+                : "";
+        return SETTINGS.formatted(itRepo.toUri(), PLUGIN_ID, archgateVersion, scenario, includes, pluginManagement);
     }
 
     static String buildFile(
