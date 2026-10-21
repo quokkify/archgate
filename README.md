@@ -133,6 +133,13 @@ dependencies {
 
 `rootPackage` is required. Modules in `modules(...)` must apply the plugin themselves, and modules that only expose classes to a gate set `archgate { skip = true }`. See [Configuration](docs/configuration.md#gradle).
 
+`modules` means different things in the two plugins:
+
+| | Maven | Gradle |
+|---|---|---|
+| Not set | The current module plus the reactor modules it directly depends on, except `pom` packaging | Only the current project |
+| Set | Replaces the default: only the listed `artifactId`s, the current module only if listed | Adds the listed projects to the current project |
+
 To change a parameter or the severity of a built-in rule, subclass it and register the subclass instead. Each rule page shows how.
 
 ## Write your own rule

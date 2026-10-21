@@ -8,7 +8,7 @@ English · [Русский](configuration.ru.md)
 |---|---|---|---|
 | `rootPackage` | required | `archgate.rootPackage` | `-Parchgate.rootPackage` |
 | `failOn` | `WARNING` (`INFO`, `WARNING`, `ERROR`, `NEVER`) | `archgate.failOn` | `-Parchgate.failOn` |
-| `modules` | Maven: the current module plus the reactor modules it directly depends on, except `pom` packaging; entries are artifactIds and a list replaces the default entirely. Gradle: only the current project | — | — |
+| `modules` | Maven: the current module plus the reactor modules it directly depends on, except `pom` packaging; entries are artifactIds and a list replaces the default entirely. Gradle: the current project; `modules(...)` adds the listed projects to it | — | — |
 | `skip` | `false` | `archgate.skip` | `-Parchgate.skip` |
 
 The gate fails when any finding has a severity at or above `failOn`. With `NEVER` it only reports. For example, `-Darchgate.failOn=ERROR` (Maven) or `-Parchgate.failOn=ERROR` (Gradle) lets warnings through. `UnableToVerifyError` fails the build whatever `failOn` says, `NEVER` included.
@@ -38,7 +38,7 @@ Supported consumer Gradle version: 9.7.1 and newer. Older versions are not teste
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
 - The task is cacheable and safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, and a build-cache hit is `FROM-CACHE`.
 - The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE` or `FROM-CACHE`, so read the report file in those cases.
-- A failing gate throws a `GradleException` whose message contains the report, or the reason a rule could not be verified.
+- A failing gate throws a `GradleException` whose message is the counts line, for example `Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING`; the report itself goes to the console and the report file. When a rule cannot be verified, the message is the reason, and no report is written.
 
 ### Precedence
 
@@ -215,7 +215,7 @@ platform/
 
 ## Always failing, whatever `failOn` says
 
-- A selected module has no compiled classes. The gate module itself is exempt.
+- Maven: a selected module other than the gate module has no `target/classes` (it is not built). Gradle has no such check: `archgateCheck` depends on the classes of every project in `modules(...)`, so Gradle builds them first, and a project without main classes simply adds nothing to the MAIN view.
 - The MAIN or TEST view finds no class under `rootPackage`, and a rule needs that view.
 - A `modules` entry is not part of the build (Maven: not in the reactor; Gradle: does not apply the plugin).
 - A registration failure, as described above.
