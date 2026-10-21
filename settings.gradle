@@ -5,3 +5,4 @@ pluginManagement {
 rootProject.name = 'archgate'
 
 include 'api'
+include 'core'
