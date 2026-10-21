@@ -2,3 +2,8 @@ plugins {
     id 'archgate.java-conventions'
     id 'archgate.publish-conventions'
 }
+
+tasks.withType(Javadoc).configureEach {
+    options.addBooleanOption('Xdoclint:all', true)
+    options.addBooleanOption('Werror', true)
+}
