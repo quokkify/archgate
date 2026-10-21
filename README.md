@@ -222,6 +222,7 @@ A rule reports violations by throwing `ArchitectureViolation`, which `checkViola
 ## More
 
 - [Configuration](docs/configuration.md): plugin parameters for Maven and Gradle, `failOn`, multi-module projects, how to read the report.
+- [Writing a backend or rule](docs/extending.md): the contract for rules and backends: concurrency, shared contexts, errors, what is public.
 - [Development](docs/development.md): building locally, tests, the pre-push hook.
 - [Releasing](docs/releasing.md): how a release is cut and published.
 - [FAQ](docs/faq.md) ([на русском](docs/faq.ru.md)): answers to common questions.
