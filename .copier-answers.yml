@@ -1,0 +1,26 @@
+_commit: v3.3.0
+_src_path: https://github.com/quokkify/ci-kit.git
+module: legacy
+project_name: archgate
+toolkit_version: v3.3.0
+components:
+  - type: java
+    path: .
+    id: archgate-java
+    name: ArchGate Java
+docker: false
+codeql: true
+codeql_languages:
+  - java-kotlin
+  - actions
+gitleaks: true
+allure_report: false
+release_please: true
+release_mode: single
+renovate: true
+renovate_presets:
+  - default
+  - java
+  - github-actions
+handed_off: []
+renovate_config_repository: quokkify/renovate-presets

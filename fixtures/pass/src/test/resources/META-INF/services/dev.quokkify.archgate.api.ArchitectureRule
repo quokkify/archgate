@@ -1,0 +1,2 @@
+dev.quokkify.archgate.rules.archunit.NoThreadSleepRule
+dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule

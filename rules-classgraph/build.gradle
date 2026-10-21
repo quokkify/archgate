@@ -1,0 +1,19 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+}
+
+dependencies {
+    api project(':context-classgraph')
+
+    testImplementation project(':core')
+}
+
+tasks.named('test', Test) {
+    dependsOn tasks.named('jar')
+    systemProperty 'archgate.rulesJar', tasks.named('jar', Jar).flatMap { it.archiveFile }.get().asFile.absolutePath
+}
+
+tasks.named('checkstyleTest') {
+    exclude 'archfixtures/**'
+}

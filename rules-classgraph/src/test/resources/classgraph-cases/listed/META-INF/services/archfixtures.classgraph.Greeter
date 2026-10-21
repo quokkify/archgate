@@ -1,0 +1,4 @@
+# registered greeters
+archfixtures.classgraph.ListedGreeter # inline
+
+archfixtures.classgraph.UnlistedGreeter

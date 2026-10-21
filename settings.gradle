@@ -1,0 +1,19 @@
+pluginManagement {
+    includeBuild('build-logic')
+}
+
+rootProject.name = 'archgate'
+
+include 'api'
+include 'core'
+include 'context-archunit'
+include 'rules-archunit'
+include 'context-javaparser'
+include 'rules-javaparser'
+include 'context-classgraph'
+include 'rules-classgraph'
+include 'testing:fixtures-support'
+include 'testing:parity'
+include 'maven-plugin'
+include 'gradle-plugin'
+include 'bom'

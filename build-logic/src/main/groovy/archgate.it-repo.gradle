@@ -1,0 +1,12 @@
+plugins {
+    id 'maven-publish'
+}
+
+publishing {
+    repositories {
+        maven {
+            name = 'it'
+            url = rootProject.layout.buildDirectory.dir('it-repo')
+        }
+    }
+}

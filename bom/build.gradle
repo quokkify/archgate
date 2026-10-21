@@ -1,0 +1,16 @@
+plugins {
+    id 'java-platform'
+    id 'archgate.publish-conventions'
+}
+
+base.archivesName = 'archgate-bom'
+description = 'Bill of materials aligning all ArchGate artifacts.'
+
+dependencies {
+    constraints {
+        ['api', 'core', 'context-archunit', 'context-javaparser', 'context-classgraph',
+         'rules-archunit', 'rules-javaparser', 'rules-classgraph', 'maven-plugin', 'gradle-plugin'].each { module ->
+            api project(":${module}")
+        }
+    }
+}

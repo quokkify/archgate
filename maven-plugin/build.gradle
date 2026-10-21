@@ -1,0 +1,97 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+    id 'org.gradlex.maven-plugin-development'
+}
+
+def requiredMavenVersion = libs.versions.mavenApi.get()
+def descriptorFile = layout.buildDirectory.file('mavenPlugin/descriptor/META-INF/maven/plugin.xml')
+
+mavenPlugin {
+    artifactId = base.archivesName
+    name = 'ArchGate Maven Plugin'
+    description = 'Runs ArchGate architecture checks in a Maven build.'
+    goalPrefix = 'archgate'
+}
+
+// gradlex 1.0.3 has no setting for the minimum Maven version, so the generated descriptor is patched.
+tasks.named('generateMavenPluginDescriptor') { descriptorTask ->
+    doLast {
+        descriptorTask.outputs.files.asFileTree.matching { include '**/META-INF/maven/plugin.xml' }.each { file ->
+            def text = file.getText('UTF-8')
+            if (!text.contains('<requiredMavenVersion>')) {
+                file.setText(
+                    text.replace('<mojos', "<requiredMavenVersion>${requiredMavenVersion}</requiredMavenVersion>\n  <mojos"),
+                    'UTF-8')
+            }
+        }
+    }
+}
+
+mavenPublishing {
+    pom {
+        packaging = 'maven-plugin'
+    }
+}
+
+sourceSets {
+    mavenIT
+}
+
+configurations {
+    mavenITImplementation.extendsFrom testImplementation
+    mavenITRuntimeOnly.extendsFrom testRuntimeOnly
+    mavenDistribution {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    compileOnly libs.maven.plugin.api
+    compileOnly libs.maven.core
+    compileOnly libs.maven.plugin.annotations
+
+    testImplementation libs.maven.core
+    testCompileOnly libs.maven.plugin.annotations
+
+    mavenITImplementation project(':testing:fixtures-support')
+    mavenITImplementation libs.maven.verifier
+
+    mavenDistribution "${libs.apache.maven.distribution.get()}:bin@zip"
+}
+
+tasks.named('test', Test) {
+    dependsOn tasks.named('generateMavenPluginDescriptor')
+    systemProperty 'archgate.descriptor', descriptorFile.get().asFile.path
+}
+
+def archives = services.get(ArchiveOperations)
+def unpackMaven = tasks.register('unpackMaven', Sync) {
+    from(archives.zipTree(configurations.mavenDistribution.elements.map { it.first() }))
+    into layout.buildDirectory.dir('maven')
+}
+
+def mavenIT = tasks.register('mavenIT', Test) {
+    group = 'verification'
+    description = 'Runs the shared fixtures through a real Maven build.'
+    testClassesDirs = sourceSets.mavenIT.output.classesDirs
+    classpath = sourceSets.mavenIT.runtimeClasspath
+    dependsOn unpackMaven, rootProject.tasks.named('publishToItRepo')
+    inputs.files(rootProject.itRepoArtifacts).withPropertyName('itRepoArtifacts').withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.dir(rootProject.file('fixtures')).withPropertyName('fixtures')
+    systemProperty 'maven.home', layout.buildDirectory.dir("maven/apache-maven-${libs.versions.mavenRuntime.get()}").get().asFile.path
+    systemProperty 'archgate.itRepo', rootProject.layout.buildDirectory.dir('it-repo').get().asFile.path
+    systemProperty 'archgate.fixtures', rootProject.file('fixtures').path
+    systemProperty 'archgate.version', project.version.toString()
+    systemProperty 'archgate.mavenCache', rootProject.mavenItCache.get().asFile.path
+    testLogging {
+        events 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.named('check') {
+    dependsOn mavenIT
+}

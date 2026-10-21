@@ -1,0 +1,32 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>quokkify/renovate-presets//presets/base",
+    "github>quokkify/renovate-presets//presets/gradle/default",
+    "github>quokkify/renovate-presets//presets/github-actions/default"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "deps",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Python runtime versions in workflows.",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": ["python-version:\\s*\\\"(?<currentValue>3\\.\\d+)\\\""],
+      "depNameTemplate": "python",
+      "datasourceTemplate": "python-version",
+      "versioningTemplate": "python"
+    },
+    {
+      "customType": "regex",
+      "description": "Update the pip version installed by the Python CI workflow.",
+      "managerFilePatterns": ["/^\\.github/workflows/[^/]+\\.ya?ml$/"],
+      "matchStrings": [
+        "pip-version:\\s*\\\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\\""
+      ],
+      "depNameTemplate": "pip",
+      "datasourceTemplate": "pypi",
+      "versioningTemplate": "pep440"
+    }
+  ]
+}
