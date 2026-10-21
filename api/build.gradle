@@ -1,0 +1,4 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+}
