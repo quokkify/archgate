@@ -1,0 +1,8 @@
+_commit: v3.6.1
+_src_path: https://github.com/quokkify/ci-kit.git
+module: java
+java_components:
+  - id: archgate-java
+    name: ArchGate Java
+    path: .
+    java_version: "21"

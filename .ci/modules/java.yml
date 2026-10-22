@@ -1,0 +1,6 @@
+schema_version: 1
+components:
+  - id: "archgate-java"
+    name: "ArchGate Java"
+    path: "."
+    java_version: "21"
