@@ -22,5 +22,6 @@ renovate_presets:
   - default
   - java
   - github-actions
-handed_off: []
+handed_off:
+  - validate
 renovate_config_repository: quokkify/renovate-presets
