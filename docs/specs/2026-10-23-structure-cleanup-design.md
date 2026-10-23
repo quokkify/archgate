@@ -27,6 +27,8 @@ code. Nothing a consumer sees changes: no public API, no plugin behaviour, no re
 - A shared "existing directories" helper for the two plugins: one line each, different input types
   (`String` in Maven, `File` in Gradle); a public helper in `core.launch` would grow the API for it.
 - Any change to rules, contexts, `ReportFormatter` or plugin parameters.
+- The two descriptions in `gradle-plugin/build.gradle`: one is the Maven Central POM text, the
+  other the Gradle Plugin Portal text; both are published.
 
 ## 2. Build (`build-logic`)
 
@@ -48,7 +50,6 @@ code. Nothing a consumer sees changes: no public API, no plugin behaviour, no re
 - **Checkstyle:** `archgate.java-conventions` excludes `archfixtures/**` from `checkstyleTest` for
   every module. Fixtures are deliberately non-conforming inputs for rules. The three per-module
   exclusions are removed.
-- **`gradle-plugin/build.gradle`:** one description string instead of two near-identical ones.
 
 ## 3. Shared test runners (`testing/fixtures-support`)
 
