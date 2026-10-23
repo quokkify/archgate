@@ -27,13 +27,13 @@ The repository is public. Nothing from a private employer, internal host, regist
 | `bom` | — | `java-platform` over every published artifact | No sources |
 | `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, runners `MavenRun` (with `Outcome`) and `GradleRun`, `DocsLinkTest`, `BomCompletenessTest` | Test support only, not published |
 | `testing/parity` | — | Runs every fixture except `skip` under Maven and Gradle and compares the reports or, for `unableToVerify` runs, the message | Test only, not published |
-| `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.rules-conventions` (applied by every `rules-*` module: test classpath gets the module jar and `archgate.rulesJar`), `archgate.it-repo`, `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
+| `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.rules-conventions` (applied by every `rules-*` module: `test` runs after `jar` and receives the jar's path as the `archgate.rulesJar` system property, read by `NoServicesFileShippedTest`), `archgate.it-repo`, `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
 
 Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted). Test source sets of `context-*` and `rules-*` may depend on `core`.
 
 `fixtures/<scenario>/` holds shared scenarios (sources, services file, `fixture.properties`, `expected.properties`) used by `functionalTest`, `mavenIT` and the parity test.
 
-`.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change them by updating the template, not by hand. `docs/specs/` holds approved designs.
+`.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change answers with `copier update --data <question>=<value>` (see `docs/ci-kit.md`) and toolkit files in ci-kit, not by hand. `docs/specs/` holds approved designs.
 
 ## Contracts you must not break
 
