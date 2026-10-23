@@ -9,7 +9,3 @@ dependencies {
 
     testImplementation project(':core')
 }
-
-tasks.named('checkstyleTest') {
-    exclude 'archfixtures/**'
-}

@@ -1,6 +1,7 @@
 plugins {
     id 'archgate.java-conventions'
     id 'archgate.publish-conventions'
+    id 'archgate.rules-conventions'
 }
 
 dependencies {
@@ -13,13 +14,4 @@ dependencies {
     testImplementation libs.testng
     testImplementation libs.slf4j.api
     testRuntimeOnly libs.slf4j.simple
-}
-
-tasks.named('test', Test) {
-    dependsOn tasks.named('jar')
-    systemProperty 'archgate.rulesJar', tasks.named('jar', Jar).flatMap { it.archiveFile }.get().asFile.absolutePath
-}
-
-tasks.named('checkstyleTest') {
-    exclude 'archfixtures/**'
 }
