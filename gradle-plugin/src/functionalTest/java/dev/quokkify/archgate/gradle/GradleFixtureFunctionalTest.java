@@ -5,8 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
+import dev.quokkify.archgate.testing.GradleRun;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -37,12 +37,7 @@ class GradleFixtureFunctionalTest {
     }
 
     static GradleRunner runner(Path project, List<String> args) {
-        List<String> arguments = new ArrayList<>(List.of("check", "--stacktrace"));
-        arguments.addAll(args);
-        return GradleRunner.create()
-                .withProjectDir(project.toFile())
-                .withPluginClasspath()
-                .withArguments(arguments);
+        return GradleRun.runner(project, args);
     }
 
     @ParameterizedTest(name = "{0}")

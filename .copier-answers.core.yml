@@ -2,4 +2,4 @@ _commit: v3.9.0
 _src_path: https://github.com/quokkify/ci-kit.git
 module: core
 toolkit_version: v3.9.0
-project_name: my-project
+project_name: archgate

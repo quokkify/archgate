@@ -5,17 +5,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
-import dev.quokkify.archgate.testing.ForkedMaven;
 import dev.quokkify.archgate.testing.MavenCache;
-import java.io.IOException;
-import java.nio.file.Files;
+import dev.quokkify.archgate.testing.MavenRun;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.apache.maven.shared.verifier.VerificationException;
-import org.apache.maven.shared.verifier.Verifier;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -53,20 +47,9 @@ class MavenFixtureIT {
     }
 
     private static void run(Path project, Path localRepo, MavenCache cache, Expectation expectation) throws Exception {
-        Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(project.toString()));
-        verifier.setLocalRepo(localRepo.toString());
-        verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
-        List<String> arguments =
-                new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", cache.tailArgument(), "verify"));
-        arguments.addAll(expectation.args(BuildTool.MAVEN));
-        verifier.addCliArguments(arguments.toArray(String[]::new));
-        boolean succeeded = true;
-        try {
-            verifier.execute();
-        } catch (VerificationException e) {
-            succeeded = false;
-        }
-        String log = log(project, verifier);
+        MavenRun.Outcome outcome = MavenRun.execute(project, localRepo, cache, expectation);
+        boolean succeeded = outcome.succeeded();
+        String log = outcome.log();
         assertThat(succeeded).as("run %d succeeded%n%s", expectation.run(), log).isEqualTo(expectation.success());
         for (String text : expectation.contains(BuildTool.MAVEN)) {
             assertThat(log).as("run %d", expectation.run()).contains(text);
@@ -79,9 +62,5 @@ class MavenFixtureIT {
                     .as("run %d matches %s%n%s", expectation.run(), pattern, log)
                     .isTrue();
         }
-    }
-
-    private static String log(Path project, Verifier verifier) throws IOException {
-        return Files.readString(project.resolve(verifier.getLogFileName()));
     }
 }

@@ -3,6 +3,7 @@ package dev.quokkify.archgate.gradle;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Project;
@@ -153,7 +154,7 @@ final class ArchgateElements {
 
         private static String firstLine(Throwable failure) {
             String message = failure.getMessage();
-            return message == null
+            return Objects.isNull(message)
                     ? failure.getClass().getName()
                     : message.lines().findFirst().orElse("");
         }

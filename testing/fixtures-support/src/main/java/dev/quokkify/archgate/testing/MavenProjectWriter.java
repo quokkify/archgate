@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class MavenProjectWriter {
@@ -147,7 +148,7 @@ public final class MavenProjectWriter {
             String archgateVersion,
             boolean isGate) {
         StringBuilder pom = new StringBuilder(POM_OPEN);
-        if (parent == null) {
+        if (Objects.isNull(parent)) {
             pom.append(COORDINATES.formatted(GROUP_ID, artifactId, VERSION)).append(PROPERTIES);
         } else {
             pom.append(PARENT.formatted(GROUP_ID, parent, VERSION, artifactId));
@@ -185,7 +186,7 @@ public final class MavenProjectWriter {
     }
 
     private static String dependency(String group, String artifact, String version, String scope) {
-        String scopeLine = scope == null ? "" : "            <scope>" + scope + "</scope>\n";
+        String scopeLine = Objects.isNull(scope) ? "" : "            <scope>" + scope + "</scope>\n";
         return DEPENDENCY.formatted(group, artifact, version, scopeLine);
     }
 

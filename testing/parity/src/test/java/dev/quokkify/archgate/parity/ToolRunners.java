@@ -4,16 +4,14 @@ import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Expectation;
 import dev.quokkify.archgate.testing.Fixture;
 import dev.quokkify.archgate.testing.FixtureSpec;
-import dev.quokkify.archgate.testing.ForkedMaven;
+import dev.quokkify.archgate.testing.GradleRun;
 import dev.quokkify.archgate.testing.MavenCache;
+import dev.quokkify.archgate.testing.MavenRun;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import org.apache.maven.shared.verifier.VerificationException;
-import org.apache.maven.shared.verifier.Verifier;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 
@@ -51,39 +49,21 @@ final class ToolRunners {
 
     private static BuildResultView runMaven(Path project, Path localRepo, Path report, Expectation expectation) {
         try {
-            Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(project.toString()));
-            verifier.setLocalRepo(localRepo.toString());
-            verifier.setLogFileName("log-run-" + expectation.run() + ".txt");
             MavenCache cache = MavenCache.fromSystemProperty();
-            List<String> arguments =
-                    new ArrayList<>(List.of("-s", "settings.xml", "-Pit-repo", cache.tailArgument(), "verify"));
-            arguments.addAll(expectation.args(BuildTool.MAVEN));
-            verifier.addCliArguments(arguments.toArray(String[]::new));
-            boolean succeeded = true;
+            MavenRun.Outcome outcome;
             try {
-                verifier.execute();
-            } catch (VerificationException e) {
-                succeeded = false;
+                outcome = MavenRun.execute(project, localRepo, cache, expectation);
             } finally {
                 cache.promote(localRepo);
             }
-            return new BuildResultView(
-                    succeeded,
-                    Files.readString(project.resolve(verifier.getLogFileName())),
-                    readReport(report),
-                    report);
+            return new BuildResultView(outcome.succeeded(), outcome.log(), readReport(report), report);
         } catch (VerificationException | IOException e) {
             throw new IllegalStateException("Maven run " + expectation.run() + " could not be executed", e);
         }
     }
 
     private static BuildResultView runGradle(Path project, Path report, Expectation expectation) {
-        List<String> arguments = new ArrayList<>(List.of("check", "--stacktrace"));
-        arguments.addAll(expectation.args(BuildTool.GRADLE));
-        GradleRunner runner = GradleRunner.create()
-                .withProjectDir(project.toFile())
-                .withPluginClasspath()
-                .withArguments(arguments);
+        GradleRunner runner = GradleRun.runner(project, expectation.args(BuildTool.GRADLE));
         BuildResult result = expectation.success() ? runner.build() : runner.buildAndFail();
         return new BuildResultView(expectation.success(), result.getOutput(), readReport(report), report);
     }

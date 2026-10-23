@@ -47,6 +47,10 @@ checkstyle {
     configFile = rootProject.file('config/checkstyle/checkstyle.xml')
 }
 
+tasks.named('checkstyleTest') {
+    exclude 'archfixtures/**'
+}
+
 jacoco {
     toolVersion = catalog.findVersion('jacoco').get().requiredVersion
 }

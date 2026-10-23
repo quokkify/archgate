@@ -43,16 +43,7 @@ def functionalTest = tasks.register('functionalTest', Test) {
     description = 'Runs the shared fixtures through real Gradle builds with TestKit.'
     testClassesDirs = sourceSets.functionalTest.output.classesDirs
     classpath = sourceSets.functionalTest.runtimeClasspath
-    dependsOn rootProject.tasks.named('publishToItRepo')
-    inputs.files(rootProject.itRepoArtifacts).withPropertyName('itRepoArtifacts').withPathSensitivity(PathSensitivity.NAME_ONLY)
-    inputs.dir(rootProject.file('fixtures')).withPropertyName('fixtures')
-    systemProperty 'archgate.itRepo', rootProject.layout.buildDirectory.dir('it-repo').get().asFile.path
-    systemProperty 'archgate.fixtures', rootProject.file('fixtures').path
-    systemProperty 'archgate.version', project.version.toString()
-    testLogging {
-        events 'failed'
-        exceptionFormat = 'full'
-    }
+    FixtureTests.configure(delegate, project, false)
 }
 
 tasks.named('check') {

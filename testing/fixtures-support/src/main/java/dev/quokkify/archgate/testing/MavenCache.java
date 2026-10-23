@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class MavenCache {
@@ -22,7 +23,7 @@ public final class MavenCache {
 
     public static MavenCache fromSystemProperty() {
         String value = System.getProperty(PROPERTY);
-        if (value == null || value.isBlank()) {
+        if (Objects.isNull(value) || value.isBlank()) {
             throw new IllegalStateException("System property " + PROPERTY + " is not set");
         }
         return new MavenCache(Path.of(value));
