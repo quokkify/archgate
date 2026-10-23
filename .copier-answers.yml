@@ -1,8 +1,8 @@
-_commit: v3.10.0
+_commit: v3.11.0
 _src_path: https://github.com/quokkify/ci-kit.git
 module: legacy
 project_name: archgate
-toolkit_version: v3.10.0
+toolkit_version: v3.11.0
 components:
   - type: java
     path: .
@@ -30,3 +30,7 @@ handed_off:
   - allure
   - renovate
 renovate_config_repository: quokkify/renovate-presets
+codeql_aggregate: false
+gitleaks_job_name: gitleaks
+gitleaks_scan: history
+gitleaks_aggregate: false
