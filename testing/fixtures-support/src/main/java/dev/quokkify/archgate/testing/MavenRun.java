@@ -14,6 +14,7 @@ public final class MavenRun {
 
     public record Outcome(boolean succeeded, String log) {}
 
+    /** Runs one expectation; the caller promotes {@code cache} afterwards. */
     public static Outcome execute(Path project, Path localRepo, MavenCache cache, Expectation expectation)
             throws VerificationException, IOException {
         Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(project.toString()));

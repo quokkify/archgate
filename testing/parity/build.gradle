@@ -2,7 +2,6 @@ plugins {
     id 'archgate.java-conventions'
 }
 
-evaluationDependsOn(':maven-plugin')
 evaluationDependsOn(':gradle-plugin')
 
 def gradlePlugin = project(':gradle-plugin')

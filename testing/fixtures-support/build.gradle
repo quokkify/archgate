@@ -3,8 +3,8 @@ plugins {
 }
 
 dependencies {
-    implementation libs.maven.verifier
-    implementation gradleTestKit()
+    api libs.maven.verifier
+    api gradleTestKit()
     testRuntimeOnly libs.maven.core
 }
 
