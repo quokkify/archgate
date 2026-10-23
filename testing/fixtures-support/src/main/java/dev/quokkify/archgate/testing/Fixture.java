@@ -5,6 +5,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public final class Fixture {
@@ -17,7 +18,7 @@ public final class Fixture {
 
     public static Path root() {
         String value = System.getProperty(ROOT_PROPERTY);
-        if (value == null || value.isBlank()) {
+        if (Objects.isNull(value) || value.isBlank()) {
             throw new IllegalStateException("System property " + ROOT_PROPERTY + " is not set");
         }
         return Path.of(value);

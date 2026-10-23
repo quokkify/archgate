@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public final class GradleProjectWriter {
@@ -93,8 +94,9 @@ public final class GradleProjectWriter {
         boolean appliesPlugin = isGate || exposesElements;
         String pluginLine = appliesPlugin ? "    id '" + PLUGIN_ID + "'\n" : "";
         StringBuilder out = new StringBuilder(BUILD_HEADER.formatted(pluginLine));
-        String ruleLibrary = module == null ? null : spec.ruleLibraries().get(module);
-        if (ruleLibrary != null) {
+        String ruleLibrary =
+                Objects.isNull(module) ? null : spec.ruleLibraries().get(module);
+        if (Objects.nonNull(ruleLibrary)) {
             out.append("""
 
                     base {
@@ -113,7 +115,7 @@ public final class GradleProjectWriter {
         } else if (exposesElements) {
             out.append(ELEMENTS_ONLY_BLOCK);
         }
-        out.append(dependencies(spec, module, archgateVersion, isGate, ruleLibrary != null));
+        out.append(dependencies(spec, module, archgateVersion, isGate, Objects.nonNull(ruleLibrary)));
         return out.toString();
     }
 
@@ -132,7 +134,7 @@ public final class GradleProjectWriter {
     private static String dependencies(
             FixtureSpec spec, String module, String archgateVersion, boolean isGate, boolean isRuleLibrary) {
         StringBuilder deps = new StringBuilder();
-        if (module != null) {
+        if (Objects.nonNull(module)) {
             for (String sibling : spec.dependenciesOf(module)) {
                 deps.append("    implementation project(':").append(sibling).append("')\n");
             }

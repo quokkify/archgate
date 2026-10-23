@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 final class PropertyFiles {
@@ -24,7 +25,7 @@ final class PropertyFiles {
     }
 
     static List<String> csv(String value) {
-        if (value == null || value.isBlank()) {
+        if (Objects.isNull(value) || value.isBlank()) {
             return List.of();
         }
         return Arrays.stream(value.split(","))
