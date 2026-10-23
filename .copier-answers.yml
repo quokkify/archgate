@@ -24,4 +24,9 @@ renovate_presets:
   - github-actions
 handed_off:
   - validate
+  - base
+  - security
+  - release
+  - allure
+  - renovate
 renovate_config_repository: quokkify/renovate-presets
