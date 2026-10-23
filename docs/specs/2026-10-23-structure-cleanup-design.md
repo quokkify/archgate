@@ -64,10 +64,10 @@ code. Nothing a consumer sees changes: no public API, no plugin behaviour, no re
 
 ## 4. Test classes
 
-- `core/src/test/java/dev/quokkify/archgate/context/archunit/ArchUnitContext.java` becomes
-  `FakeArchUnitContext` in the same package. The package must stay: `ContextResolver` derives the
-  `archgate-context-archunit` hint from it. Only the simple name changes, so it no longer shadows
-  the real class.
+- `core/src/test/java/dev/quokkify/archgate/context/archunit/ArchUnitContext.java` keeps its name:
+  it deliberately shares the real class's binary name, so `ContextResolverTest` and `GateRunnerTest`
+  assert the exact message a user sees (`No ContextProvider for
+  dev.quokkify.archgate.context.archunit.ArchUnitContext`). It gains a one-line javadoc saying so.
 - `rules-classgraph/.../ContextResolverIntegrationTest.java` stays where it is: it runs
   `ServiceFileConsistencyRule` against the `classgraph-cases` resources of `rules-classgraph`, so
   moving it to `context-classgraph` would make a context module's tests depend on a `rules-*` module.
@@ -98,7 +98,6 @@ One commit per step on branch `chore/structure-cleanup`, each ending with a gree
 
 1. `build: add rules conventions and fixture test helper`
 2. `test: share Maven and Gradle fixture runners`
-3. `test: rename the core context fake`
-4. `docs: align AGENTS.md with the code and tidy repository files`
+3. `docs: align AGENTS.md with the code and tidy repository files` (includes the fake's javadoc)
 
 Commit types are `build`, `test` and `docs`, so Release Please cuts no release for them.
