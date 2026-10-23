@@ -68,9 +68,9 @@ code. Nothing a consumer sees changes: no public API, no plugin behaviour, no re
   `FakeArchUnitContext` in the same package. The package must stay: `ContextResolver` derives the
   `archgate-context-archunit` hint from it. Only the simple name changes, so it no longer shadows
   the real class.
-- `rules-classgraph/.../ContextResolverIntegrationTest.java` moves to `context-classgraph` tests
-  (package `dev.quokkify.archgate.context.classgraph`), which already have `core` on the test
-  classpath. Any fixture it needs moves with it.
+- `rules-classgraph/.../ContextResolverIntegrationTest.java` stays where it is: it runs
+  `ServiceFileConsistencyRule` against the `classgraph-cases` resources of `rules-classgraph`, so
+  moving it to `context-classgraph` would make a context module's tests depend on a `rules-*` module.
 
 ## 5. Documentation and hygiene
 
@@ -98,7 +98,7 @@ One commit per step on branch `chore/structure-cleanup`, each ending with a gree
 
 1. `build: add rules conventions and fixture test helper`
 2. `test: share Maven and Gradle fixture runners`
-3. `test: rename core context fake and move context resolver integration test`
+3. `test: rename the core context fake`
 4. `docs: align AGENTS.md with the code and tidy repository files`
 
 Commit types are `build`, `test` and `docs`, so Release Please cuts no release for them.
