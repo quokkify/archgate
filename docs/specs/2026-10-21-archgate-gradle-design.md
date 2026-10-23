@@ -1,7 +1,7 @@
 # ArchGate on Gradle: two build plugins and pluggable analysis contexts
 
 Date: 2026-10-21
-Status: approved design; implementation plan in `docs/plans/2026-10-21-archgate-gradle.md`
+Status: approved design; implemented in 0.1.0
 
 ## 1. Goal
 

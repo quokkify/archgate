@@ -6,7 +6,7 @@ Working notes for AI agents and new contributors in **archgate** (`quokkify/arch
 
 ArchGate runs architecture rules as a build gate for Maven and Gradle. This repository *produces* the gate: a backend-neutral API, a build-tool-agnostic engine, three analysis backends (ArchUnit, JavaParser, ClassGraph) with their built-in rules, a Maven plugin, a Gradle plugin and a BOM. It publishes to Maven Central and the Gradle Plugin Portal. There is no application code here: consumers add a plugin to their own build and list rules in their own `META-INF/services` file.
 
-Docs are bilingual: every `docs/X.md` has `docs/X.ru.md`, and `README.md` has `README.ru.md`. English is the source; a change to one side requires the other in the same commit. ADRs in `docs/adr/` are English only.
+Docs are bilingual: every `docs/X.md` has `docs/X.ru.md`, and `README.md` has `README.ru.md`. English is the source; a change to one side requires the other in the same commit. ADRs in `docs/adr/`, `docs/ci-kit.md` (owned by the ci-kit toolkit) and the specs in `docs/specs/` are English only.
 
 The repository is public. Nothing from a private employer, internal host, registry, ticket tracker or machine path may appear in code, docs, assets, commit messages or history.
 
@@ -15,23 +15,25 @@ The repository is public. Nothing from a private employer, internal host, regist
 | Module | Package | Holds | Hard limits |
 |---|---|---|---|
 | `api` | `dev.quokkify.archgate.api` | Contract: `ArchitectureRule<C>`, `AnalysisContext`, `ContextProvider<C>`, `ProjectLayout`, `Severity`, `Scope`, `ArchitectureViolation`, `UnableToVerifyError` | No analysis library, no build-tool types, no logging |
-| `core` | `dev.quokkify.archgate.core`, `.core.launch` | `RuleRegistry`, `RegistrationCheck`, `ApiCompatibilityCheck` (with `ApiVersion`, `ApiVersionManifest`), `ContextResolver`, `GateRunner` (one virtual thread per rule), `FailOn`, `GateResult`, `RuleOutcome`, `ReportFormatter`, `RootPackage`, `GateLauncher`, `LaunchRequest`, `GateFailure` | Build-tool agnostic and analysis-library free. Depends on `api` only |
-| `context-archunit` | `dev.quokkify.archgate.context.archunit` | `ArchUnitContext` (`main()`, `test()`, `all()`, `layout()`), its provider, helpers `ArchRuleChecks`, `GeneratedCode` | Depends on `api` and ArchUnit |
-| `context-javaparser` | `dev.quokkify.archgate.context.javaparser` | `JavaParserContext` (`compilationUnits(Scope)`, `relativePath`), its provider | Depends on `api` and JavaParser; built from source directories |
-| `context-classgraph` | `dev.quokkify.archgate.context.classgraph` | `ClassGraphContext` (`scan(Scope)`, `layout()`; `AutoCloseable`), its provider | Depends on `api` and ClassGraph |
+| `core` | `dev.quokkify.archgate.core`, `.core.launch` | `RuleRegistry`, `RegistrationCheck`, `SimpleProjectLayout`, `ApiCompatibilityCheck` (with `ApiVersion`, `ApiVersionManifest`), `ContextResolver`, `GateRunner` (one virtual thread per rule), `FailOn`, `GateResult`, `RuleOutcome`, `ReportFormatter`, `RootPackage`, `GateLauncher`, `LaunchRequest`, `GateFailure`, `ModuleDirs`, `ReportSink` | Build-tool agnostic and analysis-library free. Depends on `api` only |
+| `context-archunit` | `dev.quokkify.archgate.context.archunit` | `ArchUnitContext` (`main()`, `test()`, `all()`, `layout()`), `ArchUnitContexts`, `DirectoryArchUnitContext`, its provider; helpers `ArchRuleChecks`, `GeneratedCode` in `.support` | Depends on `api` and ArchUnit |
+| `context-javaparser` | `dev.quokkify.archgate.context.javaparser` | `JavaParserContext` (`compilationUnits(Scope)`, `relativePath`), `DirectoryJavaParserContext`, its provider | Depends on `api` and JavaParser; built from source directories |
+| `context-classgraph` | `dev.quokkify.archgate.context.classgraph` | `ClassGraphContext` (`scan(Scope)`, `layout()`; `AutoCloseable`), `DirectoryClassGraphContext`, its provider | Depends on `api` and ClassGraph |
 | `rules-archunit` | `dev.quokkify.archgate.rules.archunit` | The 14 ArchUnit rules | Ships **no** `META-INF/services` rule file. Every rule has a public no-arg constructor with defaults; parameterised ones add a `protected` constructor |
 | `rules-javaparser` | `dev.quokkify.archgate.rules.javaparser` | `NoWildcardImportsRule` | Same |
 | `rules-classgraph` | `dev.quokkify.archgate.rules.classgraph` | `ServiceFileConsistencyRule` | Same |
 | `maven-plugin` | `dev.quokkify.archgate.maven` | Goal `check` in `verify` (`CheckMojo`), `ModuleSelection`, `MainDir` | Thin adapter over core. Built with `org.gradlex.maven-plugin-development` |
-| `gradle-plugin` | `dev.quokkify.archgate.gradle` | Plugin id `dev.quokkify.archgate`, task `archgateCheck` (`ArchgateCheckTask`), `ArchgateExtension`, `ArchgateElements`, worker action | Thin adapter over core; configuration-cache safe |
+| `gradle-plugin` | `dev.quokkify.archgate.gradle` | Plugin id `dev.quokkify.archgate`, task `archgateCheck` (`ArchgateCheckTask`), `ArchgateExtension`, `ArchgateElements`, `ExistingDirectories`, `FailureMessage`, `GateWorkParameters`, worker action | Thin adapter over core; configuration-cache safe |
 | `bom` | — | `java-platform` over every published artifact | No sources |
-| `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, `DocsLinkTest` | Test support only, not published |
+| `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, runners `MavenRun` (with `Outcome`) and `GradleRun`, `DocsLinkTest`, `BomCompletenessTest` | Test support only, not published |
 | `testing/parity` | — | Runs every fixture except `skip` under Maven and Gradle and compares the reports or, for `unableToVerify` runs, the message | Test only, not published |
-| `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.it-repo`, `ArchgateVersions` | |
+| `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.rules-conventions` (applied by every `rules-*` module: test classpath gets the module jar and `archgate.rulesJar`), `archgate.it-repo`, `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
 
-Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted).
+Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted). Test source sets of `context-*` and `rules-*` may depend on `core`.
 
 `fixtures/<scenario>/` holds shared scenarios (sources, services file, `fixture.properties`, `expected.properties`) used by `functionalTest`, `mavenIT` and the parity test.
+
+`.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change them by updating the template, not by hand. `docs/specs/` holds approved designs.
 
 ## Contracts you must not break
 
@@ -55,7 +57,7 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 | Change | Touch |
 |---|---|
 | New built-in rule | `rules-<backend>/src/main/java/.../XRule.java` + fixtures under `rules-<backend>/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` and `.ru.md` + a row in the README rule table (both languages) |
-| New analysis backend | `context-<name>` and `rules-<name>` modules, a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
+| New analysis backend | `context-<name>` and `rules-<name>` modules (the latter applies `archgate.rules-conventions`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
 | New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md` and `.ru.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |
 | New end-to-end scenario | `fixtures/<name>/`; picked up by `functionalTest`, `mavenIT` and parity |
