@@ -1,8 +1,8 @@
-_commit: v3.11.0
+_commit: v3.11.2
 _src_path: https://github.com/quokkify/ci-kit.git
 module: legacy
 project_name: archgate
-toolkit_version: v3.11.0
+toolkit_version: v3.11.2
 components:
   - type: java
     path: .
