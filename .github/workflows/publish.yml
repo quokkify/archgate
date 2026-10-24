@@ -41,7 +41,7 @@ jobs:
             exit 1
           fi
       - name: Check out the release commit
-        uses: quokkify/ci-kit/actions/checkout@57133c7c572845def9578ce6d5fc6d4218cd70b2 # v3.11.2
+        uses: quokkify/ci-kit/actions/checkout@d6cbcab992d9500c158773337ae25037129e639c # v4.0.1
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.tag) || github.event.workflow_run.head_sha }}
           fetch-depth: 0
