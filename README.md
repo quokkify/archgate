@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/archgate/banner/archgate-banner-dark.png">
-  <img src="docs/assets/archgate/banner/archgate-banner-light.png" alt="ArchGate — Architecture rules as a build gate" width="1280" height="320">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/banner/archgate-banner-dark.png">
+  <img src="docs/assets/banner/archgate-banner-light.png" alt="ArchGate — Architecture rules as a build gate" width="1280" height="320">
 </picture>
 
 ![Java 21](https://img.shields.io/badge/Java-21-3FA66B?logo=openjdk&logoColor=white)

@@ -1,7 +1,6 @@
 plugins {
     id 'archgate.java-conventions'
     id 'archgate.publish-conventions'
-    id 'archgate.rules-conventions'
 }
 
 dependencies {

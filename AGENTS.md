@@ -27,7 +27,7 @@ The repository is public. Nothing from a private employer, internal host, regist
 | `bom` | — | `java-platform` over every published artifact | No sources |
 | `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, runners `MavenRun` (with `Outcome`) and `GradleRun`, `DocsLinkTest`, `BomCompletenessTest` | Test support only, not published |
 | `testing/parity` | — | Runs every fixture except `skip` under Maven and Gradle and compares the reports or, for `unableToVerify` runs, the message | Test only, not published |
-| `build-logic` | — | Convention plugins `archgate.java-conventions`, `archgate.publish-conventions`, `archgate.rules-conventions` (applied by every `rules-*` module: `test` runs after `jar` and receives the jar's path as the `archgate.rulesJar` system property, read by `NoServicesFileShippedTest`), `archgate.it-repo`, `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
+| `build-logic` | — | Convention plugins `archgate.java-conventions` (for every `rules-*` module it also runs `test` after `jar` and passes the jar's path as the `archgate.rulesJar` system property, read by `NoServicesFileShippedTest`), `archgate.publish-conventions` (including the `it` repository), `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
 
 Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted). Test source sets of `context-*` and `rules-*` may depend on `core`.
 
@@ -57,11 +57,11 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 | Change | Touch |
 |---|---|
 | New built-in rule | `rules-<backend>/src/main/java/.../XRule.java` + fixtures under `rules-<backend>/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` and `.ru.md` + a row in the README rule table (both languages) |
-| New analysis backend | `context-<name>` and `rules-<name>` modules (the latter applies `archgate.rules-conventions`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
+| New analysis backend | `context-<name>` and `rules-<name>` modules, a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
 | New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md` and `.ru.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |
 | New end-to-end scenario | `fixtures/<name>/`; picked up by `functionalTest`, `mavenIT` and parity |
-| Release or CI logic | `.github/workflows/*`, `docs/releasing.md` and `.ru.md` |
+| Release or CI logic | `.github/workflows/*`, `docs/releasing.md` |
 | Dependency versions | `gradle/libs.versions.toml` only; the catalog contains only what the project uses |
 
 ## Build and verify

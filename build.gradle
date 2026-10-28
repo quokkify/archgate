@@ -29,7 +29,7 @@ tasks.register('publishToItRepo') {
 
 subprojects {
     def modulePath = path
-    plugins.withId('archgate.it-repo') {
+    plugins.withId('archgate.publish-conventions') {
         rootProject.tasks.named('publishToItRepo') {
             dependsOn("${modulePath}:publishAllPublicationsToItRepository")
         }

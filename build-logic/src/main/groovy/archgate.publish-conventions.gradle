@@ -1,6 +1,5 @@
 plugins {
     id 'com.vanniktech.maven.publish'
-    id 'archgate.it-repo'
 }
 
 def releaseBuild = providers.gradleProperty('release').map { it == 'true' }.getOrElse(false)
@@ -44,5 +43,14 @@ mavenPublishing {
 afterEvaluate {
     mavenPublishing {
         coordinates('dev.quokkify.archgate', base.archivesName.get(), project.version.toString())
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = 'it'
+            url = rootProject.layout.buildDirectory.dir('it-repo')
+        }
     }
 }
