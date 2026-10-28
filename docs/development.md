@@ -14,7 +14,7 @@
 `build` runs `check`, which covers:
 
 - unit tests of every module;
-- `:testing:test`, the end-to-end test: every shared fixture runs once through a real Maven build (`maven-verifier`) and once through a real Gradle build (TestKit), each checked against its `expected.properties`; for every fixture except `skip` the two reports must then be identical, and for a run marked `unableToVerify=true` neither tool may write a report and both must print the same message line. The same project holds the Gradle plugin's caching and `archgateElements` tests;
+- `:testing:test`, the end-to-end test: every shared fixture runs once through a real Maven build (`maven-executor`) and once through a real Gradle build (TestKit), each checked against its `expected.properties`; for every fixture except `skip` the two reports must then be identical, and for a run marked `unableToVerify=true` neither tool may write a report and both must print the same message line. The same project holds the Gradle plugin's caching and `archgateElements` tests;
 - Spotless (palantir-java-format) and Checkstyle (`config/checkstyle/checkstyle.xml`);
 - JaCoCo coverage verification (80 % of lines) for `:api`, `:core`, `:context-*` and `:rules-*`;
 - `DocsLinkTest`: relative links in the Markdown files resolve, the README rule table names existing rule classes, and the table lists every implemented rule;
