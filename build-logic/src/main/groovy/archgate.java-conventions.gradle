@@ -20,6 +20,15 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
 
+tasks.named('compileJava', JavaCompile) {
+    options.compilerArgs += ['-Xlint:all', '-Werror']
+}
+
+tasks.withType(Javadoc).configureEach {
+    options.addBooleanOption('Xdoclint:all,-missing', true)
+    options.addBooleanOption('Werror', true)
+}
+
 repositories {
     mavenCentral()
 }

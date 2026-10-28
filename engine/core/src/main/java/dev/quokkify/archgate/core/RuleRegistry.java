@@ -27,13 +27,12 @@ public final class RuleRegistry {
 
     static List<ArchitectureRule<?>> load(ClassLoader loader, Optional<ApiVersion> runtime) {
         try {
-            Map<Class<? extends ArchitectureRule>, ServiceLoader.Provider<ArchitectureRule>> providers =
-                    new LinkedHashMap<>();
-            ServiceLoader.load(ArchitectureRule.class, loader).stream()
-                    .forEach(provider -> providers.putIfAbsent(provider.type(), provider));
+            Map<Class<?>, ServiceLoader.Provider<?>> providers = new LinkedHashMap<>();
+            ServiceLoader<?> services = ServiceLoader.load(ArchitectureRule.class, loader);
+            services.stream().forEach(provider -> providers.putIfAbsent(provider.type(), provider));
             ApiCompatibilityCheck.verify(runtime, providers.keySet());
             List<ArchitectureRule<?>> rules = providers.values().stream()
-                    .<ArchitectureRule<?>>map(ServiceLoader.Provider::get)
+                    .<ArchitectureRule<?>>map(provider -> (ArchitectureRule<?>) provider.get())
                     .sorted(Comparator.comparing(ArchitectureRule::name))
                     .toList();
             if (rules.isEmpty()) {
