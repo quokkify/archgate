@@ -50,7 +50,7 @@ class DocsLinkTest {
     private static List<Path> markdownFiles() throws IOException {
         List<Path> files = new ArrayList<>();
         try (Stream<Path> readmes = Files.list(ROOT)) {
-            readmes.filter(path -> path.getFileName().toString().matches("(README.*|AGENTS)\\.md"))
+            readmes.filter(path -> path.getFileName().toString().matches("(README|AGENTS)\\.md"))
                     .forEach(files::add);
         }
         try (Stream<Path> docs = Files.walk(ROOT.resolve("docs"))) {
