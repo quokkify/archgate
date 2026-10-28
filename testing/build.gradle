@@ -19,7 +19,6 @@ configurations {
 dependencies {
     testImplementation libs.maven.executor
     testImplementation gradleTestKit()
-    testRuntimeOnly libs.maven.core
     testRuntimeOnly files(pluginMetadata.map { it.outputDirectory }) {
         builtBy pluginMetadata
     }
