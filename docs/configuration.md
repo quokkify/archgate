@@ -1,7 +1,5 @@
 # Configuration
 
-English · [Русский](configuration.ru.md)
-
 ## Parameters
 
 | Parameter | Default | Maven property | Gradle property |

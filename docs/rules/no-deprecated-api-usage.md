@@ -1,7 +1,5 @@
 # No deprecated API usage
 
-English · [Русский](no-deprecated-api-usage.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule` · **WARNING** · main + test
 
 Code must not use anything annotated `@Deprecated` — fields, methods, constructors, superclasses, interfaces or the deprecated classes themselves. The next dependency upgrade can remove them; replace the usage with the supported alternative from the `@Deprecated` documentation.

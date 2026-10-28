@@ -1,7 +1,5 @@
 # No wildcard imports
 
-English · [Русский](no-wildcard-imports.ru.md)
-
 `dev.quokkify.archgate.rules.javaparser.NoWildcardImportsRule` · **WARNING** · main + test · backend: JavaParser (`archgate-rules-javaparser`)
 
 An import must name the type. The rule reports every `import x.y.*;` declaration. Static wildcard imports (`import static x.y.Z.*;`) are allowed.

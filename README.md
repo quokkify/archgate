@@ -9,8 +9,6 @@
 ![ArchUnit 1.x](https://img.shields.io/badge/ArchUnit-1.x-3FA66B)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-3FA66B)](LICENSE)
 
-English · [Русский](README.ru.md)
-
 ArchGate runs architecture rules as a step of the Maven or Gradle build. It stops the build when the code breaks a rule.
 - A rule runs only if your project lists it, built-in rules included.
 - You can mix the built-in rules with rules you write yourself.
@@ -225,7 +223,7 @@ A rule reports violations by throwing `ArchitectureViolation`, which `checkViola
 - [Writing a backend or rule](docs/extending.md): the contract for rules and backends: concurrency, shared contexts, errors, what is public.
 - [Development](docs/development.md): building locally, tests, the pre-push hook.
 - [Releasing](docs/releasing.md): how a release is cut and published.
-- [FAQ](docs/faq.md) ([на русском](docs/faq.ru.md)): answers to common questions.
+- [FAQ](docs/faq.md): answers to common questions.
 - [Architecture decisions](docs/adr/0001-opt-in-rule-registration.md): why the design is shaped this way.
 
 Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 quokkify.

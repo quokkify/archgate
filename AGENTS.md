@@ -6,7 +6,7 @@ Working notes for AI agents and new contributors in **archgate** (`quokkify/arch
 
 ArchGate runs architecture rules as a build gate for Maven and Gradle. This repository *produces* the gate: a backend-neutral API, a build-tool-agnostic engine, three analysis backends (ArchUnit, JavaParser, ClassGraph) with their built-in rules, a Maven plugin, a Gradle plugin and a BOM. It publishes to Maven Central and the Gradle Plugin Portal. There is no application code here: consumers add a plugin to their own build and list rules in their own `META-INF/services` file.
 
-Docs are bilingual: every `docs/X.md` has `docs/X.ru.md`, and `README.md` has `README.ru.md`. English is the source; a change to one side requires the other in the same commit. ADRs in `docs/adr/`, `docs/ci-kit.md` (owned by the ci-kit toolkit), `docs/development.md`, `docs/releasing.md` (contributor docs) and the specs in `docs/specs/` are English only.
+All documentation is English only.
 
 The repository is public. Nothing from a private employer, internal host, registry, ticket tracker or machine path may appear in code, docs, assets, commit messages or history.
 
@@ -59,9 +59,9 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 
 | Change | Touch |
 |---|---|
-| New built-in rule | `backends/<backend>/rules/src/main/java/.../XRule.java` + fixtures under `backends/<backend>/rules/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` and `.ru.md` + a row in the README rule table (both languages) |
-| New analysis backend | `backends/<name>/context` and `backends/<name>/rules` modules (projects `:context-<name>`, `:rules-<name>`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
-| New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md` and `.ru.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
+| New built-in rule | `backends/<backend>/rules/src/main/java/.../XRule.java` + fixtures under `backends/<backend>/rules/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` + a row in the README rule table |
+| New analysis backend | `backends/<name>/context` and `backends/<name>/rules` modules (projects `:context-<name>`, `:rules-<name>`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables, an ADR if the contract changes |
+| New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |
 | New end-to-end scenario | `testing/fixtures/<name>/`; picked up by `FixtureEndToEndTest` |
 | Release or CI logic | `.github/workflows/*`, `docs/releasing.md` |
@@ -111,21 +111,21 @@ A change that alters user-visible behaviour is not done until its docs match:
 
 | Changed | Update |
 |---|---|
-| A rule, its severity or its parameters | `docs/rules/<rule>.md` + `.ru.md`, README rule table (both languages) |
-| Plugin parameters, thresholds, multi-module setup, report format | `docs/configuration.md` + `.ru.md`, and the README example output if it changed |
+| A rule, its severity or its parameters | `docs/rules/<rule>.md`, README rule table |
+| Plugin parameters, thresholds, multi-module setup, report format | `docs/configuration.md`, and the README example output if it changed |
 | Build, tests, local commands, the pre-push hook | `docs/development.md` |
 | Release flow | `docs/releasing.md` |
-| Questions users will ask | `docs/faq.md` + `.ru.md` |
+| Questions users will ask | `docs/faq.md` |
 | A decision that changes a contract | a new ADR in `docs/adr/` (Context / Decision / Consequences), superseding the old one if needed |
 
-`DocsLinkTest` fails the build when a relative link breaks, a README table names a rule that does not exist, or the two READMEs list different rules.
+`DocsLinkTest` fails the build when a relative link breaks, a README table names a rule that does not exist, or the table omits an implemented rule.
 
-Each rule page follows the same shape: title, language switch, `FQCN · SEVERITY · scopes` (the two JavaParser/ClassGraph pages add the backend), why it matters, a violation and fix example, a **Register** block with the class name, a **Configure** block (subclassing, or why there is nothing to configure), and a link back to the README table.
+Each rule page follows the same shape: title, `FQCN · SEVERITY · scopes` (the two JavaParser/ClassGraph pages add the backend), why it matters, a violation and fix example, a **Register** block with the class name, a **Configure** block (subclassing, or why there is nothing to configure), and a link back to the README table.
 
 ## Definition of done
 
 1. `./gradlew build` is green.
 2. New or changed consumer-visible behaviour is exercised: a rule test with fixtures, or a shared fixture for plugin-level behaviour.
 3. Messages stay project-neutral and actionable; report or message changes update the expectations.
-4. Every touched user-facing doc page has its `.ru.md` counterpart updated, and the README tables agree with the code.
+4. The README tables agree with the code.
 5. No hand-bumped version, no build output and no scratch directory added to git, and the denylist check prints nothing.

@@ -1,7 +1,5 @@
 # Max method parameters
 
-English · [Русский](max-method-parameters.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.MaxMethodParametersRule` · **WARNING** · main + test
 
 Methods and constructors must not declare more than 5 parameters (by default). Group the related parameters into a type, or pass a builder.

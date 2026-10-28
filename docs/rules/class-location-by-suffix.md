@@ -1,7 +1,5 @@
 # Class location by suffix
 
-English · [Русский](class-location-by-suffix.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.ClassLocationBySuffixRule` · **ERROR** · main
 
 A top-level class (not an enum, interface or annotation) must live in the package that matches its name suffix.

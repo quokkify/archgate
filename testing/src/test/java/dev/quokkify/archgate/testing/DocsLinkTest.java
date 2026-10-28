@@ -39,14 +39,7 @@ class DocsLinkTest {
     @Test
     void everyRuleInTheReadmeTablesExists() throws IOException {
         Set<String> implemented = implementedRules();
-        for (String readme : List.of("README.md", "README.ru.md")) {
-            assertThat(readmeRules(readme)).as(readme).isNotEmpty().isSubsetOf(implemented);
-        }
-    }
-
-    @Test
-    void readmesListTheSameRules() throws IOException {
-        assertThat(readmeRules("README.ru.md")).isEqualTo(readmeRules("README.md"));
+        assertThat(readmeRules("README.md")).as("README.md").isNotEmpty().isSubsetOf(implemented);
     }
 
     @Test

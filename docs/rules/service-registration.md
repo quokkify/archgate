@@ -1,7 +1,5 @@
 # Service registration
 
-English · [Русский](service-registration.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.ServiceRegistrationRule` · **ERROR** · main + test
 
 The rule checks every `META-INF/services/*` provider file in the checked modules, not only the ArchGate one. Each listed class must:

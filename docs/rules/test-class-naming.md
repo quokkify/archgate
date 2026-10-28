@@ -1,7 +1,5 @@
 # Test class naming
 
-English · [Русский](test-class-naming.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.TestClassNamingRule` · **ERROR** · test
 
 A class with `@Test` methods, its own or inherited, must have a name ending in `Test`. Both TestNG and JUnit Jupiter `@Test` (JUnit 5 and 6) are recognised.
