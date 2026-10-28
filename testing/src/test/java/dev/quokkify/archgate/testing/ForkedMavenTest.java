@@ -3,7 +3,7 @@ package dev.quokkify.archgate.testing;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Path;
-import org.apache.maven.shared.verifier.Verifier;
+import org.apache.maven.executor.ExecutorRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -14,9 +14,13 @@ class ForkedMavenTest {
 
     @Test
     // regression: forked Maven used ambient JAVA_HOME (Java 17 in CI)
-    void forkedMavenUsesTheTestJvm() throws Exception {
-        Verifier verifier = ForkedMaven.pinJavaHome(new Verifier(temp.toString()));
+    void forkedMavenUsesTheTestJvm() {
+        ExecutorRequest request = ForkedMaven.pinJavaHome(ExecutorRequest.mavenBuilder())
+                .cwd(temp)
+                .build();
 
-        assertThat(verifier.getEnvironmentVariables()).containsEntry("JAVA_HOME", System.getProperty("java.home"));
+        assertThat(request.environmentVariables())
+                .hasValueSatisfying(environment ->
+                        assertThat(environment).containsEntry("JAVA_HOME", System.getProperty("java.home")));
     }
 }

@@ -1,6 +1,6 @@
 package dev.quokkify.archgate.testing;
 
-import org.apache.maven.shared.verifier.Verifier;
+import org.apache.maven.executor.ExecutorRequest;
 
 public final class ForkedMaven {
 
@@ -8,8 +8,7 @@ public final class ForkedMaven {
 
     private ForkedMaven() {}
 
-    public static Verifier pinJavaHome(Verifier verifier) {
-        verifier.setEnvironmentVariable(JAVA_HOME, System.getProperty("java.home"));
-        return verifier;
+    public static ExecutorRequest.Builder pinJavaHome(ExecutorRequest.Builder request) {
+        return request.environmentVariable(JAVA_HOME, System.getProperty("java.home"));
     }
 }
