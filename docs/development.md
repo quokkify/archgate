@@ -1,7 +1,5 @@
 # Development
 
-English · [Русский](development.ru.md)
-
 ## Requirements
 
 - JDK 21. The build uses a Java 21 toolchain and compiles with `--release 21`.

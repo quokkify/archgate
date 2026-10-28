@@ -1,7 +1,5 @@
 # Releasing
 
-English · [Русский](releasing.ru.md)
-
 ## How it works
 
 ```

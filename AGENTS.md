@@ -6,7 +6,7 @@ Working notes for AI agents and new contributors in **archgate** (`quokkify/arch
 
 ArchGate runs architecture rules as a build gate for Maven and Gradle. This repository *produces* the gate: a backend-neutral API, a build-tool-agnostic engine, three analysis backends (ArchUnit, JavaParser, ClassGraph) with their built-in rules, a Maven plugin, a Gradle plugin and a BOM. It publishes to Maven Central and the Gradle Plugin Portal. There is no application code here: consumers add a plugin to their own build and list rules in their own `META-INF/services` file.
 
-Docs are bilingual: every `docs/X.md` has `docs/X.ru.md`, and `README.md` has `README.ru.md`. English is the source; a change to one side requires the other in the same commit. ADRs in `docs/adr/`, `docs/ci-kit.md` (owned by the ci-kit toolkit) and the specs in `docs/specs/` are English only.
+Docs are bilingual: every `docs/X.md` has `docs/X.ru.md`, and `README.md` has `README.ru.md`. English is the source; a change to one side requires the other in the same commit. ADRs in `docs/adr/`, `docs/ci-kit.md` (owned by the ci-kit toolkit), `docs/development.md`, `docs/releasing.md` (contributor docs) and the specs in `docs/specs/` are English only.
 
 The repository is public. Nothing from a private employer, internal host, registry, ticket tracker or machine path may appear in code, docs, assets, commit messages or history.
 
@@ -33,7 +33,7 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 
 `fixtures/<scenario>/` holds shared scenarios (sources, services file, `fixture.properties`, `expected.properties`) used by `functionalTest`, `mavenIT` and the parity test.
 
-`.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change answers with `copier update --data <question>=<value>` (see `docs/ci-kit.md`) and toolkit files in ci-kit, not by hand. `docs/specs/` holds approved designs.
+`.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change answers with `copier update --data <question>=<value>` (see `docs/ci-kit.md`) and toolkit files in ci-kit, not by hand. `docs/specs/` holds an approved design only until the work it describes is merged; then the spec is deleted and any lasting decision goes into an ADR.
 
 ## Contracts you must not break
 
@@ -111,8 +111,8 @@ A change that alters user-visible behaviour is not done until its docs match:
 |---|---|
 | A rule, its severity or its parameters | `docs/rules/<rule>.md` + `.ru.md`, README rule table (both languages) |
 | Plugin parameters, thresholds, multi-module setup, report format | `docs/configuration.md` + `.ru.md`, and the README example output if it changed |
-| Build, tests, local commands, the pre-push hook | `docs/development.md` + `.ru.md` |
-| Release flow | `docs/releasing.md` + `.ru.md` |
+| Build, tests, local commands, the pre-push hook | `docs/development.md` |
+| Release flow | `docs/releasing.md` |
 | Questions users will ask | `docs/faq.md` + `.ru.md` |
 | A decision that changes a contract | a new ADR in `docs/adr/` (Context / Decision / Consequences), superseding the old one if needed |
 
@@ -125,5 +125,5 @@ Each rule page follows the same shape: title, language switch, `FQCN · SEVERITY
 1. `./gradlew build` is green.
 2. New or changed consumer-visible behaviour is exercised: a rule test with fixtures, or a shared fixture for plugin-level behaviour.
 3. Messages stay project-neutral and actionable; report or message changes update the expectations.
-4. Every touched doc page has its `.ru.md` counterpart updated, and the README tables agree with the code.
+4. Every touched user-facing doc page has its `.ru.md` counterpart updated, and the README tables agree with the code.
 5. No hand-bumped version, no build output and no scratch directory added to git, and the denylist check prints nothing.

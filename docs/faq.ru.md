@@ -126,7 +126,7 @@ Maven: `-Darchgate.skip`. Gradle: `-Parchgate.skip=true`, если только 
 
 ### Как делается релиз?
 
-Release Please открывает релизный pull request по истории коммитов; его merge ставит тег `vX.Y.Z` и создаёт GitHub Release, а затем workflow публикации выгружает артефакты. См. [Releasing](releasing.ru.md).
+Release Please открывает релизный pull request по истории коммитов; его merge ставит тег `vX.Y.Z` и создаёт GitHub Release, а затем workflow публикации выгружает артефакты. См. [Releasing](releasing.md).
 
 ### Какая первая версия?
 
@@ -134,4 +134,4 @@ Release Please открывает релизный pull request по истор�
 
 ### Как откатить плохой релиз?
 
-Считай опубликованную версию неизменяемой. Потребители закрепляют предыдущую версию, а ты выпускаешь исправляющую патч-версию вперёд. См. [Releasing](releasing.ru.md#откат-плохого-релиза).
+Считай опубликованную версию неизменяемой. Потребители закрепляют предыдущую версию, а ты выпускаешь исправляющую патч-версию вперёд. См. [Releasing](releasing.md#rolling-back-a-bad-release).

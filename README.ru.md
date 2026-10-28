@@ -223,8 +223,8 @@ com.acme.tests.arch.NoRestAssuredInTestsRule
 
 - [Configuration](docs/configuration.ru.md): параметры плагинов Maven и Gradle, `failOn`, многомодульные проекты, как читать отчёт.
 - [Как написать бэкенд или правило](docs/extending.ru.md): контракт для правил и бэкендов: параллельность, общие контексты, ошибки, что публично.
-- [Development](docs/development.ru.md): локальная сборка, тесты, pre-push hook.
-- [Releasing](docs/releasing.ru.md): как готовится и публикуется релиз.
+- [Development](docs/development.md): локальная сборка, тесты, pre-push hook.
+- [Releasing](docs/releasing.md): как готовится и публикуется релиз.
 - [FAQ](docs/faq.ru.md) ([in English](docs/faq.md)): ответы на частые вопросы.
 - [Архитектурные решения](docs/adr/0001-opt-in-rule-registration.md): почему дизайн устроен именно так.
 
