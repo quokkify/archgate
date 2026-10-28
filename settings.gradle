@@ -4,15 +4,23 @@ pluginManagement {
 
 rootProject.name = 'archgate'
 
-include 'api'
-include 'core'
-include 'context-archunit'
-include 'rules-archunit'
-include 'context-javaparser'
-include 'rules-javaparser'
-include 'context-classgraph'
-include 'rules-classgraph'
+def modules = [
+    'api'                : 'api',
+    'core'               : 'core',
+    'context-archunit'   : 'context-archunit',
+    'rules-archunit'     : 'rules-archunit',
+    'context-javaparser' : 'context-javaparser',
+    'rules-javaparser'   : 'rules-javaparser',
+    'context-classgraph' : 'context-classgraph',
+    'rules-classgraph'   : 'rules-classgraph',
+    'maven-plugin'       : 'maven-plugin',
+    'gradle-plugin'      : 'gradle-plugin',
+    'bom'                : 'bom',
+]
+
+modules.each { name, dir ->
+    include name
+    project(":${name}").projectDir = file(dir)
+}
+
 include 'testing'
-include 'maven-plugin'
-include 'gradle-plugin'
-include 'bom'
