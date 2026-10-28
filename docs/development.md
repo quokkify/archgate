@@ -28,11 +28,11 @@ To fix formatting: `./gradlew spotlessApply`.
 |---|---|
 | `./gradlew build` | everything above |
 | `./gradlew :testing:test` | the end-to-end test: every fixture under Maven and Gradle, results compared |
-| `./gradlew :testing:test -PfixtureTools=gradle` | the fixtures under Gradle only (`maven` for Maven only); nothing is compared |
+| `./gradlew :testing:test -PfixtureTools=gradle` | the fixtures under Gradle only (`maven` for Maven only); nothing is compared; the Gradle plugin's caching and `archgateElements` tests always run through Gradle TestKit |
 | `./gradlew publishToItRepo` | publishes every module to `build/it-repo`, the local repository the integration tests resolve from |
 | `./gradlew :testing:test --tests '*DocsLinkTest'` | only the documentation checks |
 
-`:testing:test` depends on `publishToItRepo`, so they always test freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
+`:testing:test` depends on `publishToItRepo`, so it always tests freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
 
 ### Shared fixtures
 

@@ -76,7 +76,7 @@ JDK 21 is required (toolchain and `--release 21`). Always use `./gradlew`.
 ./gradlew spotlessApply                           # fix formatting
 ./gradlew :api:test                               # one module
 ./gradlew :testing:test                           # every fixture under Maven and Gradle, reports compared
-./gradlew :testing:test -PfixtureTools=gradle     # fixtures under one tool only (gradle or maven)
+./gradlew :testing:test -PfixtureTools=gradle     # fixtures under one tool only (gradle or maven); plugin caching and archgateElements tests always use TestKit
 ./gradlew publishToItRepo                         # publish every module to build/it-repo
 ```
 
