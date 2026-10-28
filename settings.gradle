@@ -5,17 +5,17 @@ pluginManagement {
 rootProject.name = 'archgate'
 
 def modules = [
-    'api'                : 'api',
-    'core'               : 'core',
+    'api'                : 'engine/api',
+    'core'               : 'engine/core',
     'context-archunit'   : 'backends/archunit/context',
     'rules-archunit'     : 'backends/archunit/rules',
     'context-javaparser' : 'backends/javaparser/context',
     'rules-javaparser'   : 'backends/javaparser/rules',
     'context-classgraph' : 'backends/classgraph/context',
     'rules-classgraph'   : 'backends/classgraph/rules',
-    'maven-plugin'       : 'maven-plugin',
-    'gradle-plugin'      : 'gradle-plugin',
-    'bom'                : 'bom',
+    'maven-plugin'       : 'integration/maven-plugin',
+    'gradle-plugin'      : 'integration/gradle-plugin',
+    'bom'                : 'integration/bom',
 ]
 
 modules.each { name, dir ->
