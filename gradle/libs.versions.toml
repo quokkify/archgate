@@ -17,7 +17,7 @@ slf4j = "2.0.20"
 mavenApi = "3.9.0"
 mavenRuntime = "3.10.0"
 mavenPluginAnnotations = "3.16.0"
-mavenVerifier = "2.0.0"
+mavenExecutor = "1.0.0"
 pluginPublish = "2.2.1"
 mavenPluginDevelopment = "1.0.3"
 
@@ -40,7 +40,7 @@ slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 maven-plugin-api = { module = "org.apache.maven:maven-plugin-api", version.ref = "mavenApi" }
 maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" }
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }
-maven-verifier = { module = "org.apache.maven.shared:maven-verifier", version.ref = "mavenVerifier" }
+maven-executor = { module = "org.apache.maven.executor:maven-executor", version.ref = "mavenExecutor" }
 apache-maven-distribution = { module = "org.apache.maven:apache-maven", version.ref = "mavenRuntime" }
 plugin-publish-plugin = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "pluginPublish" }
 maven-plugin-development-plugin = { module = "org.gradlex:maven-plugin-development", version.ref = "mavenPluginDevelopment" }

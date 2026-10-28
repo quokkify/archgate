@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
-import org.apache.maven.shared.verifier.VerificationException;
+import org.apache.maven.executor.ExecutorException;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.GradleRunner;
@@ -93,7 +93,7 @@ class FixtureEndToEndTest {
         MavenRun.Outcome outcome;
         try {
             outcome = MavenRun.execute(project, localRepo, cache, expectation);
-        } catch (VerificationException | IOException e) {
+        } catch (ExecutorException e) {
             throw new IllegalStateException("Maven run " + expectation.run() + " could not be executed", e);
         } finally {
             cache.promote(localRepo);

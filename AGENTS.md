@@ -103,6 +103,7 @@ JDK 21 is required (toolchain and `--release 21`). Always use `./gradlew`.
 - Checkstyle (`config/checkstyle/checkstyle.xml`) covers imports, braces, `equals`/`hashCode`, final and utility classes and tabs. Formatting is Spotless's job.
 - `Objects.isNull(x)` / `Objects.nonNull(x)` instead of `== null` / `!= null`.
 - Comments only where intent is not obvious from the code. No Javadoc for the linter's sake.
+- Warnings fail the build: `compileJava` runs with `-Xlint:all -Werror`, and javadoc with `-Werror` but without doclint's `missing` group. Fix the warning; suppress only on the narrowest element when the code is intentional, like the deprecated-API fixtures.
 - Prefer small final classes with private constructors for stateless helpers, records for result rows, and text blocks for multi-line user-facing messages.
 
 ## Documentation obligations
