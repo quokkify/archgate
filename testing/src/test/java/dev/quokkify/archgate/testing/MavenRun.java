@@ -23,6 +23,7 @@ public final class MavenRun {
                 "settings.xml",
                 "-Pit-repo",
                 cache.tailArgument(),
+                "org.apache.maven.plugins:maven-clean-plugin:clean",
                 "verify"));
         arguments.addAll(expectation.args(BuildTool.MAVEN));
         ExecutorRequest request = ForkedMaven.pinJavaHome(ExecutorRequest.mavenBuilder())

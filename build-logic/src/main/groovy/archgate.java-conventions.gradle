@@ -53,8 +53,9 @@ spotless {
 
 // Every project's clean closes Spotless's shared formatter class loaders, even while another
 // project's Spotless task still uses them (diffplug/spotless#3067), so format only after all cleans.
+// Remove once diffplug/spotless#3067 is fixed.
 tasks.withType(com.diffplug.gradle.spotless.SpotlessTask).configureEach {
-    mustRunAfter(rootProject.allprojects.collect { it.tasks.matching { task -> task.name == 'clean' } })
+    mustRunAfter(rootProject.allprojects.collect { it.tasks.named { name -> name == 'clean' } })
 }
 
 checkstyle {
