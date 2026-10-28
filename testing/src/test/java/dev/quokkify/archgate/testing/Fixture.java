@@ -11,17 +11,15 @@ import java.util.stream.Stream;
 public final class Fixture {
 
     private static final String ROOT_PROPERTY = "archgate.fixtures";
+    private static final String IT_REPO_PROPERTY = "archgate.itRepo";
+    private static final String VERSION_PROPERTY = "archgate.version";
     private static final String SPEC_FILE = "fixture.properties";
     private static final List<String> DESCRIPTOR_FILES = List.of(SPEC_FILE, "expected.properties");
 
     private Fixture() {}
 
     public static Path root() {
-        String value = System.getProperty(ROOT_PROPERTY);
-        if (Objects.isNull(value) || value.isBlank()) {
-            throw new IllegalStateException("System property " + ROOT_PROPERTY + " is not set");
-        }
-        return Path.of(value);
+        return Path.of(requiredProperty(ROOT_PROPERTY));
     }
 
     public static List<String> scenarios() {
@@ -33,6 +31,16 @@ public final class Fixture {
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot list fixtures in " + root(), e);
         }
+    }
+
+    /** Materializes against the repository and version given by the {@code archgate.itRepo} and {@code archgate.version} system properties. */
+    public static Path materialize(String scenario, BuildTool tool, Path target) {
+        return materialize(
+                scenario,
+                tool,
+                target,
+                Path.of(requiredProperty(IT_REPO_PROPERTY)),
+                requiredProperty(VERSION_PROPERTY));
     }
 
     public static Path materialize(String scenario, BuildTool tool, Path target, Path itRepo, String archgateVersion) {
@@ -50,6 +58,14 @@ public final class Fixture {
             GradleProjectWriter.write(scenario, spec, target, itRepo, archgateVersion, mode);
         }
         return target;
+    }
+
+    private static String requiredProperty(String name) {
+        String value = System.getProperty(name);
+        if (Objects.isNull(value) || value.isBlank()) {
+            throw new IllegalStateException("System property " + name + " is not set");
+        }
+        return value;
     }
 
     private static void copySources(Path source, Path target) {

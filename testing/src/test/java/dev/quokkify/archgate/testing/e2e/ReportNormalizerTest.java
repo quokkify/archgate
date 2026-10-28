@@ -1,8 +1,10 @@
-package dev.quokkify.archgate.parity;
+package dev.quokkify.archgate.testing.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class ReportNormalizerTest {
 
@@ -28,5 +30,25 @@ class ReportNormalizerTest {
         assertThat(ReportNormalizer.normalize("1.2 services")).isEqualTo("1.2 services");
         assertThat(ReportNormalizer.normalize("3 msgs")).isEqualTo("3 msgs");
         assertThat(ReportNormalizer.normalize("v1.2 sec")).isEqualTo("v1.2 sec");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+            strings = {
+                "5 ms", "123 ms", "1.2 s",
+            })
+    void normalizesDurations(String duration) {
+        assertThat(ReportNormalizer.normalize("took " + duration + " total")).isEqualTo("took N ms total");
+    }
+
+    @Test
+    void normalizesLineEndings() {
+        assertThat(ReportNormalizer.normalize("a\r\nb\rc\n")).isEqualTo("a\nb\nc\n");
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = {"5 rules, 12 findings", "1.2 services", "3 msgs", "v1.2 sec"})
+    void leavesNonDurationsUnchanged(String text) {
+        assertThat(ReportNormalizer.normalize(text)).isEqualTo(text);
     }
 }

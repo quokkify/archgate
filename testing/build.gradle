@@ -1,0 +1,58 @@
+plugins {
+    id 'archgate.java-conventions'
+}
+
+evaluationDependsOn(':gradle-plugin')
+
+def pluginMetadata = project(':gradle-plugin').tasks.named('pluginUnderTestMetadata')
+def mavenRuntime = libs.versions.mavenRuntime.get()
+def bomPom = project(':bom').layout.buildDirectory.file('publications/maven/pom-default.xml')
+def fixtureTools = providers.gradleProperty('fixtureTools').getOrElse('maven,gradle')
+
+configurations {
+    mavenDistribution {
+        canBeConsumed = false
+        canBeResolved = true
+    }
+}
+
+dependencies {
+    testImplementation libs.maven.verifier
+    testImplementation gradleTestKit()
+    testRuntimeOnly libs.maven.core
+    testRuntimeOnly files(pluginMetadata.map { it.outputDirectory }) {
+        builtBy pluginMetadata
+    }
+
+    mavenDistribution "${libs.apache.maven.distribution.get()}:bin@zip"
+}
+
+def archives = services.get(ArchiveOperations)
+def unpackMaven = tasks.register('unpackMaven', Sync) {
+    from(archives.zipTree(configurations.mavenDistribution.elements.map { it.first() }))
+    into layout.buildDirectory.dir('maven')
+}
+
+tasks.named('test', Test) {
+    description = 'Runs every shared fixture through Maven and Gradle, compares the results, and checks the docs.'
+    dependsOn rootProject.tasks.named('publishToItRepo'), unpackMaven, ':bom:generatePomFileForMavenPublication'
+    inputs.files(rootProject.itRepoArtifacts).withPropertyName('itRepoArtifacts').withPathSensitivity(PathSensitivity.NAME_ONLY)
+    inputs.dir(file('fixtures')).withPropertyName('fixtures')
+    inputs.file(bomPom).withPropertyName('bomPom')
+    inputs.files(rootProject.fileTree(rootProject.projectDir) {
+        include 'README*.md', 'AGENTS.md', 'docs/**/*.md', 'rules-*/src/main/java/**/*.java'
+    }).withPropertyName('docs').withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.property('fixtureTools', fixtureTools)
+    systemProperty 'archgate.itRepo', rootProject.layout.buildDirectory.dir('it-repo').get().asFile.path
+    systemProperty 'archgate.fixtures', file('fixtures').path
+    systemProperty 'archgate.version', project.version.toString()
+    systemProperty 'archgate.tools', fixtureTools
+    systemProperty 'maven.home', layout.buildDirectory.dir("maven/apache-maven-${mavenRuntime}").get().asFile.path
+    systemProperty 'archgate.mavenCache', rootProject.mavenItCache.get().asFile.path
+    systemProperty 'archgate.root', rootProject.projectDir.absolutePath
+    systemProperty 'archgate.bomPom', bomPom.get().asFile.absolutePath
+    testLogging {
+        events 'failed'
+        exceptionFormat = 'full'
+    }
+}

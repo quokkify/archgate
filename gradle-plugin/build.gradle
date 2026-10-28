@@ -7,26 +7,13 @@ plugins {
 
 description = 'Runs ArchGate architecture checks in a Gradle build.'
 
-sourceSets {
-    functionalTest
-}
-
-configurations {
-    functionalTestImplementation.extendsFrom testImplementation
-    functionalTestRuntimeOnly.extendsFrom testRuntimeOnly
-}
-
 dependencies {
     implementation project(':core')
-
-    functionalTestImplementation project(':testing:fixtures-support')
-    functionalTestImplementation gradleTestKit()
 }
 
 gradlePlugin {
     website = 'https://github.com/quokkify/archgate'
     vcsUrl = 'https://github.com/quokkify/archgate'
-    testSourceSets(sourceSets.functionalTest)
     plugins {
         archgate {
             id = 'dev.quokkify.archgate'
@@ -36,16 +23,4 @@ gradlePlugin {
             tags = ['architecture', 'archunit', 'quality']
         }
     }
-}
-
-def functionalTest = tasks.register('functionalTest', Test) {
-    group = 'verification'
-    description = 'Runs the shared fixtures through real Gradle builds with TestKit.'
-    testClassesDirs = sourceSets.functionalTest.output.classesDirs
-    classpath = sourceSets.functionalTest.runtimeClasspath
-    FixtureTests.configure(delegate, project, false)
-}
-
-tasks.named('check') {
-    dependsOn functionalTest
 }

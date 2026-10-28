@@ -14,7 +14,7 @@ feature branch ──PR──► main ──► Release Please opens "release PR
 - The tag does not trigger publishing directly. A release created with the workflow `GITHUB_TOKEN` does not fire `release` events, so the project-local workflow `publish.yml` is triggered by `workflow_run` of the Release Please workflow instead. It:
   1. checks out the commit the Release Please run built (`workflow_run.head_sha`) and looks for a `vX.Y.Z` tag on it; a run without a release tag, such as an ordinary push to `main`, ends quietly without publishing;
   2. asserts that `v$(cat version.txt)` equals the tag;
-  3. builds the release without secrets (`build` without `mavenIT` and the parity test, which CI already ran on `main`);
+  3. builds the release without secrets (`build -PfixtureTools=gradle`: the end-to-end test runs only its Gradle half, since CI already ran the Maven half and the comparison on `main`);
   4. runs `publishAndReleaseToMavenCentral` for all artifacts, signed, and waits until Central reports the deployment as published;
   5. only then runs `publishPlugins` to the Gradle Plugin Portal, so the Portal never points at artifacts that are not on Central yet.
 - The secrets are passed only to the publishing step, and the job runs in the `release` environment.

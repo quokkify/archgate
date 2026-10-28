@@ -34,19 +34,6 @@ mavenPublishing {
     }
 }
 
-sourceSets {
-    mavenIT
-}
-
-configurations {
-    mavenITImplementation.extendsFrom testImplementation
-    mavenITRuntimeOnly.extendsFrom testRuntimeOnly
-    mavenDistribution {
-        canBeConsumed = false
-        canBeResolved = true
-    }
-}
-
 dependencies {
     implementation project(':core')
     compileOnly libs.maven.plugin.api
@@ -55,32 +42,9 @@ dependencies {
 
     testImplementation libs.maven.core
     testCompileOnly libs.maven.plugin.annotations
-
-    mavenITImplementation project(':testing:fixtures-support')
-    mavenITImplementation libs.maven.verifier
-
-    mavenDistribution "${libs.apache.maven.distribution.get()}:bin@zip"
 }
 
 tasks.named('test', Test) {
     dependsOn tasks.named('generateMavenPluginDescriptor')
     systemProperty 'archgate.descriptor', descriptorFile.get().asFile.path
-}
-
-def archives = services.get(ArchiveOperations)
-def unpackMaven = tasks.register('unpackMaven', Sync) {
-    from(archives.zipTree(configurations.mavenDistribution.elements.map { it.first() }))
-    into layout.buildDirectory.dir('maven')
-}
-
-def mavenIT = tasks.register('mavenIT', Test) {
-    group = 'verification'
-    description = 'Runs the shared fixtures through a real Maven build.'
-    testClassesDirs = sourceSets.mavenIT.output.classesDirs
-    classpath = sourceSets.mavenIT.runtimeClasspath
-    FixtureTests.configure(delegate, project, true)
-}
-
-tasks.named('check') {
-    dependsOn mavenIT
 }

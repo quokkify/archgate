@@ -25,13 +25,12 @@ The repository is public. Nothing from a private employer, internal host, regist
 | `maven-plugin` | `dev.quokkify.archgate.maven` | Goal `check` in `verify` (`CheckMojo`), `ModuleSelection`, `MainDir` | Thin adapter over core. Built with `org.gradlex.maven-plugin-development` |
 | `gradle-plugin` | `dev.quokkify.archgate.gradle` | Plugin id `dev.quokkify.archgate`, task `archgateCheck` (`ArchgateCheckTask`), `ArchgatePlugin`, `ArchgateExtension`, `ArchgateElements`, `ExistingDirectories`, `FailureMessage`, `GateWorkParameters`, `GateWorkAction` | Thin adapter over core; configuration-cache safe |
 | `bom` | — | `java-platform` over every published artifact | No sources |
-| `testing/fixtures-support` | `dev.quokkify.archgate.testing` | Fixture model, generators of `build.gradle` and `pom.xml` for a fixture, runners `MavenRun` (with `Outcome`) and `GradleRun`, `DocsLinkTest`, `BomCompletenessTest` | Test support only, not published |
-| `testing/parity` | — | Runs every fixture except `skip` under Maven and Gradle and compares the reports or, for `unableToVerify` runs, the message | Test only, not published |
-| `build-logic` | — | Convention plugins `archgate.java-conventions` (for every `rules-*` module it also runs `test` after `jar` and passes the jar's path as the `archgate.rulesJar` system property, read by `NoServicesFileShippedTest`), `archgate.publish-conventions` (including the `it` repository), `ArchgateVersions`, `FixtureTests` (wires `mavenIT`, `functionalTest` and parity) | |
+| `testing` | `dev.quokkify.archgate.testing` (support), `….testing.e2e` (end-to-end) | Shared fixtures in `testing/fixtures/`, fixture model, generators of `build.gradle` and `pom.xml`, runners `MavenRun` (with `Outcome`) and `GradleRun`, `FixtureTools`; `FixtureEndToEndTest` runs every fixture once under Maven and once under Gradle and compares the reports or, for `unableToVerify` runs, the message; `CachingFunctionalTest`, `ArchgateElementsFunctionalTest`, `DocsLinkTest`, `BomCompletenessTest` | Tests only, not published |
+| `build-logic` | — | Convention plugins `archgate.root` (root group and version, `publishToItRepo` and `cleanItRepo`, `denylistHookTest`), `archgate.java-conventions` (for every `rules-*` module it also runs `test` after `jar` and passes the jar's path as the `archgate.rulesJar` system property, read by `NoServicesFileShippedTest`), `archgate.publish-conventions` (including the `it` repository), `ArchgateVersions` | |
 
 Dependency direction: `rules-X → api, context-X`; `context-X → api, library X`; `core → api`; `plugins → core`. **Nothing depends on a `rules-*` module** (tests excepted). Test source sets of `context-*` and `rules-*` may depend on `core`.
 
-`fixtures/<scenario>/` holds shared scenarios (sources, services file, `fixture.properties`, `expected.properties`) used by `functionalTest`, `mavenIT` and the parity test.
+`testing/fixtures/<scenario>/` holds shared scenarios (sources, services file, `fixture.properties`, `expected.properties`) used by the end-to-end test.
 
 `.ci/` and `.copier-answers*.yml` belong to the ci-kit toolkit; change answers with `copier update --data <question>=<value>` (see `docs/ci-kit.md`) and toolkit files in ci-kit, not by hand. `docs/specs/` holds an approved design only until the work it describes is merged; then the spec is deleted and any lasting decision goes into an ADR.
 
@@ -45,7 +44,7 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 6. **Maven floor 3.9.0.** `maven-core` and `maven-plugin-api` are pinned to 3.9.0 `compileOnly` on purpose. The generator writes no `<requiredMavenVersion>`, so `maven-plugin/build.gradle` patches the descriptor and `PluginDescriptorTest` fails if the minimum disappears or moves. Raise the floor only deliberately ([ADR 0005](docs/adr/0005-gradle-build-for-maven-plugin.md)).
 7. **Gradle 9.7.1+.** The Gradle plugin is configuration-cache safe: no `Project` access at execution time, everything flows through `Provider` and `FileCollection`. The task stays cacheable with declared inputs and one output file.
 8. **No version is hand-bumped.** `version.txt` holds the last released version (`0.0.0` before the first release); normal builds append `-SNAPSHOT`, and `-Prelease=true` uses it as is. Release Please owns `version.txt` and the changelog. Never commit a "bump version" change.
-9. **The report text is an output contract.** Maven and Gradle must print the same text for the same fixture; the parity test and `expected.properties` assert substrings. Change `ReportFormatter` or an error message only together with the affected expectations.
+9. **The report text is an output contract.** Maven and Gradle must print the same text for the same fixture; the end-to-end test compares them and `expected.properties` asserts substrings. Change `ReportFormatter` or an error message only together with the affected expectations.
 10. **Messages are project-neutral and actionable.** No consumer-specific names in code or rule text. Say what to do next (for example which line to add to the services file, which `archgate-context-*` artifact to add).
 11. **Rules are configured by subclassing, never by build-file settings.** Parameters go into the `protected` constructor, severity via `severity()`. There is no per-rule configuration in a build file.
 12. **Class and source directories come from the build tool** (Maven reactor, Gradle task inputs), never from relative paths or convention guessing. Gradle multi-module is explicit: `modules(...)`, every module applies the plugin ([ADR 0004](docs/adr/0004-gradle-explicit-modules.md)).
@@ -60,7 +59,7 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 | New analysis backend | `context-<name>` and `rules-<name>` modules, a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
 | New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md` and `.ru.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |
-| New end-to-end scenario | `fixtures/<name>/`; picked up by `functionalTest`, `mavenIT` and parity |
+| New end-to-end scenario | `testing/fixtures/<name>/`; picked up by `FixtureEndToEndTest` |
 | Release or CI logic | `.github/workflows/*`, `docs/releasing.md` |
 | Dependency versions | `gradle/libs.versions.toml` only; the catalog contains only what the project uses |
 
@@ -69,16 +68,15 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 JDK 21 is required (toolchain and `--release 21`). Always use `./gradlew`.
 
 ```sh
-./gradlew build                                   # everything: unit tests, functionalTest, mavenIT, parity, Spotless, Checkstyle, JaCoCo, docs checks
+./gradlew build                                   # everything: unit tests, end-to-end test, Spotless, Checkstyle, JaCoCo, docs checks
 ./gradlew spotlessApply                           # fix formatting
 ./gradlew :api:test                               # one module
-./gradlew :gradle-plugin:functionalTest           # Gradle plugin through TestKit
-./gradlew :maven-plugin:mavenIT                   # Maven plugin through maven-verifier
-./gradlew :testing:parity:test                    # Maven and Gradle reports compared
+./gradlew :testing:test                           # every fixture under Maven and Gradle, reports compared
+./gradlew :testing:test -PfixtureTools=gradle     # fixtures under one tool only (gradle or maven)
 ./gradlew publishToItRepo                         # publish every module to build/it-repo
 ```
 
-`functionalTest`, `mavenIT` and the parity test depend on `publishToItRepo`, so they test freshly built artifacts. Details: [docs/development.md](docs/development.md).
+`:testing:test` depends on `publishToItRepo`, so it tests freshly built artifacts. Details: [docs/development.md](docs/development.md).
 
 ## Testing conventions
 

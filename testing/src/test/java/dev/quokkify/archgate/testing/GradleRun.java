@@ -7,6 +7,8 @@ import org.gradle.testkit.runner.GradleRunner;
 
 public final class GradleRun {
 
+    public static final String CHECK_TASK = ":archgateCheck";
+
     private GradleRun() {}
 
     public static GradleRunner runner(Path project, List<String> args) {

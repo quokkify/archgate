@@ -14,9 +14,7 @@
 `build` runs `check`, which covers:
 
 - unit tests of every module;
-- `functionalTest` of `:gradle-plugin`: the shared fixtures run through real Gradle builds with TestKit;
-- `mavenIT` of `:maven-plugin`: the same fixtures run through a real Maven build with `maven-verifier`;
-- `:testing:parity:test`: every fixture except `skip` runs under Maven and Gradle; the two reports must be identical, and for a run marked `unableToVerify=true` in `expected.properties` neither tool may write a report and both must print the same message line;
+- `:testing:test`, the end-to-end test: every shared fixture runs once through a real Maven build (`maven-verifier`) and once through a real Gradle build (TestKit), each checked against its `expected.properties`; for every fixture except `skip` the two reports must then be identical, and for a run marked `unableToVerify=true` neither tool may write a report and both must print the same message line. The same project holds the Gradle plugin's caching and `archgateElements` tests;
 - Spotless (palantir-java-format) and Checkstyle (`config/checkstyle/checkstyle.xml`);
 - JaCoCo coverage verification (80 % of lines) for `:api`, `:core`, `:context-*` and `:rules-*`;
 - `DocsLinkTest`: relative links in the Markdown files resolve, the README rule tables name existing rule classes, and `README.md` and `README.ru.md` list the same rules;
@@ -29,17 +27,16 @@ To fix formatting: `./gradlew spotlessApply`.
 | Task | What it does |
 |---|---|
 | `./gradlew build` | everything above |
-| `./gradlew :gradle-plugin:functionalTest` | the Gradle plugin through TestKit |
-| `./gradlew :maven-plugin:mavenIT` | the Maven plugin through `maven-verifier` |
-| `./gradlew :testing:parity:test` | Maven and Gradle results compared for every fixture except `skip` |
+| `./gradlew :testing:test` | the end-to-end test: every fixture under Maven and Gradle, results compared |
+| `./gradlew :testing:test -PfixtureTools=gradle` | the fixtures under Gradle only (`maven` for Maven only); nothing is compared |
 | `./gradlew publishToItRepo` | publishes every module to `build/it-repo`, the local repository the integration tests resolve from |
-| `./gradlew :testing:fixtures-support:test --tests '*DocsLinkTest'` | only the documentation checks |
+| `./gradlew :testing:test --tests '*DocsLinkTest'` | only the documentation checks |
 
-`functionalTest`, `mavenIT` and the parity test depend on `publishToItRepo`, so they always test freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
+`:testing:test` depends on `publishToItRepo`, so they always test freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
 
 ### Shared fixtures
 
-`fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support module generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; it is picked up by `functionalTest`, `mavenIT` and the parity test. Mark a run that must end with an "unable to verify" error with `run.N.unableToVerify=true`, so the parity test compares its message instead of a report.
+`testing/fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support in `:testing` generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; the end-to-end test picks it up. Mark a run that must end with an "unable to verify" error with `run.N.unableToVerify=true`, so the end-to-end test compares its message instead of a report.
 
 ## Version
 

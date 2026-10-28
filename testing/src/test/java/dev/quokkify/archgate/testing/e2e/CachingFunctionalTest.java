@@ -1,10 +1,11 @@
-package dev.quokkify.archgate.gradle;
+package dev.quokkify.archgate.testing.e2e;
 
-import static dev.quokkify.archgate.gradle.GradleFixtureFunctionalTest.TASK;
-import static dev.quokkify.archgate.gradle.GradleFixtureFunctionalTest.materialize;
-import static dev.quokkify.archgate.gradle.GradleFixtureFunctionalTest.runner;
+import static dev.quokkify.archgate.testing.GradleRun.CHECK_TASK;
+import static dev.quokkify.archgate.testing.GradleRun.runner;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.quokkify.archgate.testing.BuildTool;
+import dev.quokkify.archgate.testing.Fixture;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -37,7 +38,7 @@ class CachingFunctionalTest {
 
     @BeforeEach
     void materializeFixture() {
-        project = materialize(SCENARIO, temp.resolve("project"));
+        project = Fixture.materialize(SCENARIO, BuildTool.GRADLE, temp.resolve("project"));
     }
 
     @Test
@@ -46,13 +47,13 @@ class CachingFunctionalTest {
 
         BuildResult second = runner(project, List.of()).build();
 
-        assertThat(second.task(TASK).getOutcome()).isEqualTo(TaskOutcome.UP_TO_DATE);
+        assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.UP_TO_DATE);
     }
 
     @ParameterizedTest(name = "{0}")
     @ValueSource(strings = {SCENARIO, "multi-module"})
     void configurationCacheIsReused(String scenario) {
-        Path build = materialize(scenario, temp.resolve(scenario));
+        Path build = Fixture.materialize(scenario, BuildTool.GRADLE, temp.resolve(scenario));
         runner(build, List.of(CONFIGURATION_CACHE)).build();
 
         BuildResult second = runner(build, List.of(CONFIGURATION_CACHE)).build();
@@ -86,7 +87,7 @@ class CachingFunctionalTest {
 
         BuildResult second = runner(project, List.of(BUILD_CACHE)).build();
 
-        assertThat(second.task(TASK).getOutcome()).isEqualTo(TaskOutcome.FROM_CACHE);
+        assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.FROM_CACHE);
     }
 
     @Test
@@ -123,7 +124,7 @@ class CachingFunctionalTest {
         BuildResult result = runner(project, List.of()).build();
 
         assertThat(insight.getOutput()).contains(FORCED_RESOLUTION);
-        assertThat(result.task(TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        assertThat(result.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         assertThat(result.getOutput()).contains(PASSED);
     }
 

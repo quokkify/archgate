@@ -1,8 +1,9 @@
-package dev.quokkify.archgate.gradle;
+package dev.quokkify.archgate.testing.e2e;
 
-import static dev.quokkify.archgate.gradle.GradleFixtureFunctionalTest.materialize;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.quokkify.archgate.testing.BuildTool;
+import dev.quokkify.archgate.testing.Fixture;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -40,7 +41,7 @@ class ArchgateElementsFunctionalTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("cacheModes")
     void moduleWithoutPluginFailsWithHint(List<String> extraArgs) throws IOException {
-        Path project = materialize("multi-module", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
         edit(project.resolve("api/build.gradle"), text -> remove(remove(text, PLUGIN_LINE), SKIP_BLOCK));
 
         BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
@@ -53,7 +54,7 @@ class ArchgateElementsFunctionalTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("cacheModes")
     void gateWithoutRootPackageFails(List<String> extraArgs) throws IOException {
-        Path project = materialize("multi-module", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
         edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
 
         BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
@@ -63,7 +64,7 @@ class ArchgateElementsFunctionalTest {
 
     @Test
     void buildScriptRootPackageWinsOverCommandLine() {
-        Path project = materialize("multi-module-violation", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
 
         BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=org.elsewhere"))
                 .buildAndFail();
@@ -73,7 +74,7 @@ class ArchgateElementsFunctionalTest {
 
     @Test
     void commandLineRootPackageIsTheDefault() throws IOException {
-        Path project = materialize("multi-module-violation", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
         edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
 
         BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=com.example"))
@@ -84,7 +85,7 @@ class ArchgateElementsFunctionalTest {
 
     @Test
     void elementsOnlyModulesStaySkipped() {
-        Path project = materialize("multi-module", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
 
         BuildResult result = runner(
                         project, "check", List.of("-Parchgate.skip=false", "-Parchgate.rootPackage=com.example"))
@@ -97,7 +98,7 @@ class ArchgateElementsFunctionalTest {
 
     @Test
     void siblingClassesAreBuiltFirst() throws IOException {
-        Path project = materialize("multi-module", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
         edit(
                 project.resolve(GATE_BUILD),
                 text -> text.lines()
@@ -116,7 +117,7 @@ class ArchgateElementsFunctionalTest {
 
     @Test
     void withoutModulesOnlyOwnProjectIsChecked() throws IOException {
-        Path project = materialize("multi-module-violation", temp.resolve("project"));
+        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
         edit(project.resolve(GATE_BUILD), text -> remove(text, MODULES_LINE));
         write(project.resolve(OWN_MAIN_CLASS), "package com.example.architecture;\n\npublic class Layers {}\n");
 

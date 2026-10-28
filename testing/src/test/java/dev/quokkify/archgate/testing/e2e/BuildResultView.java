@@ -1,4 +1,4 @@
-package dev.quokkify.archgate.parity;
+package dev.quokkify.archgate.testing.e2e;
 
 import java.nio.file.Path;
 
