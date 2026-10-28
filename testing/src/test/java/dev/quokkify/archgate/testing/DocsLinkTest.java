@@ -103,11 +103,9 @@ class DocsLinkTest {
 
     private static Set<String> implementedRules() throws IOException {
         Set<String> rules = new TreeSet<>();
-        try (Stream<Path> modules = Files.list(ROOT)) {
-            for (Path module : modules.filter(
-                            path -> path.getFileName().toString().startsWith("rules-"))
-                    .toList()) {
-                Path sources = module.resolve("src/main/java");
+        try (Stream<Path> backends = Files.list(ROOT.resolve("backends"))) {
+            for (Path backend : backends.toList()) {
+                Path sources = backend.resolve("rules/src/main/java");
                 if (Files.isDirectory(sources)) {
                     try (Stream<Path> files = Files.walk(sources)) {
                         files.map(path -> path.getFileName().toString())

@@ -40,7 +40,7 @@ tasks.named('test', Test) {
     inputs.dir(file('fixtures')).withPropertyName('fixtures')
     inputs.file(bomPom).withPropertyName('bomPom')
     inputs.files(rootProject.fileTree(rootProject.projectDir) {
-        include 'README*.md', 'AGENTS.md', 'docs/**/*.md', 'rules-*/src/main/java/**/*.java'
+        include 'README*.md', 'AGENTS.md', 'docs/**/*.md', 'backends/*/rules/src/main/java/**/*.java'
     }).withPropertyName('docs').withPathSensitivity(PathSensitivity.RELATIVE)
     inputs.property('fixtureTools', fixtureTools)
     systemProperty 'archgate.itRepo', rootProject.layout.buildDirectory.dir('it-repo').get().asFile.path

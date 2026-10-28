@@ -55,8 +55,8 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 
 | Change | Touch |
 |---|---|
-| New built-in rule | `rules-<backend>/src/main/java/.../XRule.java` + fixtures under `rules-<backend>/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` and `.ru.md` + a row in the README rule table (both languages) |
-| New analysis backend | `context-<name>` and `rules-<name>` modules, a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
+| New built-in rule | `backends/<backend>/rules/src/main/java/.../XRule.java` + fixtures under `backends/<backend>/rules/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` and `.ru.md` + a row in the README rule table (both languages) |
+| New analysis backend | `backends/<name>/context` and `backends/<name>/rules` modules (projects `:context-<name>`, `:rules-<name>`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables (both languages), an ADR if the contract changes |
 | New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md` and `.ru.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |
 | New end-to-end scenario | `testing/fixtures/<name>/`; picked up by `FixtureEndToEndTest` |
@@ -81,7 +81,7 @@ JDK 21 is required (toolchain and `--release 21`). Always use `./gradlew`.
 ## Testing conventions
 
 - JUnit 5 and AssertJ. No mocking framework for class loaders: use real jars (`core`'s `RuleJars`) and real class directories.
-- Rule tests are fixture-driven: put the violating and allowed shapes in `rules-<backend>/src/test/java/archfixtures/<area>/`, import them with the backend, and assert on violation details plus `scopes()` and `severity()`. `FixtureContexts` builds a real context for a rule test.
+- Rule tests are fixture-driven: put the violating and allowed shapes in `backends/<backend>/rules/src/test/java/archfixtures/<area>/`, import them with the backend, and assert on violation details plus `scopes()` and `severity()`. `FixtureContexts` builds a real context for a rule test.
 - Module-level test resources encode services-file cases. Add a directory instead of mocking a class loader.
 - Test the behaviour a consumer can see: violation detection, thresholds, registration failures, report lines, empty-view failures. Skip tests that only restate wiring or constants.
 - A user-visible bug gets a regression fixture or test that reproduces the failure and is labelled as a regression guard.
