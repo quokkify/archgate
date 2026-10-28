@@ -18,7 +18,7 @@ The spike showed that `org.gradlex.maven-plugin-development` 1.0.3 works on Grad
 
 One thing is missing: the extension has no setting for the minimum Maven version, and the generated descriptor carries no `<requiredMavenVersion>`. Maven would then accept the plugin on any version.
 
-The build therefore uses the generator and patches its output. A `doLast` step on `generateMavenPluginDescriptor` inserts `<requiredMavenVersion>3.9.0</requiredMavenVersion>`, taken from the version catalog's `mavenApi` entry, when the generator did not write one. See `maven-plugin/build.gradle`. `PluginDescriptorTest` guards the result: it fails if the element is missing or if the minimum moves.
+The build therefore uses the generator and patches its output. A `doLast` step on `generateMavenPluginDescriptor` inserts `<requiredMavenVersion>3.9.0</requiredMavenVersion>`, taken from the version catalog's `mavenApi` entry, when the generator did not write one. See `integration/maven-plugin/build.gradle`. `PluginDescriptorTest` guards the result: it fails if the element is missing or if the minimum moves.
 
 `maven-core` and `maven-plugin-api` stay `compileOnly` at 3.9.0 so that the plugin compiles against the oldest API it supports.
 

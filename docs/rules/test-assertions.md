@@ -1,7 +1,5 @@
 # Test assertions
 
-English · [Русский](test-assertions.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.TestAssertionsRule` · **WARNING** · test
 
 Every test method must assert or verify something through one of the assertion APIs. A test without an assertion runs the code but checks nothing.

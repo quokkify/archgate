@@ -1,7 +1,5 @@
 # FAQ
 
-English · [Русский](faq.ru.md)
-
 ## Contents
 
 - [Basics](#basics)

@@ -1,7 +1,5 @@
 # No Thread.sleep
 
-English · [Русский](no-thread-sleep.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoThreadSleepRule` · **ERROR** · main + test
 
 Code must not call `Thread.sleep` or `TimeUnit.sleep`. Wait for the condition you need instead.

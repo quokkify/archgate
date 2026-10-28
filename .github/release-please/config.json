@@ -9,9 +9,7 @@
       "changelog-path": "CHANGELOG.md",
       "extra-files": [
         {"type": "generic", "path": "README.md"},
-        {"type": "generic", "path": "README.ru.md"},
-        {"type": "generic", "path": "docs/configuration.md"},
-        {"type": "generic", "path": "docs/configuration.ru.md"}
+        {"type": "generic", "path": "docs/configuration.md"}
       ],
       "changelog-sections": [
         {"type": "feat", "section": "✨ Features"},

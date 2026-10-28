@@ -80,7 +80,7 @@ jobs:
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
       - name: Build the release
         if: steps.tag.outputs.found == 'true'
-        run: ./gradlew build -x :maven-plugin:mavenIT -x :testing:parity:test -Prelease=true
+        run: ./gradlew build -PfixtureTools=gradle -Prelease=true
       - name: Publish to Maven Central and the Gradle Plugin Portal
         if: steps.tag.outputs.found == 'true'
         env:

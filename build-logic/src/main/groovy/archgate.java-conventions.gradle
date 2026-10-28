@@ -83,3 +83,10 @@ tasks.named('jar', Jar) {
         )
     }
 }
+
+if (path ==~ /:rules-.+/) {
+    tasks.named('test', Test) {
+        dependsOn tasks.named('jar')
+        systemProperty 'archgate.rulesJar', tasks.named('jar', Jar).flatMap { it.archiveFile }.get().asFile.absolutePath
+    }
+}

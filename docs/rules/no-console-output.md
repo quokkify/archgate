@@ -1,7 +1,5 @@
 # No console output
 
-English · [Русский](no-console-output.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule` · **ERROR** · main
 
 Production code must not write to the console. The rule forbids:

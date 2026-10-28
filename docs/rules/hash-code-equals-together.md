@@ -1,7 +1,5 @@
 # hashCode and equals together
 
-English · [Русский](hash-code-equals-together.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule` · **ERROR** · main
 
 A class that overrides one of `equals` or `hashCode` must override both.

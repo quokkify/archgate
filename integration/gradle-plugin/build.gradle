@@ -1,0 +1,26 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+    id 'com.gradle.plugin-publish'
+}
+
+description = 'Runs ArchGate architecture checks in a Gradle build.'
+
+dependencies {
+    implementation project(':core')
+}
+
+gradlePlugin {
+    website = 'https://github.com/quokkify/archgate'
+    vcsUrl = 'https://github.com/quokkify/archgate'
+    plugins {
+        archgate {
+            id = 'dev.quokkify.archgate'
+            implementationClass = 'dev.quokkify.archgate.gradle.ArchgatePlugin'
+            displayName = 'ArchGate'
+            description = 'Runs ArchGate architecture rules against the classes and sources of a Java project.'
+            tags = ['architecture', 'archunit', 'quality']
+        }
+    }
+}

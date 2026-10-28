@@ -1,7 +1,5 @@
 # Utility class finality
 
-English · [Русский](utility-class-finality.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.UtilityClassFinalityRule` · **WARNING** · main
 
 A class whose methods are all static must be `final` and have a private constructor.

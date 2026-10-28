@@ -1,7 +1,5 @@
 # No disabled tests
 
-English · [Русский](no-disabled-tests.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoDisabledTestsRule` · **ERROR** · test
 
 Tests must not be disabled: neither `@Ignore` (TestNG) / `@Disabled` (JUnit 5) on a class or method, nor `@Test(enabled = false)` (TestNG). A disabled test guards nothing while it still looks like coverage — remove it if it is obsolete, or fix and re-enable it.

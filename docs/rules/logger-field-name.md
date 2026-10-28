@@ -1,7 +1,5 @@
 # Logger field name
 
-English · [Русский](logger-field-name.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule` · **ERROR** · main
 
 A Log4j2 or SLF4J `Logger` field must be named `LOG` and be declared `static final`. Lombok `@Log4j2` and `@Slf4j` generate a field named `log`, so they break this rule.

@@ -10,6 +10,8 @@ repositories {
 dependencies {
     implementation libs.spotless.plugin
     implementation libs.vanniktech.publish.plugin
+    implementation libs.plugin.publish.plugin
+    implementation libs.maven.plugin.development.plugin
 
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter

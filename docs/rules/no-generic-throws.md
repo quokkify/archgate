@@ -1,7 +1,5 @@
 # No generic throws
 
-English · [Русский](no-generic-throws.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoGenericThrowsRule` · **WARNING** · main
 
 Methods and constructors must not declare the generic exceptions `Exception`, `RuntimeException` or `Throwable`. Declare the specific checked or unchecked exception the code can actually throw.

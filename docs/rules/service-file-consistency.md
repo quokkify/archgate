@@ -1,7 +1,5 @@
 # Service file consistency
 
-English · [Русский](service-file-consistency.ru.md)
-
 `dev.quokkify.archgate.rules.classgraph.ServiceFileConsistencyRule` · **ERROR** · main + test · backend: ClassGraph (`archgate-rules-classgraph`)
 
 Every `META-INF/services/<interface>` file in the checked class directories must list all public, concrete classes under `rootPackage` that implement that interface. A class that implements the interface but is missing from the file is reported.

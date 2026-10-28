@@ -1,7 +1,5 @@
 # No java.util.Date
 
-English · [Русский](no-java-util-date.ru.md)
-
 `dev.quokkify.archgate.rules.archunit.NoJavaUtilDateRule` · **WARNING** · main + test
 
 Code must not depend on `java.util.Date`. Use `java.time` types instead: `Instant`, `LocalDateTime` or `ZonedDateTime`.

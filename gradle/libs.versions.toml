@@ -42,7 +42,5 @@ maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" 
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }
 maven-verifier = { module = "org.apache.maven.shared:maven-verifier", version.ref = "mavenVerifier" }
 apache-maven-distribution = { module = "org.apache.maven:apache-maven", version.ref = "mavenRuntime" }
-
-[plugins]
-plugin-publish = { id = "com.gradle.plugin-publish", version.ref = "pluginPublish" }
-maven-plugin-development = { id = "org.gradlex.maven-plugin-development", version.ref = "mavenPluginDevelopment" }
+plugin-publish-plugin = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "pluginPublish" }
+maven-plugin-development-plugin = { module = "org.gradlex:maven-plugin-development", version.ref = "mavenPluginDevelopment" }

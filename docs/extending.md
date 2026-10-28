@@ -1,7 +1,5 @@
 # Writing a backend or rule
 
-English · [Русский](extending.ru.md)
-
 This page is the contract between ArchGate and code that plugs into it: rules (`ArchitectureRule`) and backends (`AnalysisContext` with its `ContextProvider`). The README shows [how to write a rule](../README.md#write-your-own-rule); this page lists what a rule or a backend may rely on and what it must guarantee.
 
 ## What is public

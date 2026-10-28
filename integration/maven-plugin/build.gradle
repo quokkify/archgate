@@ -1,0 +1,50 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+    id 'org.gradlex.maven-plugin-development'
+}
+
+def requiredMavenVersion = libs.versions.mavenApi.get()
+def descriptorFile = layout.buildDirectory.file('mavenPlugin/descriptor/META-INF/maven/plugin.xml')
+
+mavenPlugin {
+    artifactId = base.archivesName
+    name = 'ArchGate Maven Plugin'
+    description = 'Runs ArchGate architecture checks in a Maven build.'
+    goalPrefix = 'archgate'
+}
+
+// gradlex 1.0.3 has no setting for the minimum Maven version, so the generated descriptor is patched.
+tasks.named('generateMavenPluginDescriptor') { descriptorTask ->
+    doLast {
+        descriptorTask.outputs.files.asFileTree.matching { include '**/META-INF/maven/plugin.xml' }.each { file ->
+            def text = file.getText('UTF-8')
+            if (!text.contains('<requiredMavenVersion>')) {
+                file.setText(
+                    text.replace('<mojos', "<requiredMavenVersion>${requiredMavenVersion}</requiredMavenVersion>\n  <mojos"),
+                    'UTF-8')
+            }
+        }
+    }
+}
+
+mavenPublishing {
+    pom {
+        packaging = 'maven-plugin'
+    }
+}
+
+dependencies {
+    implementation project(':core')
+    compileOnly libs.maven.plugin.api
+    compileOnly libs.maven.core
+    compileOnly libs.maven.plugin.annotations
+
+    testImplementation libs.maven.core
+    testCompileOnly libs.maven.plugin.annotations
+}
+
+tasks.named('test', Test) {
+    dependsOn tasks.named('generateMavenPluginDescriptor')
+    systemProperty 'archgate.descriptor', descriptorFile.get().asFile.path
+}
