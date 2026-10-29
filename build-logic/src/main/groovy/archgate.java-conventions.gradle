@@ -34,7 +34,7 @@ repositories {
 }
 
 // Temporary while the suite moves to TestNG (#23); removed once every project is migrated.
-def TESTNG_PROJECTS = [':api'] as Set
+def TESTNG_PROJECTS = [':api', ':core'] as Set
 def testng = TESTNG_PROJECTS.contains(path)
 
 dependencies {

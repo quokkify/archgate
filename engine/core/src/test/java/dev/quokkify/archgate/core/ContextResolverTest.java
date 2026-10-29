@@ -5,11 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import com.example.CustomContext;
+import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.archgate.api.AnalysisContext;
 import dev.quokkify.archgate.api.ContextProvider;
 import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
@@ -25,15 +27,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class ContextResolverTest {
 
     private static final AtomicInteger CREATED = new AtomicInteger();
-
-    @TempDir
-    Path tempDir;
 
     public record CountedContext() implements AnalysisContext {}
 
@@ -144,7 +142,7 @@ class ContextResolverTest {
         }
     }
 
-    private ContextResolver resolverWith(Class<?>... providers) throws IOException {
+    private ContextResolver resolverWith(Path tempDir, Class<?>... providers) throws IOException {
         Path services = tempDir.resolve("META-INF/services");
         Files.createDirectories(services);
         StringBuilder lines = new StringBuilder();
@@ -162,7 +160,8 @@ class ContextResolverTest {
 
     @Test
     void missingProviderIsUnableToVerifyWithHint() throws IOException {
-        try (ContextResolver resolver = resolverWith()) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path())) {
             assertThatThrownBy(() -> resolver.get(ArchUnitContext.class))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining(
@@ -173,7 +172,8 @@ class ContextResolverTest {
 
     @Test
     void missingProviderForForeignTypeHasNoArtifactHint() throws IOException {
-        try (ContextResolver resolver = resolverWith()) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path())) {
             assertThatThrownBy(() -> resolver.get(CustomContext.class))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining("No ContextProvider for com.example.CustomContext")
@@ -181,10 +181,13 @@ class ContextResolverTest {
         }
     }
 
+    // CountingProvider increments the static CREATED counter
+    @SingleThread
     @Test
     void contextIsCreatedLazilyAndOnce() throws Exception {
         CREATED.set(0);
-        try (ContextResolver resolver = resolverWith(CountingProvider.class);
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path(), CountingProvider.class);
                 ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             assertThat(CREATED).hasValue(0);
             List<Future<CountedContext>> results = new ArrayList<>();
@@ -201,29 +204,35 @@ class ContextResolverTest {
 
     @Test
     void autoCloseableContextIsClosed() throws IOException {
-        ContextResolver resolver = resolverWith(ClosableProvider.class);
-        ClosableContext context = resolver.get(ClosableContext.class);
+        try (TempDir tempDir = TempDir.create()) {
+            ContextResolver resolver = resolverWith(tempDir.path(), ClosableProvider.class);
+            ClosableContext context = resolver.get(ClosableContext.class);
 
-        resolver.close();
+            resolver.close();
 
-        assertThat(context.closed).isTrue();
+            assertThat(context.closed).isTrue();
+        }
     }
 
     @Test
     void closeFailuresAreSuppressedOnOneError() throws IOException {
-        ContextResolver resolver = resolverWith(FailingClosableProvider.class, ClosableProvider.class);
-        resolver.get(FailingClosableContext.class);
-        ClosableContext healthy = resolver.get(ClosableContext.class);
+        try (TempDir tempDir = TempDir.create()) {
+            ContextResolver resolver =
+                    resolverWith(tempDir.path(), FailingClosableProvider.class, ClosableProvider.class);
+            resolver.get(FailingClosableContext.class);
+            ClosableContext healthy = resolver.get(ClosableContext.class);
 
-        assertThatThrownBy(resolver::close)
-                .isInstanceOf(UnableToVerifyError.class)
-                .satisfies(error -> assertThat(error.getSuppressed()).hasSize(1));
-        assertThat(healthy.closed).isTrue();
+            assertThatThrownBy(resolver::close)
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .satisfies(error -> assertThat(error.getSuppressed()).hasSize(1));
+            assertThat(healthy.closed).isTrue();
+        }
     }
 
     @Test
     void twoProvidersForOneTypeAreUnableToVerify() throws IOException {
-        try (ContextResolver resolver = resolverWith(CountingProvider.class, RivalProvider.class)) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path(), CountingProvider.class, RivalProvider.class)) {
             assertThatThrownBy(() -> resolver.get(CountedContext.class))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining(CountingProvider.class.getName())
@@ -233,7 +242,8 @@ class ContextResolverTest {
 
     @Test
     void providerFailureIsUnableToVerifyWithCause() throws IOException {
-        try (ContextResolver resolver = resolverWith(ThrowingProvider.class)) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path(), ThrowingProvider.class)) {
             assertThatThrownBy(() -> resolver.get(ThrowingContext.class))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining(ThrowingContext.class.getName())
@@ -241,9 +251,12 @@ class ContextResolverTest {
         }
     }
 
+    // CountingProvider increments the static CREATED counter
+    @SingleThread
     @Test
     void buildTimesMergeCreatedContexts() throws IOException {
-        try (ContextResolver resolver = resolverWith(TimedProvider.class, CountingProvider.class)) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path(), TimedProvider.class, CountingProvider.class)) {
             assertThat(resolver.buildTimes()).isEmpty();
             resolver.get(TimedContext.class);
             resolver.get(CountedContext.class);
@@ -278,7 +291,8 @@ class ContextResolverTest {
 
     @Test
     void contextOwnBuildTimeWinsOverMeasuredCreateTime() throws IOException {
-        try (ContextResolver resolver = resolverWith(CollidingProvider.class)) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path(), CollidingProvider.class)) {
             resolver.get(CollidingContext.class);
 
             assertThat(resolver.buildTimes()).containsExactly(Map.entry("CollidingContext", Duration.ofDays(1)));
@@ -287,7 +301,8 @@ class ContextResolverTest {
 
     @Test
     void failedCreationIsCachedButEachCallGetsAFreshError() throws IOException {
-        try (ContextResolver resolver = resolverWith()) {
+        try (TempDir tempDir = TempDir.create();
+                ContextResolver resolver = resolverWith(tempDir.path())) {
             Throwable first = catchThrowable(() -> resolver.get(ArchUnitContext.class));
             Throwable second = catchThrowable(() -> resolver.get(ArchUnitContext.class));
 

@@ -17,17 +17,15 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class GateRunnerTest {
 
     private static final ArchitectureViolation BOOM = new ArchitectureViolation("contract", List.of("SomeClass"));
 
-    private final ContextResolver context = TestRules.resolver();
-
     @Test
     void passingRuleHasNullFinding() {
-        GateResult result = GateRunner.run(List.of(satisfied("green", Severity.ERROR)), context);
+        GateResult result = GateRunner.run(List.of(satisfied("green", Severity.ERROR)), TestRules.resolver());
 
         assertThat(result.outcomes()).singleElement().satisfies(outcome -> {
             assertThat(outcome.finding()).isNull();
@@ -41,7 +39,8 @@ class GateRunnerTest {
         AssertionError archUnit = new AssertionError("Architecture Violation was violated (1 times)");
 
         GateResult result = GateRunner.run(
-                List.of(throwing("a", Severity.ERROR, BOOM), throwing("b", Severity.WARNING, archUnit)), context);
+                List.of(throwing("a", Severity.ERROR, BOOM), throwing("b", Severity.WARNING, archUnit)),
+                TestRules.resolver());
 
         assertThat(result.outcomes()).extracting(RuleOutcome::finding).containsExactly(BOOM, archUnit);
         assertThat(result.count(Severity.ERROR)).isEqualTo(1);
@@ -54,7 +53,7 @@ class GateRunnerTest {
     void runtimeExceptionIsUnableToVerify() {
         IllegalStateException cause = new IllegalStateException("broken");
 
-        assertThatThrownBy(() -> GateRunner.run(List.of(throwing("bad", Severity.INFO, cause)), context))
+        assertThatThrownBy(() -> GateRunner.run(List.of(throwing("bad", Severity.INFO, cause)), TestRules.resolver()))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("bad")
                 .hasCause(cause);
@@ -71,7 +70,7 @@ class GateRunnerTest {
                                 throwing("a-unverifiable", Severity.WARNING, first),
                                 recording,
                                 throwing("z-unverifiable", Severity.WARNING, new UnableToVerifyError("second"))),
-                        context))
+                        TestRules.resolver()))
                 .isSameAs(first)
                 .hasMessageContaining("classpath element missing")
                 .satisfies(error -> assertThat(error.getSuppressed()).hasSize(1));
@@ -85,7 +84,7 @@ class GateRunnerTest {
         ArchitectureRule<?> one = new TestRules("one", Severity.ERROR, ctx -> awaitPeer(started, observed));
         ArchitectureRule<?> two = new TestRules("two", Severity.ERROR, ctx -> awaitPeer(started, observed));
 
-        GateResult result = GateRunner.run(List.of(one, two), context);
+        GateResult result = GateRunner.run(List.of(one, two), TestRules.resolver());
 
         assertThat(observed).containsExactly(true, true);
         assertThat(result.outcomes()).hasSize(2);
@@ -95,7 +94,7 @@ class GateRunnerTest {
     void outcomesSortedByRuleName() {
         GateResult result = GateRunner.run(
                 List.of(satisfied("c", Severity.ERROR), satisfied("a", Severity.ERROR), satisfied("b", Severity.ERROR)),
-                context);
+                TestRules.resolver());
 
         assertThat(result.outcomes())
                 .extracting(outcome -> outcome.rule().name())
@@ -108,7 +107,7 @@ class GateRunnerTest {
             sleep(150);
         });
 
-        GateResult result = GateRunner.run(List.of(waiting), context);
+        GateResult result = GateRunner.run(List.of(waiting), TestRules.resolver());
 
         assertThat(result.outcomes().get(0).duration()).isLessThan(Duration.ofSeconds(5));
         assertThat(result.elapsedMillis()).isGreaterThanOrEqualTo(100);
@@ -116,7 +115,7 @@ class GateRunnerTest {
 
     @Test
     void failsOnThreshold() {
-        GateResult warning = GateRunner.run(List.of(throwing("w", Severity.WARNING, BOOM)), context);
+        GateResult warning = GateRunner.run(List.of(throwing("w", Severity.WARNING, BOOM)), TestRules.resolver());
 
         assertThat(warning.failsOn(Optional.of(Severity.WARNING))).isTrue();
         assertThat(warning.failsOn(Optional.of(Severity.INFO))).isTrue();
@@ -126,7 +125,7 @@ class GateRunnerTest {
 
     @Test
     void failsOnNeverIsAlwaysFalse() {
-        GateResult error = GateRunner.run(List.of(throwing("e", Severity.ERROR, BOOM)), context);
+        GateResult error = GateRunner.run(List.of(throwing("e", Severity.ERROR, BOOM)), TestRules.resolver());
 
         assertThat(error.failsOn(Optional.empty())).isFalse();
     }
@@ -168,8 +167,8 @@ class GateRunnerTest {
     @Test
     void twoRulesSharingAMissingProviderReportOneUnableToVerify() {
         // regression: shared cached failure was self-suppressed by keepFirst
-        assertThatThrownBy(() ->
-                        GateRunner.run(List.of(new NeedsMissingProvider("a"), new NeedsMissingProvider("b")), context))
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(new NeedsMissingProvider("a"), new NeedsMissingProvider("b")), TestRules.resolver()))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("No ContextProvider for dev.quokkify.archgate.context.archunit.ArchUnitContext")
                 .hasMessageContaining("dev.quokkify.archgate:archgate-context-archunit");

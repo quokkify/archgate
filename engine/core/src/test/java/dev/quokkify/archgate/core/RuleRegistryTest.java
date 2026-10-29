@@ -7,19 +7,16 @@ import archfixtures.version.ExplodingRule;
 import archfixtures.version.VersionedRule;
 import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.UnableToVerifyError;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class RuleRegistryTest {
-
-    @TempDir
-    Path tempDir;
 
     private static List<ArchitectureRule<?>> loadCase(String caseName) throws IOException {
         Path testClasses = TestDirs.classes();
@@ -90,9 +87,10 @@ class RuleRegistryTest {
 
     @Test
     void libraryNeedingNewerApiFailsBeforeAnyRuleIsInstantiated() throws IOException {
-        Path jar = RuleJars.write(tempDir.resolve("rules-lib-1.0.jar"), "0.2.0", List.of(ExplodingRule.class));
-        try (RuleJars jars = new RuleJars();
-                URLClassLoader loader = jars.loader(jar)) {
+        try (TempDir tempDir = TempDir.create();
+                RuleJars jars = new RuleJars();
+                URLClassLoader loader = jars.loader(
+                        RuleJars.write(tempDir.resolve("rules-lib-1.0.jar"), "0.2.0", List.of(ExplodingRule.class)))) {
             assertThatThrownBy(() -> RuleRegistry.load(loader, Optional.of(ApiVersion.parse("0.1.0"))))
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining("rules-lib-1.0.jar declares Archgate-Api-Version 0.2.0")
@@ -102,9 +100,10 @@ class RuleRegistryTest {
 
     @Test
     void compatibleLibraryLoads() throws IOException {
-        Path jar = RuleJars.write(tempDir.resolve("rules-lib-1.0.jar"), "0.1.0", List.of(VersionedRule.class));
-        try (RuleJars jars = new RuleJars();
-                URLClassLoader loader = jars.loader(jar)) {
+        try (TempDir tempDir = TempDir.create();
+                RuleJars jars = new RuleJars();
+                URLClassLoader loader = jars.loader(
+                        RuleJars.write(tempDir.resolve("rules-lib-1.0.jar"), "0.1.0", List.of(VersionedRule.class)))) {
             assertThat(RuleRegistry.load(loader, Optional.of(ApiVersion.parse("0.1.0"))))
                     .extracting(ArchitectureRule::name)
                     .containsExactly("versioned-rule");

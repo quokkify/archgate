@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.util.Optional;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class FailOnTest {
 
