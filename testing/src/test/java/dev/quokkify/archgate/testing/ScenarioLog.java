@@ -1,8 +1,12 @@
 package dev.quokkify.archgate.testing;
 
 import io.qameta.allure.Allure;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Supplier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +26,7 @@ public final class ScenarioLog {
     private static final String SCENARIO = "scenario";
     private static final String TOOL = "tool";
     private static final String RUN = "run";
+    private static final String TAG = "tag";
 
     private ScenarioLog() {}
 
@@ -47,6 +52,25 @@ public final class ScenarioLog {
     public static void output(String output) {
         LOG.debug("{}", output);
         Allure.attachment("output", "text/plain", output);
+    }
+
+    /** Names the case after its scenario, groups it under the scenario and tags it with the build tools it runs. */
+    public static void labels(String scenario, Set<BuildTool> tools) {
+        Allure.getLifecycle().updateTest(result -> result.setName(scenario));
+        Allure.story(scenario);
+        tools.forEach(tool -> Allure.label(TAG, toolName(tool)));
+    }
+
+    /** Attaches a gate report to the current step; a run that wrote no report attaches nothing. */
+    public static void report(BuildTool tool, Path report) {
+        if (!Files.isRegularFile(report)) {
+            return;
+        }
+        try {
+            Allure.attachment(toolName(tool) + " report.txt", "text/plain", Files.readString(report));
+        } catch (IOException e) {
+            throw new UncheckedIOException("Cannot read " + report, e);
+        }
     }
 
     public static Path logFile(String scenario, BuildTool tool, int run) {

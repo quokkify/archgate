@@ -66,6 +66,7 @@ class FixtureEndToEndTest {
 
     @Test(dataProvider = "scenarios")
     void runsScenario(String scenario) {
+        ScenarioLog.labels(scenario, TOOLS);
         boolean compared = TOOLS.size() == BuildTool.values().length && !NOT_COMPARED.contains(scenario);
         List<Expectation> expectations = Expectation.load(Fixture.root().resolve(scenario));
         if (compared) {
@@ -106,6 +107,8 @@ class FixtureEndToEndTest {
                 if (compared) {
                     String comparison = expectation.unableToVerify() ? "compare message #" : "compare reports #";
                     ScenarioLog.step(comparison + expectation.run(), () -> {
+                        ScenarioLog.report(MAVEN, results.get(MAVEN).reportPath());
+                        ScenarioLog.report(GRADLE, results.get(GRADLE).reportPath());
                         try {
                             assertSameResult(scenario, expectation, results.get(MAVEN), results.get(GRADLE));
                         } catch (AssertionError | RuntimeException e) {

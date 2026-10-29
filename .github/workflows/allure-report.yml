@@ -1,0 +1,51 @@
+name: Allure report
+
+on:
+  workflow_run:
+    workflows: [Validate]
+    types: [completed]
+
+permissions: {}
+
+concurrency:
+  group: allure-report-${{ github.event.workflow_run.workflow_id }}-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  report:
+    name: Generate and comment trusted Allure report
+    uses: quokkify/ci-kit/.github/workflows/allure-publisher-core.yml@v4.1.0
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    with:
+      source-workflow: Validate
+      source-workflow-path: .github/workflows/validate.yml
+      artifact-prefix: allure-results-
+      artifact-mode: component
+      minimum-artifacts: 1
+      maximum-artifacts: 50
+      skip-empty-artifacts: false
+      config-file: .github/allure/allurerc.mjs
+      categories-file: ""
+      publish-pages: true
+      managed-pages-layout: true
+      history-path: allure-history/history.jsonl
+      pages-url: "https://quokkify.github.io/archgate"
+
+  pages:
+    name: Publish trusted Pages report
+    needs: report
+    if: ${{ needs.report.outputs.ready == 'true' && needs.report.outputs.fork-pr == 'false' }}
+    uses: quokkify/ci-kit/.github/workflows/allure-pages.yml@v4.1.0
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: read
+    with:
+      source-workflow: Validate
+      source-workflow-path: .github/workflows/validate.yml
+      managed-pages-layout: true
+      pr-number: ${{ needs.report.outputs.pr-number }}
+      pages-destination-directory: ${{ format('allure/pr-{0}', needs.report.outputs.pr-number) }}

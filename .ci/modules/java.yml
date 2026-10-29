@@ -4,6 +4,6 @@ components:
     name: "ArchGate Java"
     path: "."
     java_version: "21"
-    "test_artifact_name": "java-test-reports"
-    "test_artifact_path": "**/build/test-*"
+    "test_artifact_name": "allure-results-archgate-java"
+    "test_artifact_path": "**/build/allure-results"
     "upload_test_artifacts": true

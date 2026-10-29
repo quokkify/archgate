@@ -1,5 +1,7 @@
 .gradle/
 build/
+allure-report/
+allure-history/
 .superpowers/
 .omc/
 .idea/

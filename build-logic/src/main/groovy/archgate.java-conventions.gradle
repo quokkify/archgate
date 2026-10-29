@@ -24,6 +24,11 @@ tasks.named('compileJava', JavaCompile) {
     options.compilerArgs += ['-Xlint:all', '-Werror']
 }
 
+// Keeps test method parameter names, which Allure shows as the parameters of a data-driven case.
+tasks.named('compileTestJava', JavaCompile) {
+    options.compilerArgs += ['-parameters']
+}
+
 tasks.withType(Javadoc).configureEach {
     options.addBooleanOption('Xdoclint:all,-missing', true)
     options.addBooleanOption('Werror', true)
@@ -50,6 +55,12 @@ tasks.withType(Test).configureEach {
         exceptionFormat = 'full'
     }
     addTestListener(new TestSummaryListener(path))
+    // Allure appends to its results directory; clear it so a report shows only this run.
+    def allureResults = layout.buildDirectory.dir('allure-results')
+    outputs.dir(allureResults).withPropertyName('allureResults')
+    doFirst {
+        allureResults.get().asFile.deleteDir()
+    }
 }
 
 spotless {

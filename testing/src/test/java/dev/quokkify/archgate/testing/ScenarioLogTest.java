@@ -1,13 +1,21 @@
 package dev.quokkify.archgate.testing;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import org.apache.logging.log4j.ThreadContext;
 import org.testng.annotations.Test;
 
 class ScenarioLogTest {
+
+    @Test
+    void missingReportAttachesNothing() {
+        assertThatCode(() -> ScenarioLog.report(BuildTool.GRADLE, Path.of("build", "no-such-report.txt")))
+                .doesNotThrowAnyException();
+    }
 
     @Test
     void writesOutputToPerRunFile() throws IOException {
