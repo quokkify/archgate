@@ -45,7 +45,7 @@ The tests use TestNG with q4j and run in parallel by method. Run one module with
 
 An environment variable overrides the file default, for example `TEST_THREAD_COUNT=2 ./gradlew :core:test --rerun`. The override also applies when a Gradle daemon is already running.
 
-Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. Allure results of every module, `build-logic` included, are in its `build/allure-results`. The console prints every test result and a summary line per test task. CI uploads every `build/test-results` and `build/test-logs` directory as the `java-test-reports` artifact of the run, on success and on failure. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
+Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. Allure results of every module, `build-logic` included, are in its `build/allure-results`. The console prints every test result, prefixed with the suite name, and a summary line per test task. Each module's suite is named after the Gradle project (`core`, `rules-archunit`); set `SUITE_NAME` in the environment to override it. CI uploads every `build/test-results` and `build/test-logs` directory as the `java-test-reports` artifact of the run, on success and on failure. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
 
 ### Shared fixtures
 

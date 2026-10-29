@@ -43,18 +43,13 @@ sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
 
 tasks.withType(Test).configureEach {
     useTestNG()
-    def taskPath = path
+    // q4j's SuiteListener names the suite after SUITE_NAME, read from the environment only.
+    environment 'SUITE_NAME', providers.environmentVariable('SUITE_NAME').getOrElse(project.name)
     testLogging {
         events 'passed', 'skipped', 'failed'
         exceptionFormat = 'full'
     }
-    afterSuite { descriptor, result ->
-        if (descriptor.parent == null) {
-            println "${taskPath}: ${result.resultType}, ${result.testCount} tests, " +
-                    "${result.successfulTestCount} passed, ${result.skippedTestCount} skipped, " +
-                    "${result.failedTestCount} failed"
-        }
-    }
+    addTestListener(new TestSummaryListener(path))
 }
 
 spotless {
