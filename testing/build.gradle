@@ -57,8 +57,4 @@ tasks.named('test', Test) {
     systemProperty 'archgate.root', rootProject.projectDir.absolutePath
     systemProperty 'archgate.bomPom', bomPom.get().asFile.absolutePath
     environment 'DATA_PROVIDER_THREAD_COUNT', providers.environmentVariable('DATA_PROVIDER_THREAD_COUNT').getOrElse('4')
-    testLogging {
-        events 'failed'
-        exceptionFormat = 'full'
-    }
 }

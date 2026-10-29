@@ -43,6 +43,18 @@ sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
 
 tasks.withType(Test).configureEach {
     useTestNG()
+    def taskPath = path
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+    afterSuite { descriptor, result ->
+        if (descriptor.parent == null) {
+            println "${taskPath}: ${result.resultType}, ${result.testCount} tests, " +
+                    "${result.successfulTestCount} passed, ${result.skippedTestCount} skipped, " +
+                    "${result.failedTestCount} failed"
+        }
+    }
 }
 
 spotless {
