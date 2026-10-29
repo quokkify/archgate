@@ -55,7 +55,7 @@ A rules artifact depends on its context artifact, so adding the rules is enough 
   <dependency>
     <groupId>dev.quokkify.archgate</groupId>
     <artifactId>archgate-rules-archunit</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
     <scope>test</scope>
   </dependency>
 </dependencies>
@@ -65,7 +65,7 @@ A rules artifact depends on its context artifact, so adding the rules is enough 
     <plugin>
       <groupId>dev.quokkify.archgate</groupId>
       <artifactId>archgate-maven-plugin</artifactId>
-      <version>0.1.1</version>
+      <version>0.1.2</version>
       <executions><execution><goals><goal>check</goal></goals></execution></executions>
       <configuration>
         <rootPackage>com.acme.tests</rootPackage>
@@ -108,7 +108,7 @@ Requires Gradle 9.7.1 or newer.
 ```groovy
 plugins {
     id 'java'
-    id 'dev.quokkify.archgate' version '0.1.1'
+    id 'dev.quokkify.archgate' version '0.1.2'
 }
 
 archgate {
@@ -119,7 +119,7 @@ archgate {
 }
 
 dependencies {
-    testImplementation platform('dev.quokkify.archgate:archgate-bom:0.1.1')
+    testImplementation platform('dev.quokkify.archgate:archgate-bom:0.1.2')
     testImplementation 'dev.quokkify.archgate:archgate-rules-archunit'
 }
 ```
@@ -151,7 +151,7 @@ For a multi-module project, keep custom rules in a dedicated last module named `
 <dependency>
   <groupId>dev.quokkify.archgate</groupId>
   <artifactId>archgate-context-archunit</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.2</version>
   <scope>test</scope>
 </dependency>
 ```
