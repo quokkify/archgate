@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.stream.Stream;
 
-/** A temporary directory that is deleted recursively on {@link #close()}; use it in try-with-resources. */
+/** A temporary directory that is deleted recursively on {@link #close()}, which is idempotent; use it in try-with-resources. */
 public final class TempDir implements AutoCloseable {
 
     private final Path path;
@@ -50,9 +50,12 @@ public final class TempDir implements AutoCloseable {
 
     @Override
     public void close() {
+        if (Files.notExists(path)) {
+            return;
+        }
         try (Stream<Path> paths = Files.walk(path)) {
             for (Path p : (Iterable<Path>) paths.sorted(Comparator.reverseOrder())::iterator) {
-                Files.delete(p);
+                Files.deleteIfExists(p);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);

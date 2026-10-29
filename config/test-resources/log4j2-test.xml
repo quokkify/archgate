@@ -6,8 +6,8 @@
             <ThresholdFilter level="INFO"/>
         </Console>
         <Routing name="PerRun">
-            <Routes pattern="$${ctx:scenario}">
-                <Route key="$${ctx:scenario}">
+            <Routes pattern="$${ctx:scenario}/$${ctx:tool}-run$${ctx:run}">
+                <Route key="$${ctx:scenario}/$${ctx:tool}-run$${ctx:run}">
                     <Null name="Unrouted"/>
                 </Route>
                 <Route>
