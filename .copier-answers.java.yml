@@ -8,4 +8,4 @@ java_components:
     java_version: "21"
     upload_test_artifacts: true
     test_artifact_name: allure-results-archgate-java
-    test_artifact_path: "**/build/allure-results"
+    test_artifact_path: build/allure-results

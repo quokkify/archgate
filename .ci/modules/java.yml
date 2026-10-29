@@ -5,5 +5,5 @@ components:
     path: "."
     java_version: "21"
     "test_artifact_name": "allure-results-archgate-java"
-    "test_artifact_path": "**/build/allure-results"
+    "test_artifact_path": "build/allure-results"
     "upload_test_artifacts": true
