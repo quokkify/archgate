@@ -1,1 +1,1 @@
-{"id":"d05f670ce4ffde055d6389806877061b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRuleTest.contextTypeIsArchUnit","name":"contextTypeIsArchUnit","status":"passed","testResultsByEnv":{"default":"749fdbe8575826bbbe8ce1a3819ecbc9"}}
+{"id":"d05f670ce4ffde055d6389806877061b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRuleTest.contextTypeIsArchUnit","name":"contextTypeIsArchUnit","status":"passed","testResultsByEnv":{"default":"269ca5d9d39bb25c177d5fbbf1eddefa"}}

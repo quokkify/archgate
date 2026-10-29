@@ -1,0 +1,16 @@
+============================================================
+Architecture verification (2 rules, 3.4 s total)
+============================================================
+[PASS]  MAIN+TEST   3417 ms  No Thread.sleep
+[ERROR] MAIN+TEST   2233 ms  No legacy classes
+    Classes must not be named Legacy*
+    Violations (2):
+        - com.example.api.LegacyAccount
+        - com.example.tests.LegacyFlow
+Model build: ArchUnitContext 4 ms, main 2207 ms, test 1180 ms
+============================================================
+Gate FAILED: 2 rules, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

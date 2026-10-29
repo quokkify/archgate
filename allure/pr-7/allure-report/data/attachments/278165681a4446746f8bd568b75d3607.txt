@@ -1,0 +1,15 @@
+============================================================
+Architecture verification (1 rule, 1.9 s total)
+============================================================
+[WARNING] MAIN+TEST   1937 ms  No java.util.Date
+    Code must not depend on java.util.Date. Use java.time types (Instant, LocalDateTime, ZonedDateTime) instead.
+    Violations (2):
+        - Method <com.example.Clock.now()> calls constructor <java.util.Date.<init>()> in (Clock.java:8)
+        - Method <com.example.Clock.now()> has return type <java.util.Date> in (Clock.java:0)
+Model build: ArchUnitContext 6 ms, main 1359 ms, test 440 ms
+============================================================
+Gate PASSED: 1 rule, 1 warning
+Failure policy (failOn=ERROR):
+  ERROR    fails the build
+  WARNING  reported only
+  INFO     reported only
