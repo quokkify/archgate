@@ -1,0 +1,47 @@
+> Task :api:compileJava
+> Task :api:processResources NO-SOURCE
+> Task :api:classes
+> Task :api:compileTestJava NO-SOURCE
+> Task :api:processTestResources NO-SOURCE
+> Task :api:testClasses UP-TO-DATE
+> Task :api:archgateCheck SKIPPED
+> Task :api:jar
+> Task :api:test NO-SOURCE
+> Task :api:check UP-TO-DATE
+> Task :tests:compileJava
+> Task :architecture:compileJava NO-SOURCE
+> Task :architecture:processResources NO-SOURCE
+> Task :architecture:classes UP-TO-DATE
+> Task :architecture:compileTestJava
+> Task :architecture:processTestResources
+> Task :architecture:testClasses
+> Task :tests:processResources NO-SOURCE
+> Task :tests:classes
+> Task :tests:compileTestJava NO-SOURCE
+> Task :tests:jar
+> Task :tests:processTestResources NO-SOURCE
+> Task :architecture:test
+> Task :tests:testClasses UP-TO-DATE
+> Task :tests:archgateCheck SKIPPED
+> Task :tests:test NO-SOURCE
+> Task :tests:check UP-TO-DATE
+
+> Task :architecture:archgateCheck
+============================================================
+Architecture verification (2 rules, 2.9 s total)
+============================================================
+[PASS]  MAIN+TEST   2904 ms  No Thread.sleep
+[PASS]  MAIN+TEST   1848 ms  No legacy classes
+Model build: ArchUnitContext 0 ms, main 1844 ms, test 1036 ms
+============================================================
+Gate PASSED: 2 rules, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
+
+> Task :architecture:check
+
+BUILD SUCCESSFUL in 4s
+8 actionable tasks: 8 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.8.2/userguide/configuration_cache_enabling.html

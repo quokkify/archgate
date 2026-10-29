@@ -1,0 +1,1 @@
+{"id":"b73b4c14025ae6ff1a402ca8bf6caf69.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.core.ContextResolverTest.failedCreationIsCachedButEachCallGetsAFreshError","name":"failedCreationIsCachedButEachCallGetsAFreshError","status":"passed","testResultsByEnv":{"default":"8e04e2778ea4d8804ce086c2946917a0"}}

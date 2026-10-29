@@ -1,0 +1,1 @@
+{"id":"a0694ed610084ddd35db289e23e355b8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.javaparser.NoWildcardImportsRuleTest.packageDirectoryMismatchIsReportedRelativeToSourceDir","name":"packageDirectoryMismatchIsReportedRelativeToSourceDir","status":"passed","testResultsByEnv":{"default":"d3ccc26245cbad8d02e07de703794e23"}}
