@@ -12,7 +12,8 @@
                 </Route>
                 <Route>
                     <File name="Run-${ctx:scenario}-${ctx:tool}-${ctx:run}"
-                          fileName="build/test-logs/${ctx:scenario}/${ctx:tool}-run${ctx:run}.log">
+                          fileName="build/test-logs/${ctx:scenario}/${ctx:tool}-run${ctx:run}.log"
+                          append="false">
                         <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %c{1} - %msg%n"/>
                     </File>
                 </Route>

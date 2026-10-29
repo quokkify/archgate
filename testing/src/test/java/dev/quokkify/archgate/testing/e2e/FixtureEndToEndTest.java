@@ -80,7 +80,7 @@ class FixtureEndToEndTest {
                 projects.put(
                         tool,
                         ScenarioLog.step(
-                                "materialize " + tool,
+                                "materialize " + ScenarioLog.toolName(tool),
                                 () -> Fixture.materialize(scenario, tool, temp.resolve(tool.name()))));
             }
             for (Expectation expectation : expectations) {
@@ -106,7 +106,15 @@ class FixtureEndToEndTest {
                 if (compared) {
                     String comparison = expectation.unableToVerify() ? "compare message #" : "compare reports #";
                     ScenarioLog.step(comparison + expectation.run(), () -> {
-                        assertSameResult(scenario, expectation, results.get(MAVEN), results.get(GRADLE));
+                        try {
+                            assertSameResult(scenario, expectation, results.get(MAVEN), results.get(GRADLE));
+                        } catch (AssertionError | RuntimeException e) {
+                            LOG.warn(
+                                    "compare failed, see {} and {}",
+                                    ScenarioLog.logFile(scenario, MAVEN, expectation.run()),
+                                    ScenarioLog.logFile(scenario, GRADLE, expectation.run()));
+                            throw e;
+                        }
                         return null;
                     });
                 }
@@ -122,14 +130,14 @@ class FixtureEndToEndTest {
             } catch (AssertionError | RuntimeException e) {
                 Path logFile = ScenarioLog.logFile(scenario, tool, expectation.run());
                 LOG.warn("log file: {}", logFile);
-                attach(e, new LogFileReference(logFile));
+                attach(e, new SeeLogFile(logFile));
                 throw e;
             }
         });
     }
 
     // Gradle's console prints the causes of a failure but not its suppressed exceptions; the message stays unchanged.
-    private static void attach(Throwable failure, LogFileReference reference) {
+    private static void attach(Throwable failure, SeeLogFile reference) {
         if (Objects.isNull(failure.getCause())) {
             try {
                 failure.initCause(reference);
@@ -254,11 +262,11 @@ class FixtureEndToEndTest {
         }
     }
 
-    private static final class LogFileReference extends RuntimeException {
+    private static final class SeeLogFile extends RuntimeException {
 
         private static final long serialVersionUID = 1L;
 
-        LogFileReference(Path logFile) {
+        SeeLogFile(Path logFile) {
             super("log file: " + logFile, null, false, false);
         }
     }

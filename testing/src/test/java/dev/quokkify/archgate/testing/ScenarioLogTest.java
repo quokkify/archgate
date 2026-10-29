@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import org.apache.logging.log4j.ThreadContext;
 import org.testng.annotations.Test;
 
@@ -12,8 +11,6 @@ class ScenarioLogTest {
 
     @Test
     void writesOutputToPerRunFile() throws IOException {
-        Files.deleteIfExists(ScenarioLog.logFile("log-check", BuildTool.MAVEN, 2));
-
         ScenarioLog.run("log-check", BuildTool.MAVEN, 2, () -> {
             ScenarioLog.output("hello-output");
             return null;

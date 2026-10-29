@@ -36,7 +36,7 @@ public final class ScenarioLog {
         ThreadContext.put(TOOL, toolName(tool));
         ThreadContext.put(RUN, Integer.toString(run));
         try {
-            return step("run " + tool + " #" + run, action);
+            return step("run " + toolName(tool) + " #" + run, action);
         } finally {
             ThreadContext.remove(SCENARIO);
             ThreadContext.remove(TOOL);
@@ -53,7 +53,7 @@ public final class ScenarioLog {
         return Path.of("build", "test-logs", scenario, toolName(tool) + "-run" + run + ".log");
     }
 
-    private static String toolName(BuildTool tool) {
+    public static String toolName(BuildTool tool) {
         return tool.name().toLowerCase(Locale.ROOT);
     }
 }
