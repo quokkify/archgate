@@ -45,7 +45,23 @@ The tests use TestNG with q4j and run in parallel by method. Run one module with
 
 An environment variable overrides the file default, for example `TEST_THREAD_COUNT=2 ./gradlew :core:test --rerun`. The override also applies when a Gradle daemon is already running.
 
-Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. Allure results of every module, `build-logic` included, are in its `build/allure-results`. The console prints every test result, prefixed with the suite name, and a summary line per test task. Each module's suite is named after the Gradle project (`core`, `rules-archunit`); set `SUITE_NAME` in the environment to override it. CI uploads every `build/test-results` and `build/test-logs` directory as the `java-test-reports` artifact of the run, on success and on failure. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
+Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. The console prints every test result, prefixed with the suite name, and a summary line per test task. Each module's suite is named after the Gradle project (`core`, `rules-archunit`); set `SUITE_NAME` in the environment to override it. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
+
+### Allure report
+
+Every test task writes Allure results to its module's `build/allure-results`, `build-logic` included, and clears them before it runs. The report groups tests by module and class. Each end-to-end scenario is a case named after the scenario, tagged with the build tools it ran, with one step per build run that carries the Maven or Gradle output and a compare step that carries both `report.txt` files.
+
+In CI the `java` job uploads every `build/allure-results` directory as the `allure-results-archgate-java` artifact, on success and on failure. The `Allure report` workflow then builds the report, comments on the pull request with a summary and publishes it to GitHub Pages under `allure/pr-<number>`. The workflow is rendered by the ci-kit `allure` module; change its settings through `.copier-answers.allure.yml` (see [ci-kit](ci-kit.md)).
+
+To open the report locally, run the tests, then generate the report with the same Allure version and configuration as CI (Node.js required):
+
+```bash
+./gradlew test
+npx allure@3.22.1 generate --config .github/allure/allurerc.mjs --output build/allure-report
+npx allure@3.22.1 open build/allure-report
+```
+
+`generate` finds every `allure-results` directory below the repository root.
 
 ### Shared fixtures
 
