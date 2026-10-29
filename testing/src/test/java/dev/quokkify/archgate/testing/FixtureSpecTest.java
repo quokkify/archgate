@@ -3,13 +3,13 @@ package dev.quokkify.archgate.testing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class FixtureSpecTest {
 
@@ -102,28 +102,34 @@ class FixtureSpecTest {
     }
 
     @Test
-    void unknownOrMalformedKeysFailWithKeyAndFile(@TempDir Path dir) throws Exception {
-        for (String bad : List.of("run.1.contains.a", "run.1.contian.1", "run.2.outcome", "bogus")) {
-            Files.writeString(dir.resolve("expected.properties"), "runs=1\nrun.1.outcome=success\n" + bad + "=x\n");
+    void unknownOrMalformedKeysFailWithKeyAndFile() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path dir = tempDir.path();
+            for (String bad : List.of("run.1.contains.a", "run.1.contian.1", "run.2.outcome", "bogus")) {
+                Files.writeString(dir.resolve("expected.properties"), "runs=1\nrun.1.outcome=success\n" + bad + "=x\n");
 
-            assertThatThrownBy(() -> Expectation.load(dir))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining(bad)
-                    .hasMessageContaining("expected.properties");
+                assertThatThrownBy(() -> Expectation.load(dir))
+                        .isInstanceOf(IllegalArgumentException.class)
+                        .hasMessageContaining(bad)
+                        .hasMessageContaining("expected.properties");
+            }
         }
     }
 
     @Test
-    void toolScopedAbsentAppliesToItsToolOnly(@TempDir Path dir) throws Exception {
-        Files.writeString(
-                dir.resolve("expected.properties"),
-                "runs=1\nrun.1.absent.1=both\nrun.1.maven.absent.1=m\nrun.1.gradle.absent.1=g\n"
-                        + "run.1.gradle.matches.1=gx\n");
-        Expectation expectation = Expectation.load(dir).get(0);
+    void toolScopedAbsentAppliesToItsToolOnly() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path dir = tempDir.path();
+            Files.writeString(
+                    dir.resolve("expected.properties"),
+                    "runs=1\nrun.1.absent.1=both\nrun.1.maven.absent.1=m\nrun.1.gradle.absent.1=g\n"
+                            + "run.1.gradle.matches.1=gx\n");
+            Expectation expectation = Expectation.load(dir).get(0);
 
-        assertThat(expectation.absent(BuildTool.MAVEN)).containsExactly("both", "m");
-        assertThat(expectation.absent(BuildTool.GRADLE)).containsExactly("both", "g");
-        assertThat(expectation.matches(BuildTool.MAVEN)).isEmpty();
-        assertThat(expectation.matches(BuildTool.GRADLE)).hasSize(1);
+            assertThat(expectation.absent(BuildTool.MAVEN)).containsExactly("both", "m");
+            assertThat(expectation.absent(BuildTool.GRADLE)).containsExactly("both", "g");
+            assertThat(expectation.matches(BuildTool.MAVEN)).isEmpty();
+            assertThat(expectation.matches(BuildTool.GRADLE)).hasSize(1);
+        }
     }
 }

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import dev.quokkify.archgate.testing.BuildTool;
 import dev.quokkify.archgate.testing.Fixture;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,15 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 class ArchgateElementsFunctionalTest {
 
@@ -35,102 +33,119 @@ class ArchgateElementsFunctionalTest {
             + " archgateElements to a gate.";
     private static final String OWN_MAIN_CLASS = "architecture/src/main/java/com/example/architecture/Layers.java";
 
-    @TempDir
-    Path temp;
-
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("cacheModes")
+    @Test(dataProvider = "cacheModes")
     void moduleWithoutPluginFailsWithHint(List<String> extraArgs) throws IOException {
-        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
-        edit(project.resolve("api/build.gradle"), text -> remove(remove(text, PLUGIN_LINE), SKIP_BLOCK));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
+            edit(project.resolve("api/build.gradle"), text -> remove(remove(text, PLUGIN_LINE), SKIP_BLOCK));
 
-        BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
+            BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
 
-        assertThat(result.getOutput())
-                .contains("does not apply dev.quokkify.archgate")
-                .contains("project ':api'");
+            assertThat(result.getOutput())
+                    .contains("does not apply dev.quokkify.archgate")
+                    .contains("project ':api'");
+        }
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("cacheModes")
+    @Test(dataProvider = "cacheModes")
     void gateWithoutRootPackageFails(List<String> extraArgs) throws IOException {
-        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
-        edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
+            edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
 
-        BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
+            BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
 
-        assertThat(result.getOutput()).contains(MISSING_ROOT_PACKAGE);
+            assertThat(result.getOutput()).contains(MISSING_ROOT_PACKAGE);
+        }
     }
 
     @Test
     void buildScriptRootPackageWinsOverCommandLine() {
-        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
 
-        BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=org.elsewhere"))
-                .buildAndFail();
+            BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=org.elsewhere"))
+                    .buildAndFail();
 
-        assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+            assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+        }
     }
 
     @Test
     void commandLineRootPackageIsTheDefault() throws IOException {
-        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
-        edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
+            edit(project.resolve(GATE_BUILD), text -> remove(text, ROOT_PACKAGE_LINE));
 
-        BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=com.example"))
-                .buildAndFail();
+            BuildResult result = runner(project, GATE_TASK, List.of("-Parchgate.rootPackage=com.example"))
+                    .buildAndFail();
 
-        assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+            assertThat(result.getOutput()).contains("com.example.api.LegacyAccount");
+        }
     }
 
     @Test
     void elementsOnlyModulesStaySkipped() {
-        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
 
-        BuildResult result = runner(
-                        project, "check", List.of("-Parchgate.skip=false", "-Parchgate.rootPackage=com.example"))
-                .build();
+            BuildResult result = runner(
+                            project, "check", List.of("-Parchgate.skip=false", "-Parchgate.rootPackage=com.example"))
+                    .build();
 
-        assertThat(result.task(":api:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
-        assertThat(result.task(":tests:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
-        assertThat(result.task(GATE_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+            assertThat(result.task(":api:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
+            assertThat(result.task(":tests:archgateCheck").getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
+            assertThat(result.task(GATE_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        }
     }
 
     @Test
     void siblingClassesAreBuiltFirst() throws IOException {
-        Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
-        edit(
-                project.resolve(GATE_BUILD),
-                text -> text.lines()
-                        .filter(line -> !line.contains("implementation project("))
-                        .collect(Collectors.joining("\n", "", "\n")));
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
+            edit(
+                    project.resolve(GATE_BUILD),
+                    text -> text.lines()
+                            .filter(line -> !line.contains("implementation project("))
+                            .collect(Collectors.joining("\n", "", "\n")));
 
-        BuildResult result = runner(project, GATE_TASK).build();
+            BuildResult result = runner(project, GATE_TASK).build();
 
-        List<String> executed =
-                result.getTasks().stream().map(BuildTask::getPath).toList();
-        assertThat(executed).contains(":api:compileJava", ":tests:compileJava", GATE_TASK);
-        assertThat(executed.indexOf(":api:compileJava")).isLessThan(executed.indexOf(GATE_TASK));
-        assertThat(executed.indexOf(":tests:compileJava")).isLessThan(executed.indexOf(GATE_TASK));
-        assertThat(result.getOutput()).contains("Gate PASSED: 2 rules, no findings");
+            List<String> executed =
+                    result.getTasks().stream().map(BuildTask::getPath).toList();
+            assertThat(executed).contains(":api:compileJava", ":tests:compileJava", GATE_TASK);
+            assertThat(executed.indexOf(":api:compileJava")).isLessThan(executed.indexOf(GATE_TASK));
+            assertThat(executed.indexOf(":tests:compileJava")).isLessThan(executed.indexOf(GATE_TASK));
+            assertThat(result.getOutput()).contains("Gate PASSED: 2 rules, no findings");
+        }
     }
 
     @Test
     void withoutModulesOnlyOwnProjectIsChecked() throws IOException {
-        Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
-        edit(project.resolve(GATE_BUILD), text -> remove(text, MODULES_LINE));
-        write(project.resolve(OWN_MAIN_CLASS), "package com.example.architecture;\n\npublic class Layers {}\n");
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module-violation", BuildTool.GRADLE, temp.resolve("project"));
+            edit(project.resolve(GATE_BUILD), text -> remove(text, MODULES_LINE));
+            write(project.resolve(OWN_MAIN_CLASS), "package com.example.architecture;\n\npublic class Layers {}\n");
 
-        BuildResult result = runner(project, GATE_TASK).build();
+            BuildResult result = runner(project, GATE_TASK).build();
 
-        assertThat(result.getOutput())
-                .contains("Gate PASSED: 2 rules, no findings")
-                .doesNotContain("com.example.api.LegacyAccount")
-                .doesNotContain("com.example.tests.LegacyFlow");
+            assertThat(result.getOutput())
+                    .contains("Gate PASSED: 2 rules, no findings")
+                    .doesNotContain("com.example.api.LegacyAccount")
+                    .doesNotContain("com.example.tests.LegacyFlow");
+        }
     }
 
-    static Stream<List<String>> cacheModes() {
-        return Stream.of(List.of(), List.of("--configuration-cache"));
+    @DataProvider
+    static Object[][] cacheModes() {
+        return new Object[][] {{List.of()}, {List.of("--configuration-cache")}};
     }
 
     private static GradleRunner runner(Path project, String task) {

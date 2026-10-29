@@ -13,6 +13,8 @@ import dev.quokkify.archgate.testing.FixtureTools;
 import dev.quokkify.archgate.testing.GradleRun;
 import dev.quokkify.archgate.testing.MavenCache;
 import dev.quokkify.archgate.testing.MavenRun;
+import dev.quokkify.archgate.testing.ScenarioLog;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
@@ -20,35 +22,39 @@ import java.nio.file.Path;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.maven.executor.ExecutorException;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.BuildTask;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.gradle.testkit.runner.UnexpectedBuildResultException;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 class FixtureEndToEndTest {
 
+    private static final Logger LOG = LogManager.getLogger(FixtureEndToEndTest.class);
     private static final Set<BuildTool> TOOLS = FixtureTools.fromSystemProperty();
     private static final Set<String> NOT_COMPARED = Set.of("skip");
     private static final Path MAVEN_REPORT = Path.of("target", "archgate", "report.txt");
     private static final Path GRADLE_REPORT = Path.of("build", "reports", "archgate", "report.txt");
 
-    @TempDir
-    Path temp;
-
-    static Stream<String> scenarios() {
-        return Fixture.scenarios().stream();
+    @DataProvider(name = "scenarios", parallel = true)
+    static Object[][] scenarios() {
+        return Fixture.scenarios().stream()
+                .map(scenario -> new Object[] {scenario})
+                .toArray(Object[][]::new);
     }
 
     static Stream<String> comparedScenarios() {
-        return scenarios().filter(scenario -> !NOT_COMPARED.contains(scenario));
+        return Fixture.scenarios().stream().filter(scenario -> !NOT_COMPARED.contains(scenario));
     }
 
     @Test
@@ -58,8 +64,7 @@ class FixtureEndToEndTest {
                 .contains("javaparser-wildcard", "service-registration", "missing-services");
     }
 
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("scenarios")
+    @Test(dataProvider = "scenarios")
     void runsScenario(String scenario) {
         boolean compared = TOOLS.size() == BuildTool.values().length && !NOT_COMPARED.contains(scenario);
         List<Expectation> expectations = Expectation.load(Fixture.root().resolve(scenario));
@@ -69,25 +74,74 @@ class FixtureEndToEndTest {
                     .anyMatch(expectation -> !expectation.contains(MAVEN).isEmpty());
         }
         String gate = FixtureSpec.load(Fixture.root().resolve(scenario)).gate().orElse("");
-        Map<BuildTool, Path> projects = new EnumMap<>(BuildTool.class);
-        for (BuildTool tool : TOOLS) {
-            projects.put(tool, Fixture.materialize(scenario, tool, temp.resolve(tool.name())));
-        }
-        for (Expectation expectation : expectations) {
-            Map<BuildTool, BuildResultView> results = new EnumMap<>(BuildTool.class);
-            if (TOOLS.contains(MAVEN)) {
-                results.put(MAVEN, runMaven(projects.get(MAVEN), gate, expectation));
+        try (TempDir temp = TempDir.create()) {
+            Map<BuildTool, Path> projects = new EnumMap<>(BuildTool.class);
+            for (BuildTool tool : TOOLS) {
+                projects.put(
+                        tool,
+                        ScenarioLog.step(
+                                "materialize " + tool,
+                                () -> Fixture.materialize(scenario, tool, temp.resolve(tool.name()))));
             }
-            if (TOOLS.contains(GRADLE)) {
-                results.put(GRADLE, runGradle(projects.get(GRADLE), gate, expectation));
-            }
-            if (compared) {
-                assertSameResult(scenario, expectation, results.get(MAVEN), results.get(GRADLE));
+            for (Expectation expectation : expectations) {
+                Map<BuildTool, BuildResultView> results = new EnumMap<>(BuildTool.class);
+                if (TOOLS.contains(MAVEN)) {
+                    results.put(
+                            MAVEN,
+                            logged(
+                                    scenario,
+                                    MAVEN,
+                                    expectation,
+                                    () -> runMaven(temp.path(), projects.get(MAVEN), gate, expectation)));
+                }
+                if (TOOLS.contains(GRADLE)) {
+                    results.put(
+                            GRADLE,
+                            logged(
+                                    scenario,
+                                    GRADLE,
+                                    expectation,
+                                    () -> runGradle(projects.get(GRADLE), gate, expectation)));
+                }
+                if (compared) {
+                    String comparison = expectation.unableToVerify() ? "compare message #" : "compare reports #";
+                    ScenarioLog.step(comparison + expectation.run(), () -> {
+                        assertSameResult(scenario, expectation, results.get(MAVEN), results.get(GRADLE));
+                        return null;
+                    });
+                }
             }
         }
     }
 
-    private BuildResultView runMaven(Path project, String gate, Expectation expectation) {
+    private static BuildResultView logged(
+            String scenario, BuildTool tool, Expectation expectation, Supplier<BuildResultView> run) {
+        return ScenarioLog.run(scenario, tool, expectation.run(), () -> {
+            try {
+                return run.get();
+            } catch (AssertionError | RuntimeException e) {
+                Path logFile = ScenarioLog.logFile(scenario, tool, expectation.run());
+                LOG.warn("log file: {}", logFile);
+                attach(e, new LogFileReference(logFile));
+                throw e;
+            }
+        });
+    }
+
+    // Gradle's console prints the causes of a failure but not its suppressed exceptions; the message stays unchanged.
+    private static void attach(Throwable failure, LogFileReference reference) {
+        if (Objects.isNull(failure.getCause())) {
+            try {
+                failure.initCause(reference);
+                return;
+            } catch (IllegalStateException e) {
+                // the cause was explicitly set to null
+            }
+        }
+        failure.addSuppressed(reference);
+    }
+
+    private static BuildResultView runMaven(Path temp, Path project, String gate, Expectation expectation) {
         Path localRepo = temp.resolve("m2");
         MavenCache cache = MavenCache.fromSystemProperty();
         MavenRun.Outcome outcome;
@@ -100,6 +154,8 @@ class FixtureEndToEndTest {
         }
         boolean succeeded = outcome.succeeded();
         String log = outcome.log();
+        ScenarioLog.output(log);
+        LOG.info("maven run {} {}", expectation.run(), succeeded ? "succeeded" : "failed");
         assertThat(succeeded)
                 .as("maven run %d succeeded%n%s", expectation.run(), log)
                 .isEqualTo(expectation.success());
@@ -120,8 +176,16 @@ class FixtureEndToEndTest {
 
     private static BuildResultView runGradle(Path project, String gate, Expectation expectation) {
         GradleRunner runner = GradleRun.runner(project, expectation.args(GRADLE));
-        BuildResult result = expectation.success() ? runner.build() : runner.buildAndFail();
+        BuildResult result;
+        try {
+            result = expectation.success() ? runner.build() : runner.buildAndFail();
+        } catch (UnexpectedBuildResultException e) {
+            ScenarioLog.output(e.getBuildResult().getOutput());
+            throw e;
+        }
         String output = result.getOutput();
+        ScenarioLog.output(output);
+        LOG.info("gradle run {} {}", expectation.run(), expectation.success() ? "succeeded" : "failed");
         for (String text : expectation.contains(GRADLE)) {
             assertThat(output).as("gradle run %d", expectation.run()).contains(text);
         }
@@ -187,6 +251,15 @@ class FixtureEndToEndTest {
             return Files.readString(report);
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot read " + report, e);
+        }
+    }
+
+    private static final class LogFileReference extends RuntimeException {
+
+        private static final long serialVersionUID = 1L;
+
+        LogFileReference(Path logFile) {
+            super("log file: " + logFile, null, false, false);
         }
     }
 }

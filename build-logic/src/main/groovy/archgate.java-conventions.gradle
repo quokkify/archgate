@@ -38,7 +38,7 @@ def TESTNG_PROJECTS = [
     ':api', ':core',
     ':context-archunit', ':rules-archunit', ':context-javaparser', ':rules-javaparser',
     ':context-classgraph', ':rules-classgraph',
-    ':maven-plugin', ':gradle-plugin'
+    ':maven-plugin', ':gradle-plugin', ':testing'
 ] as Set
 def testng = TESTNG_PROJECTS.contains(path)
 

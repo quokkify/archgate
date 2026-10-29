@@ -2,25 +2,25 @@ package dev.quokkify.archgate.testing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.nio.file.Path;
 import org.apache.maven.executor.ExecutorRequest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class ForkedMavenTest {
-
-    @TempDir
-    Path temp;
 
     @Test
     // regression: forked Maven used ambient JAVA_HOME (Java 17 in CI)
     void forkedMavenUsesTheTestJvm() {
-        ExecutorRequest request = ForkedMaven.pinJavaHome(ExecutorRequest.mavenBuilder())
-                .cwd(temp)
-                .build();
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            ExecutorRequest request = ForkedMaven.pinJavaHome(ExecutorRequest.mavenBuilder())
+                    .cwd(temp)
+                    .build();
 
-        assertThat(request.environmentVariables())
-                .hasValueSatisfying(environment ->
-                        assertThat(environment).containsEntry("JAVA_HOME", System.getProperty("java.home")));
+            assertThat(request.environmentVariables())
+                    .hasValueSatisfying(environment ->
+                            assertThat(environment).containsEntry("JAVA_HOME", System.getProperty("java.home")));
+        }
     }
 }
