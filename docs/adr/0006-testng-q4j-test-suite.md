@@ -28,4 +28,4 @@ JUnit stays in the catalog only as `junit-jupiter-api`, to compile the `archfixt
 - Each end-to-end build run writes `build/test-logs/<scenario>/<tool>-run<run>.log` in the `:testing` directory. A failure names the log file as its cause. Allure results go to `build/allure-results` of each module.
 - `:gradle-plugin` and `:testing` exclude `log4j-slf4j2-impl` from their test runtime classpath, because the Gradle API and TestKit bring Gradle's own SLF4J provider and two providers would clash. `ScenarioLog` and `FixtureEndToEndTest` therefore log through the Log4j 2 API (`LogManager`, `ThreadContext`) instead of SLF4J.
 - The archfixtures classes carry TestNG annotations, so the `rules-archunit` test task excludes them.
-- A full `./gradlew clean build --no-build-cache` took 101.4 s on JUnit 5 and now takes 75.3 s and 73.6 s in two runs; `FixtureEndToEndTest` went from 51.6 s to 18.2 s.
+- A full `./gradlew clean build --no-build-cache` took 101.4 s on JUnit 5 and now takes 75.3 s, about 73 s and 73.6 s in three runs; `FixtureEndToEndTest` went from 51.6 s to 18.2 s.

@@ -19,4 +19,5 @@ dependencies {
 
 tasks.withType(Test).configureEach {
     useTestNG()
+    systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile.path
 }
