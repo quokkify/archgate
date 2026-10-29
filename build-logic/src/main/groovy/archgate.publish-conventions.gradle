@@ -3,10 +3,10 @@ plugins {
 }
 
 def releaseBuild = providers.gradleProperty('release').map { it == 'true' }.getOrElse(false)
-def hasSigningKey = providers.gradleProperty('signingInMemoryKey').isPresent()
+def hasSigningKey = providers.gradleProperty('signingInMemoryKey').filter { !it.isBlank() }.isPresent()
 def publishingTaskRequested = gradle.startParameter.taskNames.any { it.contains('MavenCentral') || it.endsWith('publishPlugins') }
 if (releaseBuild && publishingTaskRequested && !hasSigningKey) {
-    throw new GradleException('A release (-Prelease=true) is published only signed, but the Gradle property signingInMemoryKey is not set. Provide it, for example through ORG_GRADLE_PROJECT_signingInMemoryKey.')
+    throw new GradleException('A release (-Prelease=true) is published only signed, but the Gradle property signingInMemoryKey is not set or is empty. Provide it, for example through ORG_GRADLE_PROJECT_signingInMemoryKey.')
 }
 
 mavenPublishing {

@@ -17,8 +17,8 @@ feature branch ──PR──► main ──► Release Please opens "release PR
   3. builds the release without secrets (`build -PfixtureTools=gradle`: the end-to-end test runs only its Gradle half, since CI already ran the Maven half and the comparison on `main`);
   4. runs `publishAndReleaseToMavenCentral` for all artifacts, signed, and waits until Central reports the deployment as published;
   5. only then runs `publishPlugins` to the Gradle Plugin Portal, so the Portal never points at artifacts that are not on Central yet.
-- The secrets are passed only to the publishing step, and the job runs in the `release` environment.
-- A release build (`-Prelease=true`) refuses to publish without the signing key and stops with a message that names the missing `signingInMemoryKey` property.
+- The secrets are passed only to the publishing step, and the job runs in the `release` environment. Before the build, a check step fails the run and names every required secret that is not set.
+- A release build (`-Prelease=true`) refuses to publish without the signing key and stops with a message that names the missing `signingInMemoryKey` property; an empty value counts as missing.
 - To publish by hand, run the workflow with `workflow_dispatch` and the tag, for example `v0.1.0`. A tag that does not exist fails the run.
 
 ## First release
@@ -72,5 +72,5 @@ If the publish can never succeed and you abandon `X.Y.Z`, release the next patch
 
 - Verify the `dev.quokkify` namespace in the Central Portal (DNS TXT record).
 - Create a Gradle Plugin Portal API key.
-- Create the `release` environment and add its secrets: GPG signing key and passphrase (`SIGNING_IN_MEMORY_KEY`, `SIGNING_IN_MEMORY_KEY_PASSWORD`), Central Portal token (`MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`), Plugin Portal key and secret (`GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`).
+- Create the `release` environment and add its secrets (organization secrets shared with this repository work too; an environment secret of the same name overrides them): GPG signing key and passphrase (`SIGNING_IN_MEMORY_KEY`, `SIGNING_IN_MEMORY_KEY_PASSWORD`), and the key ID (`SIGNING_IN_MEMORY_KEY_ID`) when the signing key is a subkey, Central Portal token (`MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`), Plugin Portal key and secret (`GRADLE_PUBLISH_KEY`, `GRADLE_PUBLISH_SECRET`).
 - Protect `main`: pull requests only, with the required status checks.
