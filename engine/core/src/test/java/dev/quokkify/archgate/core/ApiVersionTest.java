@@ -3,20 +3,29 @@ package dev.quokkify.archgate.core;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 class ApiVersionTest {
 
-    @ParameterizedTest
-    @ValueSource(strings = {"0.1.0", "10.20.30", "dev-SNAPSHOT"})
+    @DataProvider
+    static Object[][] supportedFormats() {
+        return new Object[][] {{"0.1.0"}, {"10.20.30"}, {"dev-SNAPSHOT"}};
+    }
+
+    @DataProvider
+    static Object[][] otherFormats() {
+        return new Object[][] {
+            {"0.2"}, {"1.0.0-rc1"}, {"${archgate.version}"}, {""}, {" "}, {"1.0.0.0"}, {"-1.0.0"}, {"a.b.c"}
+        };
+    }
+
+    @Test(dataProvider = "supportedFormats")
     void parsesSupportedFormats(String text) {
         assertThat(ApiVersion.parse(text)).hasToString(text);
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"0.2", "1.0.0-rc1", "${archgate.version}", "", " ", "1.0.0.0", "-1.0.0", "a.b.c"})
+    @Test(dataProvider = "otherFormats")
     void rejectsOtherFormats(String text) {
         assertThatThrownBy(() -> ApiVersion.parse(text)).isInstanceOf(IllegalArgumentException.class);
     }

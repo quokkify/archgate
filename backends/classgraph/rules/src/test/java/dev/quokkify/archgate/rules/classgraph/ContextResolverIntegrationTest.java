@@ -13,7 +13,7 @@ import dev.quokkify.archgate.core.SimpleProjectLayout;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class ContextResolverIntegrationTest {
 

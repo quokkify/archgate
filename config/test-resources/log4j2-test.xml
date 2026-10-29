@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %X{scenario} %X{tool} %X{run} %c{1} - %msg%n"/>
+            <ThresholdFilter level="INFO"/>
+        </Console>
+        <Routing name="PerRun">
+            <Routes pattern="$${ctx:scenario}/$${ctx:tool}-run$${ctx:run}">
+                <Route key="$${ctx:scenario}/$${ctx:tool}-run$${ctx:run}">
+                    <Null name="Unrouted"/>
+                </Route>
+                <Route>
+                    <File name="Run-${ctx:scenario}-${ctx:tool}-${ctx:run}"
+                          fileName="build/test-logs/${ctx:scenario}/${ctx:tool}-run${ctx:run}.log"
+                          append="false">
+                        <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level [%t] %c{1} - %msg%n"/>
+                    </File>
+                </Route>
+            </Routes>
+        </Routing>
+    </Appenders>
+    <Loggers>
+        <Logger name="dev.quokkify.archgate" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="PerRun"/>
+        </Logger>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

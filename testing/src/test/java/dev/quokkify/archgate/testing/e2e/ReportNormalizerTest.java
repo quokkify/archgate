@@ -2,11 +2,20 @@ package dev.quokkify.archgate.testing.e2e;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 class ReportNormalizerTest {
+
+    @DataProvider
+    static Object[][] durations() {
+        return new Object[][] {{"5 ms"}, {"123 ms"}, {"1.2 s"}};
+    }
+
+    @DataProvider
+    static Object[][] nonDurations() {
+        return new Object[][] {{"5 rules, 12 findings"}, {"1.2 services"}, {"3 msgs"}, {"v1.2 sec"}};
+    }
 
     @Test
     // regression: right-aligned duration padding differed between runs
@@ -32,11 +41,7 @@ class ReportNormalizerTest {
         assertThat(ReportNormalizer.normalize("v1.2 sec")).isEqualTo("v1.2 sec");
     }
 
-    @ParameterizedTest(name = "{0}")
-    @ValueSource(
-            strings = {
-                "5 ms", "123 ms", "1.2 s",
-            })
+    @Test(dataProvider = "durations")
     void normalizesDurations(String duration) {
         assertThat(ReportNormalizer.normalize("took " + duration + " total")).isEqualTo("took N ms total");
     }
@@ -46,8 +51,7 @@ class ReportNormalizerTest {
         assertThat(ReportNormalizer.normalize("a\r\nb\rc\n")).isEqualTo("a\nb\nc\n");
     }
 
-    @ParameterizedTest(name = "{0}")
-    @ValueSource(strings = {"5 rules, 12 findings", "1.2 services", "3 msgs", "v1.2 sec"})
+    @Test(dataProvider = "nonDurations")
     void leavesNonDurationsUnchanged(String text) {
         assertThat(ReportNormalizer.normalize(text)).isEqualTo(text);
     }

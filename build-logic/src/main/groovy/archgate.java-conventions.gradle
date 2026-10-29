@@ -34,18 +34,28 @@ repositories {
 }
 
 dependencies {
-    testImplementation platform(catalog.findLibrary('junit-bom').get())
-    testImplementation catalog.findLibrary('junit-jupiter').get()
+    testImplementation catalog.findLibrary('q4j-testng').get()
     testImplementation catalog.findLibrary('assertj-core').get()
-    testRuntimeOnly catalog.findLibrary('junit-platform-launcher').get()
 }
 
+sourceSets.test.resources.srcDir rootProject.file('config/test-resources')
+sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
+
 tasks.withType(Test).configureEach {
-    useJUnitPlatform()
+    useTestNG()
+    // q4j's SuiteListener names the suite after SUITE_NAME, read from the environment only.
+    environment 'SUITE_NAME', providers.environmentVariable('SUITE_NAME').getOrElse(project.name)
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+        exceptionFormat = 'full'
+    }
+    addTestListener(new TestSummaryListener(path))
 }
 
 spotless {
     java {
+        // The shared test-support sources live outside the project directory, which Spotless rejects.
+        target 'src/**/*.java'
         palantirJavaFormat(catalog.findVersion('palantirJavaFormat').get().requiredVersion)
         removeUnusedImports()
     }

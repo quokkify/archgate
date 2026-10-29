@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.EnumSet;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class FixtureToolsTest {
 

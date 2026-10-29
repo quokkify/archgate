@@ -10,7 +10,7 @@ import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class TestClassNamingRuleTest {
 

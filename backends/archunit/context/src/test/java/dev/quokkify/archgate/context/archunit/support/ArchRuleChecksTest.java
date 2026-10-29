@@ -7,7 +7,7 @@ import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class ArchRuleChecksTest {
 

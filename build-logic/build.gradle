@@ -13,11 +13,11 @@ dependencies {
     implementation libs.plugin.publish.plugin
     implementation libs.maven.plugin.development.plugin
 
-    testImplementation platform(libs.junit.bom)
-    testImplementation libs.junit.jupiter
-    testRuntimeOnly libs.junit.platform.launcher
+    testImplementation libs.q4j.testng
+    testImplementation libs.assertj.core
 }
 
 tasks.withType(Test).configureEach {
-    useJUnitPlatform()
+    useTestNG()
+    systemProperty 'allure.results.directory', layout.buildDirectory.dir('allure-results').get().asFile.path
 }

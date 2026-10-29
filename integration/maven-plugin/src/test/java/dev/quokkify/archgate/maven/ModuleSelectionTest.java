@@ -8,7 +8,7 @@ import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class ModuleSelectionTest {
 

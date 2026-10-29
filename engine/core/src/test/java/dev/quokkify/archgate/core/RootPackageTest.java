@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.quokkify.archgate.api.UnableToVerifyError;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class RootPackageTest {
 

@@ -9,14 +9,14 @@ import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.context.javaparser.JavaParserContext;
 import dev.quokkify.archgate.context.javaparser.JavaParserContextProvider;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class NoWildcardImportsRuleTest {
 
@@ -71,21 +71,24 @@ class NoWildcardImportsRuleTest {
 
     // regression: package/directory mismatch crashed the rule via Storage.getSourceRoot()
     @Test
-    void packageDirectoryMismatchIsReportedRelativeToSourceDir(@TempDir Path tmp) throws IOException {
-        Path mismatched = Files.createDirectories(tmp.resolve("main/foo"));
-        Files.writeString(
-                mismatched.resolve("Bar.java"), "package com.example;\n\nimport java.util.*;\n\nclass Bar {}\n");
-        SimpleProjectLayout layout = new SimpleProjectLayout(
-                "com.example",
-                List.of(),
-                List.of(),
-                List.of(tmp.resolve("main")),
-                List.of(tmp.resolve("main")),
-                NoWildcardImportsRuleTest.class.getClassLoader());
-        JavaParserContext context = new JavaParserContextProvider().create(layout);
+    void packageDirectoryMismatchIsReportedRelativeToSourceDir() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path tmp = tempDir.path();
+            Path mismatched = Files.createDirectories(tmp.resolve("main/foo"));
+            Files.writeString(
+                    mismatched.resolve("Bar.java"), "package com.example;\n\nimport java.util.*;\n\nclass Bar {}\n");
+            SimpleProjectLayout layout = new SimpleProjectLayout(
+                    "com.example",
+                    List.of(),
+                    List.of(),
+                    List.of(tmp.resolve("main")),
+                    List.of(tmp.resolve("main")),
+                    NoWildcardImportsRuleTest.class.getClassLoader());
+            JavaParserContext context = new JavaParserContextProvider().create(layout);
 
-        assertThatThrownBy(() -> new NoWildcardImportsRule().verify(context))
-                .isInstanceOf(ArchitectureViolation.class)
-                .hasMessageContaining("foo/Bar.java:3 import java.util.*");
+            assertThatThrownBy(() -> new NoWildcardImportsRule().verify(context))
+                    .isInstanceOf(ArchitectureViolation.class)
+                    .hasMessageContaining("foo/Bar.java:3 import java.util.*");
+        }
     }
 }

@@ -20,13 +20,12 @@ mavenPluginAnnotations = "3.16.0"
 mavenExecutor = "1.0.0"
 pluginPublish = "2.2.1"
 mavenPluginDevelopment = "1.0.3"
+q4j = "0.12.2"
 
 [libraries]
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 vanniktech-publish-plugin = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "vanniktechPublish" }
-junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
-junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
 assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 javaparser-core = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
@@ -36,7 +35,6 @@ awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" 
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 testng = { module = "org.testng:testng", version.ref = "testng" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 maven-plugin-api = { module = "org.apache.maven:maven-plugin-api", version.ref = "mavenApi" }
 maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" }
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }
@@ -44,3 +42,4 @@ maven-executor = { module = "org.apache.maven.executor:maven-executor", version.
 apache-maven-distribution = { module = "org.apache.maven:apache-maven", version.ref = "mavenRuntime" }
 plugin-publish-plugin = { module = "com.gradle.publish:plugin-publish-plugin", version.ref = "pluginPublish" }
 maven-plugin-development-plugin = { module = "org.gradlex:maven-plugin-development", version.ref = "mavenPluginDevelopment" }
+q4j-testng = { module = "dev.quokkify:testng", version.ref = "q4j" }

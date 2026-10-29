@@ -26,6 +26,12 @@ dependencies {
     mavenDistribution "${libs.apache.maven.distribution.get()}:bin@zip"
 }
 
+// gradleTestKit() brings the Gradle API with its own SLF4J provider; a second one makes SLF4J warn on every
+// test run. ScenarioLog logs through the Log4j 2 API, so its per-run files do not depend on the SLF4J bridge.
+configurations.testRuntimeClasspath {
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j2-impl'
+}
+
 def archives = services.get(ArchiveOperations)
 def unpackMaven = tasks.register('unpackMaven', Sync) {
     from(archives.zipTree(configurations.mavenDistribution.elements.map { it.first() }))
@@ -50,8 +56,5 @@ tasks.named('test', Test) {
     systemProperty 'archgate.mavenCache', rootProject.mavenItCache.get().asFile.path
     systemProperty 'archgate.root', rootProject.projectDir.absolutePath
     systemProperty 'archgate.bomPom', bomPom.get().asFile.absolutePath
-    testLogging {
-        events 'failed'
-        exceptionFormat = 'full'
-    }
+    environment 'DATA_PROVIDER_THREAD_COUNT', providers.environmentVariable('DATA_PROVIDER_THREAD_COUNT').getOrElse('4')
 }

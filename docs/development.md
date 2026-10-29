@@ -34,6 +34,19 @@ To fix formatting: `./gradlew spotlessApply`.
 
 `:testing:test` depends on `publishToItRepo`, so it always tests freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
 
+### Running tests
+
+The tests use TestNG with q4j and run in parallel by method. Run one module with `./gradlew :core:test`, one class with `--tests '*DocsLinkTest'`.
+
+| Setting | Default | Effect |
+|---|---|---|
+| `TEST_THREAD_COUNT` | 4 | threads running test methods (`config/test-resources/testng.properties`) |
+| `DATA_PROVIDER_THREAD_COUNT` | 4 | threads running the end-to-end scenarios (environment of `:testing:test`) |
+
+An environment variable overrides the file default, for example `TEST_THREAD_COUNT=2 ./gradlew :core:test --rerun`. The override also applies when a Gradle daemon is already running.
+
+Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. Allure results of every module, `build-logic` included, are in its `build/allure-results`. The console prints every test result, prefixed with the suite name, and a summary line per test task. Each module's suite is named after the Gradle project (`core`, `rules-archunit`); set `SUITE_NAME` in the environment to override it. CI uploads every `build/test-results` and `build/test-logs` directory as the `java-test-reports` artifact of the run, on success and on failure. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
+
 ### Shared fixtures
 
 `testing/fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support in `:testing` generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; the end-to-end test picks it up. Mark a run that must end with an "unable to verify" error with `run.N.unableToVerify=true`, so the end-to-end test compares its message instead of a report.
