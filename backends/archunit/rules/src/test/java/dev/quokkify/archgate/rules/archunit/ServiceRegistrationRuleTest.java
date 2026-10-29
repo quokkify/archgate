@@ -9,6 +9,7 @@ import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,8 +20,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import javax.tools.ToolProvider;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class ServiceRegistrationRuleTest {
 
@@ -128,30 +128,33 @@ class ServiceRegistrationRuleTest {
 
     // regression: provider in another module's test classes
     @Test
-    void providerOnlyInAnotherTestDirIsResolved(@TempDir Path other) throws IOException {
-        Path source = other.resolve("src/archfixtures/services/OffLoaderGreeter.java");
-        Files.createDirectories(source.getParent());
-        Files.writeString(source, """
-        package archfixtures.services;
-        public class OffLoaderGreeter implements Greeter {
-          @Override
-          public String greet() {
-            return "off";
-          }
+    void providerOnlyInAnotherTestDirIsResolved() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path other = tempDir.path();
+            Path source = other.resolve("src/archfixtures/services/OffLoaderGreeter.java");
+            Files.createDirectories(source.getParent());
+            Files.writeString(source, """
+            package archfixtures.services;
+            public class OffLoaderGreeter implements Greeter {
+              @Override
+              public String greet() {
+                return "off";
+              }
+            }
+            """);
+            Path classes = Files.createDirectories(other.resolve("classes"));
+            String testClasspath = System.getProperty("java.class.path");
+            int exit = ToolProvider.getSystemJavaCompiler()
+                    .run(null, null, null, "-cp", testClasspath, "-d", classes.toString(), source.toString());
+            assertThat(exit).isZero();
+            Path services = Files.createDirectories(classes.resolve("META-INF/services"));
+            Files.writeString(
+                    services.resolve("archfixtures.services.Greeter"), "archfixtures.services.OffLoaderGreeter\n");
+
+            ArchUnitContext context = FixtureContexts.of("archfixtures", List.of(), List.of(classes));
+
+            assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
         }
-        """);
-        Path classes = Files.createDirectories(other.resolve("classes"));
-        String testClasspath = System.getProperty("java.class.path");
-        int exit = ToolProvider.getSystemJavaCompiler()
-                .run(null, null, null, "-cp", testClasspath, "-d", classes.toString(), source.toString());
-        assertThat(exit).isZero();
-        Path services = Files.createDirectories(classes.resolve("META-INF/services"));
-        Files.writeString(
-                services.resolve("archfixtures.services.Greeter"), "archfixtures.services.OffLoaderGreeter\n");
-
-        ArchUnitContext context = FixtureContexts.of("archfixtures", List.of(), List.of(classes));
-
-        assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
     }
 
     @Test

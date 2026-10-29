@@ -14,7 +14,7 @@ import dev.quokkify.archgate.context.archunit.support.ArchRuleChecks;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class ClassLocationBySuffixRuleTest {
 

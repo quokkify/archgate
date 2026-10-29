@@ -12,5 +12,9 @@ dependencies {
     testImplementation libs.log4j.api
     testImplementation libs.testng
     testImplementation libs.slf4j.api
-    testRuntimeOnly libs.slf4j.simple
+    testCompileOnly libs.junit.jupiter.api
+}
+
+tasks.named('test') {
+    exclude 'archfixtures/**'
 }

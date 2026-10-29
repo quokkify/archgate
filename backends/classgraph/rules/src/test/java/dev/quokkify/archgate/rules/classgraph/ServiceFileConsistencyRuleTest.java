@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class ServiceFileConsistencyRuleTest {
 

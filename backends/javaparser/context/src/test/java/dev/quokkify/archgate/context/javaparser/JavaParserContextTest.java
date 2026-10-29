@@ -7,13 +7,13 @@ import com.github.javaparser.ast.CompilationUnit;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
+import org.testng.annotations.Test;
 
 class JavaParserContextTest {
 
@@ -58,48 +58,57 @@ class JavaParserContextTest {
     }
 
     @Test
-    void missingTestSourcesIsUnableToVerify(@TempDir Path tmp) throws URISyntaxException {
-        JavaParserContext context = context(ROOT, List.of(resource("main")), List.of(tmp.resolve("absent")));
+    void missingTestSourcesIsUnableToVerify() throws URISyntaxException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path tmp = tempDir.path();
+            JavaParserContext context = context(ROOT, List.of(resource("main")), List.of(tmp.resolve("absent")));
 
-        assertThatThrownBy(() -> context.compilationUnits(Scope.TEST))
-                .isInstanceOf(UnableToVerifyError.class)
-                .hasMessageContaining("No Java source under com.example")
-                .hasMessageContaining("test source directories");
+            assertThatThrownBy(() -> context.compilationUnits(Scope.TEST))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("No Java source under com.example")
+                    .hasMessageContaining("test source directories");
+        }
     }
 
     @Test
-    void parseErrorIsUnableToVerify(@TempDir Path tmp) throws IOException {
-        Path pkg = Files.createDirectories(tmp.resolve("com/example"));
-        Files.writeString(pkg.resolve("Broken.java"), "package com.example;\n\npublic class Broken {\n");
-        JavaParserContext context = context(ROOT, List.of(tmp), List.of());
+    void parseErrorIsUnableToVerify() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path tmp = tempDir.path();
+            Path pkg = Files.createDirectories(tmp.resolve("com/example"));
+            Files.writeString(pkg.resolve("Broken.java"), "package com.example;\n\npublic class Broken {\n");
+            JavaParserContext context = context(ROOT, List.of(tmp), List.of());
 
-        assertThatThrownBy(() -> context.compilationUnits(Scope.MAIN))
-                .isInstanceOf(UnableToVerifyError.class)
-                .hasMessageContaining("Cannot parse")
-                .hasMessageContaining("Broken.java");
+            assertThatThrownBy(() -> context.compilationUnits(Scope.MAIN))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("Cannot parse")
+                    .hasMessageContaining("Broken.java");
+        }
     }
 
     @Test
-    void parsesUnnamedVariables(@TempDir Path tmp) throws IOException {
-        Path pkg = Files.createDirectories(tmp.resolve("com/example"));
-        Files.writeString(pkg.resolve("Modern.java"), """
-                package com.example;
+    void parsesUnnamedVariables() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path tmp = tempDir.path();
+            Path pkg = Files.createDirectories(tmp.resolve("com/example"));
+            Files.writeString(pkg.resolve("Modern.java"), """
+                    package com.example;
 
-                import java.util.List;
+                    import java.util.List;
 
-                public class Modern {
-                    int count(List<String> values) {
-                        int total = 0;
-                        for (var _ : values) {
-                            total++;
+                    public class Modern {
+                        int count(List<String> values) {
+                            int total = 0;
+                            for (var _ : values) {
+                                total++;
+                            }
+                            return total;
                         }
-                        return total;
                     }
-                }
-                """);
-        JavaParserContext context = context(ROOT, List.of(tmp), List.of());
+                    """);
+            JavaParserContext context = context(ROOT, List.of(tmp), List.of());
 
-        assertThat(typeNames(context.compilationUnits(Scope.MAIN))).containsExactly("Modern");
+            assertThat(typeNames(context.compilationUnits(Scope.MAIN))).containsExactly("Modern");
+        }
     }
 
     @Test
