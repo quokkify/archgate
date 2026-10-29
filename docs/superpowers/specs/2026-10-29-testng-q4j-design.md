@@ -28,7 +28,7 @@ Move the whole test suite from JUnit 5 to TestNG with the q4j `testng` extension
   - `META-INF/services/org.testng.ITestNGListener` listing `dev.quokkify.listener.lifecycle.SuiteListener` and `dev.quokkify.listener.lifecycle.TestListener`;
   - `log4j2-test.xml`: console appender at `INFO`; a `Routing` appender keyed on the MDC values `scenario`, `tool` and `run` that writes `build/test-logs/<scenario>/<tool>-run<run>.log` when `scenario` is set;
   - `testng.properties` with `TEST_THREAD_COUNT=4`.
-- `testing/build.gradle`: the `test` task sets `environment 'DATA_PROVIDER_THREAD_COUNT', '4'` and passes `TEST_THREAD_COUNT` through when the caller sets it; `testLogging` keeps `failed` events with full exceptions.
+- `testing/build.gradle`: the `test` task sets `environment 'DATA_PROVIDER_THREAD_COUNT'` to the caller's value or `4`; `TEST_THREAD_COUNT` needs no entry, because q4j reads the environment variable itself; `testLogging` keeps `failed` events with full exceptions.
 
 If Gradle's TestNG runner does not pick up `SuiteListener` through the services file (it is an `IAlterSuiteListener`), the convention registers it with `useTestNG { listeners << '…' }`. If neither works, Gradle's own `parallel`/`threadCount` options take over and `@SingleThread` methods move to a `single-thread` group run by a second `Test` task. This is checked first, before any test is migrated.
 
