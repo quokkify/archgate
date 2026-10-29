@@ -24,3 +24,8 @@ gradlePlugin {
         }
     }
 }
+
+// gradleApi() already ships an SLF4J provider; a second one makes SLF4J warn on every test run.
+configurations.testRuntimeClasspath {
+    exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j2-impl'
+}
