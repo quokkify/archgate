@@ -35,7 +35,6 @@ awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" 
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 testng = { module = "org.testng:testng", version.ref = "testng" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 maven-plugin-api = { module = "org.apache.maven:maven-plugin-api", version.ref = "mavenApi" }
 maven-core = { module = "org.apache.maven:maven-core", version.ref = "mavenApi" }
 maven-plugin-annotations = { module = "org.apache.maven.plugin-tools:maven-plugin-annotations", version.ref = "mavenPluginAnnotations" }

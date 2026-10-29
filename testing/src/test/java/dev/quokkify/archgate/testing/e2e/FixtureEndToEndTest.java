@@ -111,8 +111,10 @@ class FixtureEndToEndTest {
                         } catch (AssertionError | RuntimeException e) {
                             LOG.warn(
                                     "compare failed, see {} and {}",
-                                    ScenarioLog.logFile(scenario, MAVEN, expectation.run()),
-                                    ScenarioLog.logFile(scenario, GRADLE, expectation.run()));
+                                    ScenarioLog.logFile(scenario, MAVEN, expectation.run())
+                                            .toAbsolutePath(),
+                                    ScenarioLog.logFile(scenario, GRADLE, expectation.run())
+                                            .toAbsolutePath());
                             throw e;
                         }
                         return null;
@@ -128,7 +130,8 @@ class FixtureEndToEndTest {
             try {
                 return run.get();
             } catch (AssertionError | RuntimeException e) {
-                Path logFile = ScenarioLog.logFile(scenario, tool, expectation.run());
+                Path logFile =
+                        ScenarioLog.logFile(scenario, tool, expectation.run()).toAbsolutePath();
                 LOG.warn("log file: {}", logFile);
                 attach(e, new SeeLogFile(logFile));
                 throw e;

@@ -43,7 +43,7 @@ The tests use TestNG with q4j and run in parallel by method. Run one module with
 | `TEST_THREAD_COUNT` | 4 | threads running test methods (`config/test-resources/testng.properties`) |
 | `DATA_PROVIDER_THREAD_COUNT` | 4 | threads running the end-to-end scenarios (environment of `:testing:test`) |
 
-An environment variable overrides the file default, for example `TEST_THREAD_COUNT=2 ./gradlew :core:test`. The override also applies when a Gradle daemon is already running.
+An environment variable overrides the file default, for example `TEST_THREAD_COUNT=2 ./gradlew :core:test --rerun`. The override also applies when a Gradle daemon is already running.
 
 Each end-to-end build run writes its output to `testing/build/test-logs/<scenario>/<tool>-run<run>.log`; a failing run names that file. Allure results of every module, `build-logic` included, are in its `build/allure-results`. See [ADR 0006](adr/0006-testng-q4j-test-suite.md).
 
