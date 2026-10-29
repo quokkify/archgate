@@ -33,19 +33,37 @@ repositories {
     mavenCentral()
 }
 
+// Temporary while the suite moves to TestNG (#23); removed once every project is migrated.
+def TESTNG_PROJECTS = [':api'] as Set
+def testng = TESTNG_PROJECTS.contains(path)
+
 dependencies {
-    testImplementation platform(catalog.findLibrary('junit-bom').get())
-    testImplementation catalog.findLibrary('junit-jupiter').get()
-    testImplementation catalog.findLibrary('assertj-core').get()
-    testRuntimeOnly catalog.findLibrary('junit-platform-launcher').get()
+    if (testng) {
+        testImplementation catalog.findLibrary('q4j-testng').get()
+        testImplementation catalog.findLibrary('assertj-core').get()
+    } else {
+        testImplementation platform(catalog.findLibrary('junit-bom').get())
+        testImplementation catalog.findLibrary('junit-jupiter').get()
+        testImplementation catalog.findLibrary('assertj-core').get()
+        testRuntimeOnly catalog.findLibrary('junit-platform-launcher').get()
+    }
 }
 
+sourceSets.test.resources.srcDir rootProject.file('config/test-resources')
+sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
+
 tasks.withType(Test).configureEach {
-    useJUnitPlatform()
+    if (testng) {
+        useTestNG()
+    } else {
+        useJUnitPlatform()
+    }
 }
 
 spotless {
     java {
+        // The shared test-support sources live outside the project directory, which Spotless rejects.
+        target 'src/**/*.java'
         palantirJavaFormat(catalog.findVersion('palantirJavaFormat').get().requiredVersion)
         removeUnusedImports()
     }
