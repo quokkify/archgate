@@ -1,0 +1,1 @@
+{"id":"f1b3cf2e074faf7cee92cb38a5d91167.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.ServiceRegistrationRuleTest.providerWithoutNoArgConstructorIsReported","name":"providerWithoutNoArgConstructorIsReported","status":"passed","testResultsByEnv":{"default":"2cfbc9f6246d59f420d7ee2755257f76"}}

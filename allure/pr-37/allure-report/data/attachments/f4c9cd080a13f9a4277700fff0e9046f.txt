@@ -1,0 +1,14 @@
+============================================================
+Architecture verification (1 rule, 448 ms total)
+============================================================
+[WARNING] MAIN+TEST    443 ms  No wildcard imports
+    Imports must name the type. Replace each 'import x.y.*' with the types it uses; static wildcard imports are allowed.
+    Violations (1):
+        - com/example/Names.java:3 import java.util.*
+Model build: JavaParserContext 5 ms, javaparser main 410 ms, javaparser test 10 ms
+============================================================
+Gate FAILED: 1 rule, 1 warning
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

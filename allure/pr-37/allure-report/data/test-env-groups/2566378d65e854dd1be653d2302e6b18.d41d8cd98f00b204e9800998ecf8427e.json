@@ -1,0 +1,1 @@
+{"id":"2566378d65e854dd1be653d2302e6b18.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.classgraph.ServiceFileConsistencyRuleTest.architectureRuleServiceAloneDoesNotCountAsAServicesFile","name":"architectureRuleServiceAloneDoesNotCountAsAServicesFile","status":"passed","testResultsByEnv":{"default":"77f3a3448a67be7410bc79bef66c2441"}}

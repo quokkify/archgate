@@ -1,0 +1,1 @@
+{"id":"a37f12611c0407311c9838abafe130ba.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoJavaUtilDateRuleTest.allowlistedClassIsNotReportedWhileSameUsageElsewhereIs","name":"allowlistedClassIsNotReportedWhileSameUsageElsewhereIs","status":"passed","testResultsByEnv":{"default":"b8978b3ca40b0e747de37967d6c89483"}}

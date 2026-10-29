@@ -1,0 +1,14 @@
+============================================================
+Architecture verification (1 rule, 75 ms total)
+============================================================
+[ERROR] MAIN+TEST     38 ms  Service registration
+    Every class listed in a META-INF/services provider file must exist, implement the service interface named by the file, be a public concrete class and have a public no-arg constructor.
+    Violations (1):
+        - META-INF/services/com.example.Greeter: com.example.MissingGreeter class not found
+Model build: ArchUnitContext 4 ms
+============================================================
+Gate FAILED: 1 rule, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

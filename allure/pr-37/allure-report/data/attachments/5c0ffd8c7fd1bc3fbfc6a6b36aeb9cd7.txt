@@ -1,0 +1,190 @@
+[INFO] Error stacktraces are turned on.
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO] 
+[INFO] multi-module-violation                                             [pom]
+[INFO] api                                                                [jar]
+[INFO] tests                                                              [jar]
+[INFO] architecture                                                       [jar]
+[INFO] Loaded 24291 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] -----------------< com.example:multi-module-violation >-----------------
+[INFO] Building multi-module-violation 1.0                                [1/4]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-cli) @ multi-module-violation ---
+[INFO] 
+[INFO] --------------------------< com.example:api >---------------------------
+[INFO] Building api 1.0                                                   [2/4]
+[INFO]   from api/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-cli) @ api ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ api ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-13789377406334539151/MAVEN/api/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ api ---
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 2 source files with javac [debug release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ api ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-13789377406334539151/MAVEN/api/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ api ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ api ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ api ---
+[INFO] Building jar: /tmp/archgate-13789377406334539151/MAVEN/api/target/api-1.0.jar
+[INFO] 
+[INFO] -------------------------< com.example:tests >--------------------------
+[INFO] Building tests 1.0                                                 [3/4]
+[INFO]   from tests/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-cli) @ tests ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ tests ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-13789377406334539151/MAVEN/tests/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ tests ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 2 source files with javac [debug release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ tests ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-13789377406334539151/MAVEN/tests/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ tests ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ tests ---
+[INFO] No tests to run.
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ tests ---
+[INFO] Building jar: /tmp/archgate-13789377406334539151/MAVEN/tests/target/tests-1.0.jar
+[INFO] 
+[INFO] ----------------------< com.example:architecture >----------------------
+[INFO] Building architecture 1.0                                          [4/4]
+[INFO]   from architecture/pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-cli) @ architecture ---
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ architecture ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-13789377406334539151/MAVEN/architecture/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ architecture ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ architecture ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ architecture ---
+[WARNING] I/O error reading dependency state: /tmp/archgate-13789377406334539151/MAVEN/architecture/target/classes: /tmp/archgate-13789377406334539151/MAVEN/architecture/target/classes
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ architecture ---
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ architecture ---
+[WARNING] JAR will be empty - no content was marked for inclusion!
+[INFO] Building jar: /tmp/archgate-13789377406334539151/MAVEN/architecture/target/architecture-1.0.jar
+[INFO] 
+[INFO] --- archgate:0.1.2-SNAPSHOT:check (default) @ architecture ---
+[INFO] Detected Java version 21.0.13
+[ERROR] ============================================================
+[ERROR] Architecture verification (2 rules, 3.7 s total)
+[ERROR] ============================================================
+[ERROR] [PASS]  MAIN+TEST   3673 ms  No Thread.sleep
+[ERROR] [ERROR] MAIN+TEST   2505 ms  No legacy classes
+[ERROR]     Classes must not be named Legacy*
+[ERROR]     Violations (2):
+[ERROR]         - com.example.api.LegacyAccount
+[ERROR]         - com.example.tests.LegacyFlow
+[ERROR] Model build: ArchUnitContext 6 ms, main 2472 ms, test 1160 ms
+[ERROR] ============================================================
+[ERROR] Gate FAILED: 2 rules, 1 error
+[ERROR] Failure policy (failOn=WARNING):
+[ERROR]   ERROR    fails the build
+[ERROR]   WARNING  fails the build
+[ERROR]   INFO     reported only
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for multi-module-violation 1.0:
+[INFO] 
+[INFO] multi-module-violation ............................. SUCCESS [  0.352 s]
+[INFO] api ................................................ SUCCESS [  5.077 s]
+[INFO] tests .............................................. SUCCESS [  0.555 s]
+[ERROR] architecture ....................................... FAILURE [  5.355 s]
+[INFO] ------------------------------------------------------------------------
+[ERROR] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  14.398 s
+[INFO] Finished at: 2026-10-29T15:25:51Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal dev.quokkify.archgate:archgate-maven-plugin:0.1.2-SNAPSHOT:check (default) on project architecture: Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING -> [Help 1]
+org.apache.maven.lifecycle.LifecycleExecutionException: Failed to execute goal dev.quokkify.archgate:archgate-maven-plugin:0.1.2-SNAPSHOT:check (default) on project architecture: Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2 (MojoExecutor.java:342)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute (MojoExecutor.java:324)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:220)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:181)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.access$000 (MojoExecutor.java:79)
+    at org.apache.maven.lifecycle.internal.MojoExecutor$1.run (MojoExecutor.java:169)
+    at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute (DefaultMojosExecutionStrategy.java:39)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:166)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:106)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:74)
+    at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build (SingleThreadedBuilder.java:56)
+    at org.apache.maven.lifecycle.internal.LifecycleStarter.execute (LifecycleStarter.java:121)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:267)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:179)
+    at org.apache.maven.DefaultMaven.execute (DefaultMaven.java:105)
+    at org.apache.maven.cli.MavenCli.execute (MavenCli.java:1017)
+    at org.apache.maven.cli.MavenCli.doMain (MavenCli.java:299)
+    at org.apache.maven.cli.MavenCli.main (MavenCli.java:219)
+    at jdk.internal.reflect.DirectMethodHandleAccessor.invoke (DirectMethodHandleAccessor.java:103)
+    at java.lang.reflect.Method.invoke (Method.java:580)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced (Launcher.java:255)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launch (Launcher.java:201)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode (Launcher.java:362)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.main (Launcher.java:314)
+Caused by: org.apache.maven.plugin.MojoFailureException: Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING
+    at dev.quokkify.archgate.maven.CheckMojo.execute (CheckMojo.java:64)
+    at org.apache.maven.plugin.DefaultBuildPluginManager.executeMojo (DefaultBuildPluginManager.java:127)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute2 (MojoExecutor.java:336)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.doExecute (MojoExecutor.java:324)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:220)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:181)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.access$000 (MojoExecutor.java:79)
+    at org.apache.maven.lifecycle.internal.MojoExecutor$1.run (MojoExecutor.java:169)
+    at org.apache.maven.plugin.DefaultMojosExecutionStrategy.execute (DefaultMojosExecutionStrategy.java:39)
+    at org.apache.maven.lifecycle.internal.MojoExecutor.execute (MojoExecutor.java:166)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:106)
+    at org.apache.maven.lifecycle.internal.LifecycleModuleBuilder.buildProject (LifecycleModuleBuilder.java:74)
+    at org.apache.maven.lifecycle.internal.builder.singlethreaded.SingleThreadedBuilder.build (SingleThreadedBuilder.java:56)
+    at org.apache.maven.lifecycle.internal.LifecycleStarter.execute (LifecycleStarter.java:121)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:267)
+    at org.apache.maven.DefaultMaven.doExecute (DefaultMaven.java:179)
+    at org.apache.maven.DefaultMaven.execute (DefaultMaven.java:105)
+    at org.apache.maven.cli.MavenCli.execute (MavenCli.java:1017)
+    at org.apache.maven.cli.MavenCli.doMain (MavenCli.java:299)
+    at org.apache.maven.cli.MavenCli.main (MavenCli.java:219)
+    at jdk.internal.reflect.DirectMethodHandleAccessor.invoke (DirectMethodHandleAccessor.java:103)
+    at java.lang.reflect.Method.invoke (Method.java:580)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launchEnhanced (Launcher.java:255)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.launch (Launcher.java:201)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.mainWithExitCode (Launcher.java:362)
+    at org.codehaus.plexus.classworlds.launcher.Launcher.main (Launcher.java:314)
+[ERROR] 
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :architecture

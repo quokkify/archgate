@@ -1,0 +1,1 @@
+{"id":"b14ebe41d4715190931130704db5c3d9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.classgraph.ServiceFileConsistencyRuleTest.servicesFileInAnotherScopeDoesNotCoverImplementations","name":"servicesFileInAnotherScopeDoesNotCoverImplementations","status":"passed","testResultsByEnv":{"default":"e92afe99d93d2b13afde8e5849981e31"}}

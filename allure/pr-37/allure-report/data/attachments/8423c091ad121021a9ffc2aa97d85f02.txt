@@ -1,0 +1,55 @@
+[INFO] Error stacktraces are turned on.
+[INFO] Scanning for projects...
+[INFO] Loaded 24291 auto-discovered prefixes for remote repository central (prefixes-central.txt)
+[INFO] 
+[INFO] -------------------< com.example:fail-on-threshold >--------------------
+[INFO] Building fail-on-threshold 1.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.5.0:clean (default-cli) @ fail-on-threshold ---
+[INFO] Deleting /tmp/archgate-14886184367601709944/MAVEN/target
+[INFO] 
+[INFO] --- resources:3.5.0:resources (default-resources) @ fail-on-threshold ---
+[INFO] skip non existing resourceDirectory /tmp/archgate-14886184367601709944/MAVEN/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.16.0:compile (default-compile) @ fail-on-threshold ---
+[INFO] Loaded 74 auto-discovered prefixes for remote repository apache.snapshots (prefixes-apache.snapshots.txt)
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 1 source file with javac [debug release 21] to target/classes
+[INFO] 
+[INFO] --- resources:3.5.0:testResources (default-testResources) @ fail-on-threshold ---
+[INFO] Copying 1 resource from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.16.0:testCompile (default-testCompile) @ fail-on-threshold ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.6.0:test (default-test) @ fail-on-threshold ---
+[INFO] 
+[INFO] --- jar:3.5.1:jar (default-jar) @ fail-on-threshold ---
+[INFO] Building jar: /tmp/archgate-14886184367601709944/MAVEN/target/fail-on-threshold-1.0.jar
+[INFO] 
+[INFO] --- archgate:0.1.2-SNAPSHOT:check (default) @ fail-on-threshold ---
+[INFO] Detected Java version 21.0.13
+[WARNING] ============================================================
+[WARNING] Architecture verification (1 rule, 2.5 s total)
+[WARNING] ============================================================
+[WARNING] [WARNING] MAIN+TEST   2462 ms  No java.util.Date
+[WARNING]     Code must not depend on java.util.Date. Use java.time types (Instant, LocalDateTime, ZonedDateTime) instead.
+[WARNING]     Violations (2):
+[WARNING]         - Method <com.example.Clock.now()> calls constructor <java.util.Date.<init>()> in (Clock.java:8)
+[WARNING]         - Method <com.example.Clock.now()> has return type <java.util.Date> in (Clock.java:0)
+[WARNING] Model build: ArchUnitContext 3 ms, main 1722 ms, test 459 ms
+[WARNING] ============================================================
+[WARNING] Gate PASSED: 1 rule, 1 warning
+[WARNING] Failure policy (failOn=ERROR):
+[WARNING]   ERROR    fails the build
+[WARNING]   WARNING  reported only
+[WARNING]   INFO     reported only
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.470 s
+[INFO] Finished at: 2026-10-29T15:25:32Z
+[INFO] ------------------------------------------------------------------------
