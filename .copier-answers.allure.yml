@@ -1,8 +1,8 @@
-_commit: v4.1.0
+_commit: v4.2.0
 _src_path: https://github.com/quokkify/ci-kit.git
 module: allure
 project_name: archgate
-toolkit_version: v4.1.0
+toolkit_version: v4.2.0
 allure_source: component
 allure_publish_pages: true
 allure_pages_url: https://quokkify.github.io/archgate

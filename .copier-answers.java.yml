@@ -1,4 +1,4 @@
-_commit: v4.1.0
+_commit: v4.2.0
 _src_path: https://github.com/quokkify/ci-kit.git
 module: java
 java_components:
@@ -6,6 +6,48 @@ java_components:
     name: ArchGate Java
     path: .
     java_version: "21"
-    upload_test_artifacts: true
-    test_artifact_name: allure-results-archgate-java
-    test_artifact_path: build/allure-results
+    test_modules:
+      - id: api
+        module: ":api"
+        results: engine/api/build/allure-results
+        test_command: "./gradlew :api:check --console=plain"
+      - id: core
+        module: ":core"
+        results: engine/core/build/allure-results
+        test_command: "./gradlew :core:check --console=plain"
+      - id: context-archunit
+        module: ":context-archunit"
+        results: backends/archunit/context/build/allure-results
+        test_command: "./gradlew :context-archunit:check --console=plain"
+      - id: rules-archunit
+        module: ":rules-archunit"
+        results: backends/archunit/rules/build/allure-results
+        test_command: "./gradlew :rules-archunit:check --console=plain"
+      - id: context-javaparser
+        module: ":context-javaparser"
+        results: backends/javaparser/context/build/allure-results
+        test_command: "./gradlew :context-javaparser:check --console=plain"
+      - id: rules-javaparser
+        module: ":rules-javaparser"
+        results: backends/javaparser/rules/build/allure-results
+        test_command: "./gradlew :rules-javaparser:check --console=plain"
+      - id: context-classgraph
+        module: ":context-classgraph"
+        results: backends/classgraph/context/build/allure-results
+        test_command: "./gradlew :context-classgraph:check --console=plain"
+      - id: rules-classgraph
+        module: ":rules-classgraph"
+        results: backends/classgraph/rules/build/allure-results
+        test_command: "./gradlew :rules-classgraph:check --console=plain"
+      - id: maven-plugin
+        module: ":maven-plugin"
+        results: integration/maven-plugin/build/allure-results
+        test_command: "./gradlew :maven-plugin:check --console=plain"
+      - id: gradle-plugin
+        module: ":gradle-plugin"
+        results: integration/gradle-plugin/build/allure-results
+        test_command: "./gradlew :gradle-plugin:check --console=plain"
+      - id: testing
+        module: ":testing"
+        results: testing/build/allure-results
+        test_command: "./gradlew :testing:check --console=plain"
