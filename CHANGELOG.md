@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/quokkify/archgate/compare/v0.1.0...v0.1.1) (2026-10-29)
+
+
+### 🐛 Bug Fixes
+
+* **publish:** fail fast on missing secrets and pass the optional signing key ID ([#29](https://github.com/quokkify/archgate/issues/29)) ([48e89b2](https://github.com/quokkify/archgate/commit/48e89b2d384b46c06031244c07cf877803b148bd))
+
 ## 0.1.0 (2026-10-28)
 
 
