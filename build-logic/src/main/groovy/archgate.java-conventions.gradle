@@ -37,7 +37,8 @@ repositories {
 def TESTNG_PROJECTS = [
     ':api', ':core',
     ':context-archunit', ':rules-archunit', ':context-javaparser', ':rules-javaparser',
-    ':context-classgraph', ':rules-classgraph'
+    ':context-classgraph', ':rules-classgraph',
+    ':maven-plugin', ':gradle-plugin'
 ] as Set
 def testng = TESTNG_PROJECTS.contains(path)
 
