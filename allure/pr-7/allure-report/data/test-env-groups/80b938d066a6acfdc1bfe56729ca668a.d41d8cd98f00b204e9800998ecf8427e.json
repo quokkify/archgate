@@ -1,0 +1,1 @@
+{"id":"80b938d066a6acfdc1bfe56729ca668a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.classgraph.ServiceFileConsistencyRuleTest.violationsAreSortedAndDeduplicatedAcrossScopes","name":"violationsAreSortedAndDeduplicatedAcrossScopes","status":"passed","testResultsByEnv":{"default":"245af5e3ecfba6b2aabeb85a28f9138e"}}

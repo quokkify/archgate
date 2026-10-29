@@ -1,0 +1,1 @@
+{"id":"63b21b3a15cc231114ca44b780f09903.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.UtilityClassFinalityRuleTest.nonFinalUtilityWithoutPrivateConstructorIsReported","name":"nonFinalUtilityWithoutPrivateConstructorIsReported","status":"passed","testResultsByEnv":{"default":"172158bf36c5071d89858b8fa04526a6"}}
