@@ -47,13 +47,14 @@ sourceSets.test.resources.srcDir rootProject.file('config/test-resources')
 sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
 
 def allureResults = layout.buildDirectory.dir('allure-results')
-// CI uploads the root collection: the report reads one results directory, not one per module.
-def collectAllureResults = rootProject.tasks.named('collectAllureResults', Sync)
 
 tasks.withType(Test).configureEach {
     useTestNG()
     // q4j's SuiteListener names the suite after SUITE_NAME, read from the environment only.
     environment 'SUITE_NAME', providers.environmentVariable('SUITE_NAME').getOrElse(project.name)
+    // CI's module jobs export MODULE_PATH, which q4j would put in place of the class as the subSuite label;
+    // the module is already the parentSuite, so the report keeps grouping by module and class.
+    environment.remove('MODULE_PATH')
     testLogging {
         events 'passed', 'skipped', 'failed'
         exceptionFormat = 'full'
@@ -64,12 +65,6 @@ tasks.withType(Test).configureEach {
     doFirst {
         allureResults.get().asFile.deleteDir()
     }
-    finalizedBy(collectAllureResults)
-}
-
-collectAllureResults.configure {
-    from(allureResults)
-    mustRunAfter(tasks.withType(Test))
 }
 
 spotless {

@@ -49,19 +49,17 @@ Each end-to-end build run writes its output to `testing/build/test-logs/<scenari
 
 ### Allure report
 
-Every test task of the main build writes Allure results to its module's `build/allure-results` and clears them before it runs; `collectAllureResults` then copies every module's results into the root `build/allure-results`, the one directory the report reads. `build-logic` is an included build whose tests do not run with `./gradlew test`; run them with `./gradlew -p build-logic test`. The report groups tests by module and class. Each end-to-end scenario is a case named after the scenario, tagged with the build tools it ran, with one step per build run that carries the Maven or Gradle output and a compare step that carries both `report.txt` files.
+Every test task writes Allure results to its module's `build/allure-results` and clears them before it runs. `build-logic` is an included build whose tests do not run with `./gradlew test`; run them with `./gradlew -p build-logic test`. The report groups tests by module and class. Each end-to-end scenario is a case named after the scenario, tagged with the build tools it ran, with one step per build run that carries the Maven or Gradle output and a compare step that carries both `report.txt` files.
 
-In CI the `java` job uploads the root `build/allure-results` as the `allure-results-archgate-java` artifact, on success and on failure. The `Allure report` workflow then builds the report, comments on the pull request with a summary and publishes it to GitHub Pages under `allure/pr-<number>`. The workflow is rendered by the ci-kit `allure` module; change its settings through `.copier-answers.allure.yml` (see [ci-kit](ci-kit.md)).
+In CI the `java` component runs a `checks` job (lint and `build -x test`) and one `test (<module>)` job per Gradle project, in parallel, each running that project's `check`. A failing module does not stop the others. Each module job uploads its own `build/allure-results` as the `allure-results-archgate-java-<module>` artifact, on success and on failure. The module list is `test_modules` in `.copier-answers.java.yml`; add a project with tests there. The `Allure report` workflow then builds one report from every module's artifact, comments on the pull request with a summary and publishes it to GitHub Pages under `allure/pr-<number>`. The workflow is rendered by the ci-kit `allure` module; change its settings through `.copier-answers.allure.yml` (see [ci-kit](ci-kit.md)). See [ADR 0007](adr/0007-per-module-test-jobs.md).
 
-To open the report locally, run the tests, then generate the report with the same Allure version and configuration as CI (Node.js required):
+To open the report locally, run the tests, then generate the report with the same Allure version and configuration as CI (Node.js required). Without a results directory, `generate` reads every module's `build/allure-results`:
 
 ```bash
 ./gradlew test
-npx allure@3.22.1 generate build/allure-results --config .github/allure/allurerc.mjs --output build/allure-report
+npx allure@3.22.1 generate --config .github/allure/allurerc.mjs --output build/allure-report
 npx allure@3.22.1 open build/allure-report
 ```
-
-Pass the root `build/allure-results`: without a directory `generate` also reads every module's copy and counts each test twice.
 
 ### Shared fixtures
 

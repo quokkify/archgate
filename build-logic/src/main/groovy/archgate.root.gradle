@@ -20,13 +20,6 @@ def cleanItRepo = tasks.register('cleanItRepo', Delete) {
     delete itRepoDir
 }
 
-tasks.register('collectAllureResults', Sync) {
-    group = 'verification'
-    description = 'Collects the Allure results of every module into one directory, the one CI uploads for the report.'
-    into layout.buildDirectory.dir('allure-results')
-    duplicatesStrategy = DuplicatesStrategy.FAIL
-}
-
 tasks.register('publishToItRepo') {
     group = 'publishing'
     description = 'Publishes every module to the local integration-test repository.'
