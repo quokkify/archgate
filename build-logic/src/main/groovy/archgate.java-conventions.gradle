@@ -33,36 +33,16 @@ repositories {
     mavenCentral()
 }
 
-// Temporary while the suite moves to TestNG (#23); removed once every project is migrated.
-def TESTNG_PROJECTS = [
-    ':api', ':core',
-    ':context-archunit', ':rules-archunit', ':context-javaparser', ':rules-javaparser',
-    ':context-classgraph', ':rules-classgraph',
-    ':maven-plugin', ':gradle-plugin', ':testing'
-] as Set
-def testng = TESTNG_PROJECTS.contains(path)
-
 dependencies {
-    if (testng) {
-        testImplementation catalog.findLibrary('q4j-testng').get()
-        testImplementation catalog.findLibrary('assertj-core').get()
-    } else {
-        testImplementation platform(catalog.findLibrary('junit-bom').get())
-        testImplementation catalog.findLibrary('junit-jupiter').get()
-        testImplementation catalog.findLibrary('assertj-core').get()
-        testRuntimeOnly catalog.findLibrary('junit-platform-launcher').get()
-    }
+    testImplementation catalog.findLibrary('q4j-testng').get()
+    testImplementation catalog.findLibrary('assertj-core').get()
 }
 
 sourceSets.test.resources.srcDir rootProject.file('config/test-resources')
 sourceSets.test.java.srcDir rootProject.file('config/test-support/java')
 
 tasks.withType(Test).configureEach {
-    if (testng) {
-        useTestNG()
-    } else {
-        useJUnitPlatform()
-    }
+    useTestNG()
 }
 
 spotless {
