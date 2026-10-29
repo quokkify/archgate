@@ -4,3 +4,6 @@ components:
     name: "ArchGate Java"
     path: "."
     java_version: "21"
+    "test_artifact_name": "java-test-reports"
+    "test_artifact_path": "**/build/test-*"
+    "upload_test_artifacts": true
