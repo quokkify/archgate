@@ -15,7 +15,7 @@ feature branch ──PR──► main ──► Release Please opens "release PR
   1. checks out the commit the Release Please run built (`workflow_run.head_sha`) and looks for a `vX.Y.Z` tag on it; a run without a release tag, such as an ordinary push to `main`, ends quietly without publishing;
   2. asserts that `v$(cat version.txt)` equals the tag;
   3. builds the release without secrets (`build -PfixtureTools=gradle`: the end-to-end test runs only its Gradle half, since CI already ran the Maven half and the comparison on `main`);
-  4. runs `publishAndReleaseToMavenCentral` for all artifacts, signed, and waits until Central reports the deployment as published;
+  4. runs `publishAndReleaseToMavenCentral` for all artifacts, signed, and waits until Central reports the deployment as published (up to an hour, set by `SONATYPE_CLOSE_TIMEOUT_SECONDS`; the plugin default of 15 minutes is often too short);
   5. only then runs `publishPlugins` to the Gradle Plugin Portal, so the Portal never points at artifacts that are not on Central yet.
 - The secrets are passed only to the publishing step, and the job runs in the `release` environment. Before the build, a check step fails the run and names every required secret that is not set.
 - A release build (`-Prelease=true`) refuses to publish without the signing key and stops with a message that names the missing `signingInMemoryKey` property; an empty value counts as missing.
