@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.2](https://github.com/quokkify/archgate/compare/v0.1.1...v0.1.2) (2026-10-29)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** collect Allure results into one directory so the report is not empty ([#35](https://github.com/quokkify/archgate/issues/35)) ([7163e2f](https://github.com/quokkify/archgate/commit/7163e2f593601df3dfdda1e4f6d717de80384d3d))
+* **publish:** wait up to an hour for Maven Central to publish ([#31](https://github.com/quokkify/archgate/issues/31)) ([5b1b82f](https://github.com/quokkify/archgate/commit/5b1b82f13d75c6487f7d775bc229b180460dd822))
+
 ## [0.1.1](https://github.com/quokkify/archgate/compare/v0.1.0...v0.1.1) (2026-10-29)
 
 
