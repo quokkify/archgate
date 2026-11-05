@@ -1,5 +1,5 @@
 [versions]
-spotless = "8.10.4"
+spotless = "8.11.0"
 palantirJavaFormat = "2.102.0"
 vanniktechPublish = "0.37.0"
 checkstyle = "14.3.0"
