@@ -7,6 +7,16 @@
   ],
   "semanticCommits": "enabled",
   "semanticCommitType": "deps",
+  "packageRules": [
+    {
+      "description": "Keep the Maven API floor at 3.9.0: mavenApi also sets the plugin's requiredMavenVersion, so raising it raises the minimum Maven for consumers. Change it deliberately, by hand (ADR 0005, AGENTS.md rule 6).",
+      "matchPackageNames": [
+        "org.apache.maven:maven-core",
+        "org.apache.maven:maven-plugin-api"
+      ],
+      "enabled": false
+    }
+  ],
   "customManagers": [
     {
       "customType": "regex",
