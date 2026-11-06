@@ -1,0 +1,12 @@
+============================================================
+Architecture verification (2 rules, 2.2 s total)
+============================================================
+[PASS]  MAIN+TEST   2215 ms  No Thread.sleep
+[PASS]  MAIN        1725 ms  No console output
+Model build: ArchUnitContext 13 ms, main 1505 ms, test 508 ms
+============================================================
+Gate PASSED: 2 rules, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

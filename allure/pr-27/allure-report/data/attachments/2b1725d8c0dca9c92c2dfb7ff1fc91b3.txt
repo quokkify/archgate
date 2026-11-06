@@ -1,0 +1,14 @@
+============================================================
+Architecture verification (1 rule, 282 ms total)
+============================================================
+[ERROR] MAIN+TEST    275 ms  Service file consistency
+    Every public concrete class under the root package that implements a service interface with a META-INF/services file in the same class directories must be listed in that file.
+    Violations (1):
+        - META-INF/services/com.example.Greeter: com.example.UnlistedGreeter is not listed
+Model build: ClassGraphContext 3 ms, classgraph main 177 ms, classgraph test 51 ms
+============================================================
+Gate FAILED: 1 rule, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
