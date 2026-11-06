@@ -58,7 +58,12 @@ public final class ReportFormatter {
                 .filter(severity -> result.count(severity) > 0)
                 .map(severity -> "%d %s".formatted(result.count(severity), label(result.count(severity), severity)))
                 .collect(Collectors.joining(", "));
-        return "%s, %s".formatted(rulesPhrase(result.outcomes().size()), findings.isEmpty() ? "no findings" : findings);
+        long partial = result.outcomes().stream()
+                .filter(outcome -> !outcome.skipped().isEmpty())
+                .count();
+        String rules = rulesPhrase(result.outcomes().size())
+                + (partial == 0 ? "" : " (%d partially checked)".formatted(partial));
+        return "%s, %s".formatted(rules, findings.isEmpty() ? "no findings" : findings);
     }
 
     private static void addFailPolicy(List<String> lines, Optional<Severity> failOn) {

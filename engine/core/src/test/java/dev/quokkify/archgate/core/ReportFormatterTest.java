@@ -153,7 +153,9 @@ class ReportFormatterTest {
 
         assertThat(ReportFormatter.format(result(partial, full), Optional.empty()))
                 .anyMatch(line -> line.startsWith("[ERROR]") && line.endsWith("partial (TEST not checked: empty)"))
-                .anyMatch(line -> line.startsWith("[PASS]") && line.endsWith("full"));
+                .anyMatch(line -> line.startsWith("[PASS]") && line.endsWith("full"))
+                .contains("Gate PASSED: 2 rules (1 partially checked), 1 error");
+        assertThat(ReportFormatter.counts(result(partial, full))).isEqualTo("2 rules (1 partially checked), 1 error");
     }
 
     @Test

@@ -155,6 +155,22 @@ class NoDeprecatedApiUsageRuleTest {
         assertThat(mainOnly.skippedScopes(context)).isEmpty();
     }
 
+    @Test
+    void strictSubclassFailsOnEmptyTestView() {
+        NoDeprecatedApiUsageRule strict = new NoDeprecatedApiUsageRule() {
+            @Override
+            public boolean requireAllScopes() {
+                return true;
+            }
+        };
+        ArchUnitContext context =
+                FixtureContexts.of(DEPRECATED, List.of(FixtureContexts.classesDir()), List.of(missingDir()));
+
+        assertThatThrownBy(() -> strict.verify(context))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("test class directories");
+    }
+
     private static Path missingDir() {
         return FixtureContexts.classesDir().resolve("does-not-exist");
     }

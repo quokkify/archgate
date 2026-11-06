@@ -90,6 +90,49 @@ class AnalysisContextScopesTest {
     }
 
     @Test
+    void noScopesIsUnableToVerify() {
+        assertThatThrownBy(() -> emptyIn().scopesToCheck(Set.of()))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("declares no scopes");
+    }
+
+    @Test
+    void ruleChecksNonEmptyScopesByDefault() {
+        assertThat(rule(BOTH).requireAllScopes()).isFalse();
+        assertThat(rule(BOTH).scopesToCheck(emptyIn(Scope.TEST))).containsExactly(Scope.MAIN);
+    }
+
+    @Test
+    void strictRuleReadsEveryScopeEvenIfEmpty() {
+        ArchitectureRule<AnalysisContext> strict = new ArchitectureRule<>() {
+            @Override
+            public String name() {
+                return "strict";
+            }
+
+            @Override
+            public Severity severity() {
+                return Severity.ERROR;
+            }
+
+            @Override
+            public Class<AnalysisContext> contextType() {
+                return AnalysisContext.class;
+            }
+
+            @Override
+            public void verify(AnalysisContext context) {}
+
+            @Override
+            public boolean requireAllScopes() {
+                return true;
+            }
+        };
+
+        assertThat(strict.scopesToCheck(emptyIn(Scope.TEST))).containsExactly(Scope.MAIN, Scope.TEST);
+    }
+
+    @Test
     void skippedScopesStayWithinRuleScopes() {
         assertThat(rule(EnumSet.of(Scope.MAIN)).skippedScopes(emptyIn(Scope.TEST)))
                 .isEmpty();

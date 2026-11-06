@@ -40,7 +40,7 @@ public class NoWildcardImportsRule implements ArchitectureRule<JavaParserContext
     @Override
     public void verify(JavaParserContext context) {
         List<String> violations = new ArrayList<>();
-        for (Scope scope : context.scopesToCheck(scopes())) {
+        for (Scope scope : scopesToCheck(context)) {
             for (CompilationUnit unit : context.compilationUnits(scope)) {
                 String location = context.relativePath(unit);
                 for (ImportDeclaration declaration : unit.getImports()) {

@@ -56,7 +56,8 @@ public class NoJavaUtilDateRule implements ArchitectureRule<ArchUnitContext> {
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<String> violations = ArchRuleChecks.violations(definition(allowedClassesWithReason), context, scopes());
+        List<String> violations =
+                ArchRuleChecks.violations(definition(allowedClassesWithReason), context, scopesToCheck(context));
         checkViolations(EXPECTED_CONTRACT, violations);
     }
 

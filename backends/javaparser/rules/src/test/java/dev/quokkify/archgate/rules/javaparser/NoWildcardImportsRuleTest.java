@@ -97,6 +97,24 @@ class NoWildcardImportsRuleTest {
     }
 
     @Test
+    void strictSubclassFailsOnEmptyTestSources() throws IOException, URISyntaxException {
+        NoWildcardImportsRule strict = new NoWildcardImportsRule() {
+            @Override
+            public boolean requireAllScopes() {
+                return true;
+            }
+        };
+        try (TempDir tempDir = TempDir.create()) {
+            JavaParserContext context = context(
+                    List.of(resource("main-explicit")), List.of(tempDir.path().resolve("absent")));
+
+            assertThatThrownBy(() -> strict.verify(context))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("test source directories");
+        }
+    }
+
+    @Test
     void bothScopesEmptyIsUnableToVerify() throws IOException {
         try (TempDir tempDir = TempDir.create()) {
             Path absent = tempDir.path().resolve("absent");

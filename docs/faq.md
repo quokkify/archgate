@@ -44,6 +44,10 @@ Check out the branch and publish it to your local Maven repository with `./gradl
 
 In `META-INF/services`. The file `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule` lists every rule that runs, built-in and your own. The build file holds only plugin settings (`rootPackage`, `failOn`, `modules`, `skip`). Listing class names in the build file would break silently on a rename and duplicate the code. See [ADR 0001](adr/0001-opt-in-rule-registration.md).
 
+### Why does a rule say `(TEST not checked: empty)`?
+
+The rule checks main and test, and the test view had no class under `rootPackage`, so only main was checked. The verdict line counts such rules as partially checked. Typical causes are a module without tests, test classes that were not built (Gradle `-x compileTestJava`), or tests outside `rootPackage`. Maven's `-Dmaven.test.skip=true` skips the services file as well, so it fails the gate instead. To require every scope, subclass the rule and override `requireAllScopes()`; see [Configuration → Partial checks](configuration.md#partial-checks).
+
 ### Why does no rule run after I add `archgate-rules-archunit`?
 
 That is by design: nothing runs until you list it. The rules artifacts ship rule classes, not a services file. Add the lines you want, as shown in [Use with Maven](../README.md#use-with-maven) or [Use with Gradle](../README.md#use-with-gradle).

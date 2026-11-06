@@ -12,7 +12,9 @@ import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -203,6 +205,30 @@ class GateRunnerTest {
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("broken skip")
                 .hasRootCauseMessage("cannot tell");
+    }
+
+    @Test
+    void invalidSkippedScopesAreUnableToVerifyNamingTheRule() {
+        Set<Scope> withNull = new HashSet<>();
+        withNull.add(null);
+        for (Set<Scope> invalid : Arrays.asList(null, withNull, Set.of(Scope.TEST))) {
+            ArchitectureRule<TestRules.NoContext> rule = new SkippingRule("bad skip", context -> {}) {
+                @Override
+                public Set<Scope> scopes() {
+                    return Set.of(Scope.MAIN);
+                }
+
+                @Override
+                public Set<Scope> skippedScopes(TestRules.NoContext context) {
+                    return invalid;
+                }
+            };
+
+            assertThatThrownBy(() -> GateRunner.run(List.of(rule), TestRules.resolver()))
+                    .as("skipped scopes %s", invalid)
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("Rule 'bad skip'");
+        }
     }
 
     private static ArchitectureRule<?> skipping(String name, Consumer<TestRules.NoContext> body) {

@@ -21,8 +21,20 @@ This page is the contract between ArchGate and code that plugs into it: rules (`
 - To report findings, throw `ArchitectureViolation`, usually through `checkViolations(expectedContract, violations)`. An `AssertionError` is reported as a finding too. The rule's `severity()` decides whether a finding fails the build under the configured `failOn`.
 - Throw `UnableToVerifyError` when the rule cannot give a trustworthy answer, for example because the classes it needs are missing. It fails the build whatever `failOn` says, and no report is written. Any other exception or error from `verify` is turned into an unable-to-verify error as well.
 - Never pass silently because there was nothing to look at: a rule that checked nothing must throw `UnableToVerifyError` rather than return.
-- A rule whose `scopes()` holds more than one scope reads them through `context.scopesToCheck(scopes())`. It returns the scopes whose view has something to analyse, so a module without test classes is still checked in main, and it throws `UnableToVerifyError` when every scope is empty. A rule that reads one scope reads its view directly, which fails closed when the view is empty.
-- After `verify` has returned or reported a finding, core calls `skippedScopes(context)` and adds the result to the rule's report line, for example `No Thread.sleep (TEST not checked: empty)`. The default lists the rule's scopes for which `context.isEmpty(scope)` is true, which is right for a rule that uses `scopesToCheck`. Override it only when the rule decides what to read in another way, for example from the class directories in `layout()`.
+- A rule whose `scopes()` holds more than one scope reads them through its own `scopesToCheck(context)`. By default it returns the scopes whose view has something to analyse, so a module without test classes is still checked in main, and it throws `UnableToVerifyError` when every scope is empty or `scopes()` is empty. A rule that reads one scope reads its view directly, which fails closed when the view is empty.
+- To make a rule strict again, so that an empty view in any of its scopes fails the build, override `requireAllScopes()` to return `true`. `scopesToCheck(context)` then returns every scope, and reading the empty view throws `UnableToVerifyError`. For a built-in rule, subclass it and register the subclass:
+
+  ```java
+  public class StrictNoThreadSleepRule extends NoThreadSleepRule {
+    @Override
+    public boolean requireAllScopes() {
+      return true;
+    }
+  }
+  ```
+
+  A rule that does not read views overrides `requireAllScopes()` the same way but has to honour it itself, as `ServiceRegistrationRule` does.
+- After `verify` has returned or reported a finding, core calls `skippedScopes(context)` and adds the result to the rule's report line, for example `No Thread.sleep (TEST not checked: empty)`. The default lists the rule's scopes for which `context.isEmpty(scope)` is true, which is right for a rule that uses `scopesToCheck(context)`. It must return a subset of `scopes()` and never `null`; anything else fails the run as unable to verify, naming the rule. Each rule with a skipped scope is also counted in the verdict line, for example `Gate PASSED: 7 rules (2 partially checked), no findings`. Override it only when the rule decides what to read in another way, for example from the class directories in `layout()`.
 - A rule needs a public no-arg constructor and must be listed in the services file. A rule class in the gate module that is not listed fails the run with a registration error (see [Registration](configuration.md#registration)).
 
 ## Backends

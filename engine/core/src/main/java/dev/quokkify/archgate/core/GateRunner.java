@@ -80,10 +80,25 @@ public final class GateRunner {
             } catch (ArchitectureViolation | AssertionError violation) {
                 finding = violation;
             }
-            return new Evaluation(rule, finding, rule.skippedScopes(context), null, since(startedAt));
+            return new Evaluation(rule, finding, skippedScopes(rule, context), null, since(startedAt));
         } catch (Throwable failure) {
             return new Evaluation(rule, null, Set.of(), unableToVerify(rule, failure), since(startedAt));
         }
+    }
+
+    private static <C extends AnalysisContext> Set<Scope> skippedScopes(ArchitectureRule<C> rule, C context) {
+        Set<Scope> skipped = rule.skippedScopes(context);
+        if (Objects.isNull(skipped) || skipped.stream().anyMatch(Objects::isNull)) {
+            throw new UnableToVerifyError(
+                    "Rule '%s' returned no valid skipped scopes (%s), so it is unclear what it checked."
+                            .formatted(rule.name(), skipped));
+        }
+        if (!rule.scopes().containsAll(skipped)) {
+            throw new UnableToVerifyError(
+                    "Rule '%s' reports skipped scopes %s outside its scopes %s, so it is unclear what it checked."
+                            .formatted(rule.name(), skipped, rule.scopes()));
+        }
+        return Set.copyOf(skipped);
     }
 
     private static Duration since(long startedAt) {

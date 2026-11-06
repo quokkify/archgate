@@ -137,6 +137,39 @@ class ServiceRegistrationRuleTest {
                 .isEmpty();
     }
 
+    @Test
+    void strictSubclassFailsOnMissingTestClassDirectory() {
+        ServiceRegistrationRule strict = new ServiceRegistrationRule() {
+            @Override
+            public boolean requireAllScopes() {
+                return true;
+            }
+        };
+        Path classes = FixtureContexts.classesDir();
+
+        assertThatThrownBy(() -> strict.verify(FixtureContexts.of(
+                        "archfixtures", List.of(classes), List.of(classes.resolve("does-not-exist")))))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("No class directory exists for [TEST]");
+    }
+
+    @Test
+    void narrowedScopesReadOnlyThoseClassDirectories() {
+        ServiceRegistrationRule mainOnly = new ServiceRegistrationRule() {
+            @Override
+            public Set<Scope> scopes() {
+                return Set.of(Scope.MAIN);
+            }
+        };
+        Path missing = FixtureContexts.classesDir().resolve("does-not-exist");
+
+        assertThatThrownBy(() -> mainOnly.verify(
+                        FixtureContexts.of("archfixtures", List.of(missing), List.of(FixtureContexts.classesDir()))))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("does-not-exist")
+                .hasMessageNotContaining(FixtureContexts.classesDir() + ",");
+    }
+
     // regression: provider in another module's test classes
     @Test
     void providerOnlyInAnotherTestDirIsResolved() throws IOException {

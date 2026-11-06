@@ -55,10 +55,7 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
     public void verify(ClassGraphContext context) {
         Set<String> violations = new TreeSet<>();
         boolean serviceFileFound = false;
-        for (Scope scope : scopes()) {
-            if (context.isEmpty(scope)) {
-                continue;
-            }
+        for (Scope scope : scopesToCheck(context)) {
             ScanResult scan = context.scan(scope);
             Map<String, Set<String>> listed = listedProviders(scan);
             serviceFileFound |=

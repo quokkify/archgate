@@ -51,10 +51,14 @@ public interface AnalysisContext {
      *
      * @param scopes the scopes the rule applies to, usually {@link ArchitectureRule#scopes()}
      * @return the non-empty scopes among {@code scopes}
-     * @throws UnableToVerifyError if every scope in {@code scopes} is empty, because the rule would
-     *     otherwise pass without checking anything
+     * @throws UnableToVerifyError if {@code scopes} is empty, or if every scope in it is empty, because the
+     *     rule would otherwise pass without checking anything
      */
     default List<Scope> scopesToCheck(Set<Scope> scopes) {
+        if (scopes.isEmpty()) {
+            throw new UnableToVerifyError(
+                    "The rule declares no scopes, so it has nothing to check. Return at least one scope from scopes().");
+        }
         List<Scope> present =
                 scopes.stream().sorted().filter(scope -> !isEmpty(scope)).toList();
         if (present.isEmpty()) {

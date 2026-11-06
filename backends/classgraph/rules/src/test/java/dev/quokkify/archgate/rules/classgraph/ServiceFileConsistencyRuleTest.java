@@ -172,7 +172,7 @@ class ServiceFileConsistencyRuleTest {
         try (ClassGraphContext context = context(List.of(), List.of())) {
             assertThatThrownBy(() -> rule.verify(context))
                     .isInstanceOf(UnableToVerifyError.class)
-                    .hasMessageContaining("No META-INF/services file was found in");
+                    .hasMessageContaining("(main and test) is empty");
         }
     }
 

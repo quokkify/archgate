@@ -50,11 +50,19 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<Path> classDirs = new ArrayList<>(context.layout().classDirs(Scope.MAIN));
-        classDirs.addAll(context.layout().classDirs(Scope.TEST));
+        List<Path> classDirs = scopes().stream()
+                .sorted()
+                .flatMap(scope -> context.layout().classDirs(scope).stream())
+                .toList();
         if (classDirs.isEmpty()) {
             throw new UnableToVerifyError("""
           No class directories are configured, so no provider file can be checked.""");
+        }
+        Set<Scope> missing = skippedScopes(context);
+        if (requireAllScopes() && !missing.isEmpty()) {
+            throw new UnableToVerifyError("""
+          No class directory exists for %s, and this rule requires every scope to be checked. Build the modules \
+          first.""".formatted(missing));
         }
         URL[] urls = classDirs.stream()
                 .filter(Files::isDirectory)
