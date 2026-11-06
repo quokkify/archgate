@@ -90,8 +90,8 @@ class ClassGraphContextTest {
         context.close();
         context.close();
 
-        assertThatThrownBy(main::getAllClasses).isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(test::getAllClasses).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(main::getAllClasses).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(test::getAllClasses).isInstanceOf(IllegalStateException.class);
         assertThatThrownBy(() -> context.scan(Scope.MAIN)).isInstanceOf(IllegalStateException.class);
     }
 
