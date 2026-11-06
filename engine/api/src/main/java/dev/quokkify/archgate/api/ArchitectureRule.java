@@ -79,7 +79,7 @@ public interface ArchitectureRule<C extends AnalysisContext> {
 
     /**
      * Returns the scopes this rule reads in a run: the non-empty scopes of {@link #scopes()} as chosen by
-     * {@link AnalysisContext#scopesToCheck(Set)}, or all of them in {@link Scope} order when {@link
+     * {@link AnalysisContext#nonEmptyScopes(Set)}, or all of them in {@link Scope} order when {@link
      * #requireAllScopes()} is {@code true}, so that reading an empty view fails closed.
      *
      * @param context the context passed to {@link #verify}
@@ -90,7 +90,7 @@ public interface ArchitectureRule<C extends AnalysisContext> {
         if (requireAllScopes()) {
             return scopes().stream().sorted().toList();
         }
-        return context.scopesToCheck(scopes());
+        return context.nonEmptyScopes(scopes());
     }
 
     /**

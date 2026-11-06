@@ -60,9 +60,13 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         }
         Set<Scope> missing = skippedScopes(context);
         if (requireAllScopes() && !missing.isEmpty()) {
+            List<Path> looked = missing.stream()
+                    .sorted()
+                    .flatMap(scope -> context.layout().classDirs(scope).stream())
+                    .toList();
             throw new UnableToVerifyError("""
-          No class directory exists for %s, and this rule requires every scope to be checked. Build the modules \
-          first.""".formatted(missing));
+          No class directory exists among %s, and this rule requires every scope to be checked. Build the modules \
+          first and check the class directories passed to the verification.""".formatted(looked));
         }
         URL[] urls = classDirs.stream()
                 .filter(Files::isDirectory)

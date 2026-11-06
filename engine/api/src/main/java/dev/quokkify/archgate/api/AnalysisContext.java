@@ -45,16 +45,18 @@ public interface AnalysisContext {
     }
 
     /**
-     * Returns the scopes of a rule that have something to analyse, in {@link Scope} order. A rule that
-     * reads several scopes calls this to check the scopes that have code and skip the empty ones, so that
-     * for example a module without test classes is still checked in main.
+     * Returns the scopes among {@code scopes} that have something to analyse, in {@link Scope} order.
+     *
+     * <p>Rules should not call this directly but {@link ArchitectureRule#scopesToCheck(AnalysisContext)},
+     * which delegates here unless the rule's {@link ArchitectureRule#requireAllScopes()} asks for every
+     * scope.
      *
      * @param scopes the scopes the rule applies to, usually {@link ArchitectureRule#scopes()}
      * @return the non-empty scopes among {@code scopes}
      * @throws UnableToVerifyError if {@code scopes} is empty, or if every scope in it is empty, because the
      *     rule would otherwise pass without checking anything
      */
-    default List<Scope> scopesToCheck(Set<Scope> scopes) {
+    default List<Scope> nonEmptyScopes(Set<Scope> scopes) {
         if (scopes.isEmpty()) {
             throw new UnableToVerifyError(
                     "The rule declares no scopes, so it has nothing to check. Return at least one scope from scopes().");
@@ -67,9 +69,8 @@ public interface AnalysisContext {
                     .map(scope -> scope.name().toLowerCase(Locale.ROOT))
                     .collect(Collectors.joining(" and "));
             throw new UnableToVerifyError("""
-          Every view this rule reads (%s) is empty: nothing to analyse was found under the root package. Build \
-          the modules first and check the class and source directories passed to the verification, otherwise \
-          the rule would pass without checking anything.""".formatted(names));
+          Every view this rule reads (%s) is empty, so the rule would pass without checking anything. Build the \
+          modules first and check the class and source directories passed to the verification.""".formatted(names));
         }
         return present;
     }

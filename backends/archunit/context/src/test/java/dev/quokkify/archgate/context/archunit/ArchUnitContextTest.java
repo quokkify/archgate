@@ -68,7 +68,7 @@ class ArchUnitContextTest {
         assertThat(context.isEmpty(Scope.MAIN)).isTrue();
         assertThatThrownBy(context::main).isInstanceOf(UnableToVerifyError.class);
         assertThatThrownBy(context::main).isInstanceOf(UnableToVerifyError.class);
-        assertThatThrownBy(() -> context.scopesToCheck(java.util.EnumSet.allOf(Scope.class)))
+        assertThatThrownBy(() -> context.nonEmptyScopes(java.util.EnumSet.allOf(Scope.class)))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("(main and test) is empty");
     }

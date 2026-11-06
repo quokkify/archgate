@@ -150,7 +150,7 @@ class ServiceRegistrationRuleTest {
         assertThatThrownBy(() -> strict.verify(FixtureContexts.of(
                         "archfixtures", List.of(classes), List.of(classes.resolve("does-not-exist")))))
                 .isInstanceOf(UnableToVerifyError.class)
-                .hasMessageContaining("No class directory exists for [TEST]");
+                .hasMessageContaining("No class directory exists among [" + classes.resolve("does-not-exist") + "]");
     }
 
     @Test

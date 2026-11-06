@@ -55,6 +55,11 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
     public void verify(ClassGraphContext context) {
         Set<String> violations = new TreeSet<>();
         boolean serviceFileFound = false;
+        if (!requireAllScopes() && scopes().stream().allMatch(context::isEmpty)) {
+            throw new UnableToVerifyError(
+                    "No class directory exists among %s, so no service registration was verified. Build the modules first and check the class directories passed to the verification."
+                            .formatted(allClassDirs(context)));
+        }
         for (Scope scope : scopesToCheck(context)) {
             ScanResult scan = context.scan(scope);
             Map<String, Set<String>> listed = listedProviders(scan);

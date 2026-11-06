@@ -169,10 +169,11 @@ class ServiceFileConsistencyRuleTest {
 
     @Test
     void bothScopesWithoutClassDirectoryIsUnableToVerify() throws Exception {
-        try (ClassGraphContext context = context(List.of(), List.of())) {
+        Path missing = testClasses().resolve("does-not-exist");
+        try (ClassGraphContext context = context(List.of(missing), List.of())) {
             assertThatThrownBy(() -> rule.verify(context))
                     .isInstanceOf(UnableToVerifyError.class)
-                    .hasMessageContaining("(main and test) is empty");
+                    .hasMessageContaining("No class directory exists among [" + missing + "]");
         }
     }
 

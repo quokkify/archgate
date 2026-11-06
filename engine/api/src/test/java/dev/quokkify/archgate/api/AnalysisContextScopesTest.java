@@ -53,30 +53,30 @@ class AnalysisContextScopesTest {
         AnalysisContext context = new AnalysisContext() {};
 
         assertThat(context.isEmpty(Scope.MAIN)).isFalse();
-        assertThat(context.scopesToCheck(BOTH)).containsExactly(Scope.MAIN, Scope.TEST);
+        assertThat(context.nonEmptyScopes(BOTH)).containsExactly(Scope.MAIN, Scope.TEST);
     }
 
     @Test
     void bothPresentChecksBoth() {
-        assertThat(emptyIn().scopesToCheck(BOTH)).containsExactly(Scope.MAIN, Scope.TEST);
+        assertThat(emptyIn().nonEmptyScopes(BOTH)).containsExactly(Scope.MAIN, Scope.TEST);
         assertThat(rule(BOTH).skippedScopes(emptyIn())).isEmpty();
     }
 
     @Test
     void mainOnlyChecksMainAndSkipsTest() {
-        assertThat(emptyIn(Scope.TEST).scopesToCheck(BOTH)).containsExactly(Scope.MAIN);
+        assertThat(emptyIn(Scope.TEST).nonEmptyScopes(BOTH)).containsExactly(Scope.MAIN);
         assertThat(rule(BOTH).skippedScopes(emptyIn(Scope.TEST))).containsExactly(Scope.TEST);
     }
 
     @Test
     void testOnlyChecksTestAndSkipsMain() {
-        assertThat(emptyIn(Scope.MAIN).scopesToCheck(BOTH)).containsExactly(Scope.TEST);
+        assertThat(emptyIn(Scope.MAIN).nonEmptyScopes(BOTH)).containsExactly(Scope.TEST);
         assertThat(rule(BOTH).skippedScopes(emptyIn(Scope.MAIN))).containsExactly(Scope.MAIN);
     }
 
     @Test
     void everyScopeEmptyIsUnableToVerify() {
-        assertThatThrownBy(() -> emptyIn(Scope.MAIN, Scope.TEST).scopesToCheck(BOTH))
+        assertThatThrownBy(() -> emptyIn(Scope.MAIN, Scope.TEST).nonEmptyScopes(BOTH))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("(main and test) is empty")
                 .hasMessageContaining("Build the modules first");
@@ -84,14 +84,14 @@ class AnalysisContextScopesTest {
 
     @Test
     void singleEmptyScopeIsUnableToVerify() {
-        assertThatThrownBy(() -> emptyIn(Scope.TEST).scopesToCheck(EnumSet.of(Scope.TEST)))
+        assertThatThrownBy(() -> emptyIn(Scope.TEST).nonEmptyScopes(EnumSet.of(Scope.TEST)))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("(test) is empty");
     }
 
     @Test
     void noScopesIsUnableToVerify() {
-        assertThatThrownBy(() -> emptyIn().scopesToCheck(Set.of()))
+        assertThatThrownBy(() -> emptyIn().nonEmptyScopes(Set.of()))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("declares no scopes");
     }
