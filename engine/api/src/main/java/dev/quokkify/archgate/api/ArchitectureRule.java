@@ -3,6 +3,7 @@ package dev.quokkify.archgate.api;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A single architecture check. Consumers register rules in
@@ -63,6 +64,24 @@ public interface ArchitectureRule<C extends AnalysisContext> {
      * @throws UnableToVerifyError if the rule cannot give a trustworthy answer
      */
     void verify(C context);
+
+    /**
+     * Returns the scopes of {@link #scopes()} that the last {@link #verify} did not check because their view
+     * was empty. Core calls it after {@link #verify} returned or reported a finding, and shows the result
+     * on the rule's report line so that a partial check is visible.
+     *
+     * <p>The default asks the context with {@link AnalysisContext#isEmpty(Scope)}, which matches rules that
+     * read their views through {@link AnalysisContext#scopesToCheck(Set)}. Override it only when the rule
+     * decides what to read in another way.
+     *
+     * @param context the context passed to {@link #verify}
+     * @return the skipped scopes; empty when every scope was checked
+     */
+    default Set<Scope> skippedScopes(C context) {
+        return scopes().stream()
+                .filter(context::isEmpty)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Scope.class)));
+    }
 
     /**
      * Throws {@link ArchitectureViolation} if {@code violations} is not empty; does nothing otherwise.

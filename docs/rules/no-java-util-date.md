@@ -14,6 +14,8 @@ Date expiry = new Date(System.currentTimeMillis() + 3_600_000);
 Instant expiry = Instant.now().plus(Duration.ofHours(1));
 ```
 
+**Empty scope.** Main and test are checked separately. A module without test classes is still checked in main, and one without main classes in test; the report line then names the scope that was not checked, for example `No java.util.Date (TEST not checked: empty)`. If neither scope has a class under `rootPackage`, the rule fails the build as unable to verify.
+
 **Register**
 
 ```

@@ -25,6 +25,8 @@ The rule reports:
 - calls to a deprecated constructor,
 - extending a deprecated class or implementing a deprecated interface.
 
+**Empty scope.** Main and test are checked separately. A module without test classes is still checked in main, and one without main classes in test; the report line then names the scope that was not checked, for example `No deprecated API usage (TEST not checked: empty)`. If neither scope has a class under `rootPackage`, the rule fails the build as unable to verify.
+
 **Register**
 
 ```

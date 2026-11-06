@@ -214,7 +214,7 @@ platform/
 ## Always failing, whatever `failOn` says
 
 - Maven: a selected module other than the gate module has no `target/classes` (it is not built). Gradle has no such check: `archgateCheck` depends on the classes of every project in `modules(...)`, so Gradle builds them first, and a project without main classes simply adds nothing to the MAIN view.
-- The MAIN or TEST view finds no class under `rootPackage`, and a rule needs that view.
+- The MAIN or TEST view finds no class under `rootPackage`, and a rule needs that view. A rule that reads both MAIN and TEST checks the one that has classes and fails only when both are empty.
 - A `modules` entry is not part of the build (Maven: not in the reactor; Gradle: does not apply the plugin).
 - A registration failure, as described above.
 - A rule throws something other than a violation.
@@ -239,6 +239,6 @@ Failure policy (failOn=WARNING):
   INFO     reported only
 ```
 
-Each line shows the status, the class views the rule checked, its duration and its name. Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. The `Model build:` line shows how long each analysis model took to build. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
+Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. The `Model build:` line shows how long each analysis model took to build. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
 
 Maven and Gradle print the same text for the same sources, rules and `failOn`.

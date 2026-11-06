@@ -215,7 +215,7 @@ Context available inside `verify`, per backend:
 | `ClassGraphContext` | `scan(Scope)` | the ClassGraph `ScanResult` of the scope's class directories |
 | | `layout()` | the `ProjectLayout` |
 
-A rule reports violations by throwing `ArchitectureViolation`, which `checkViolations` does for you, or an ArchUnit `AssertionError`. If a rule has nothing to check, for example an empty class view, it throws `UnableToVerifyError`. That always fails the build.
+A rule reports violations by throwing `ArchitectureViolation`, which `checkViolations` does for you, or an ArchUnit `AssertionError`. If a rule has nothing to check, for example an empty class view, it throws `UnableToVerifyError`. That always fails the build. A rule over main and test reads its views through `context.scopesToCheck(scopes())`, which skips an empty scope and fails only when all of them are empty; see [Writing a backend or rule](docs/extending.md#rules).
 
 ## More
 

@@ -19,6 +19,8 @@ com.acme.tests.listeners.AbstractListener    ← abstract
 com.acme.tests.listeners.RetryListener
 ```
 
+**Empty scope.** A scope whose class directories do not exist, for example a module without tests, is skipped, and the report line names it, for example `Service registration (TEST not checked: empty)`. If no provider file is found in any class directory, the rule fails the build as unable to verify.
+
 **Register**
 
 ```

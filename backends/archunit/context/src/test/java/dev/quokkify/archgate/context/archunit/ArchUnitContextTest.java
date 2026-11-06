@@ -47,6 +47,33 @@ class ArchUnitContextTest {
     }
 
     @Test
+    void isEmptyTellsWhichViewHasClasses() throws IOException {
+        Path mainDir = dirWith("archfixtures/context/MainFoo");
+        Path testDir = dirWith("archfixtures/other/Outside");
+        ArchUnitContext context = context(ROOT, List.of(mainDir), List.of(testDir));
+
+        assertThat(context.isEmpty(Scope.MAIN)).isFalse();
+        assertThat(context.isEmpty(Scope.TEST)).isTrue();
+        assertThat(names(context.classes(Scope.MAIN))).containsExactly("MainFoo");
+        assertThatThrownBy(() -> context.classes(Scope.TEST))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("test class directories");
+    }
+
+    @Test
+    void emptyViewKeepsFailingAfterIsEmpty() throws IOException {
+        Path missing = Files.createTempDirectory("archgate").resolve("does-not-exist");
+        ArchUnitContext context = context(ROOT, List.of(missing), List.of(missing));
+
+        assertThat(context.isEmpty(Scope.MAIN)).isTrue();
+        assertThatThrownBy(context::main).isInstanceOf(UnableToVerifyError.class);
+        assertThatThrownBy(context::main).isInstanceOf(UnableToVerifyError.class);
+        assertThatThrownBy(() -> context.scopesToCheck(java.util.EnumSet.allOf(Scope.class)))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("(main and test) is empty");
+    }
+
+    @Test
     void constructorDoesNotImport() throws IOException {
         Path missing = Files.createTempDirectory("archgate").resolve("does-not-exist");
 

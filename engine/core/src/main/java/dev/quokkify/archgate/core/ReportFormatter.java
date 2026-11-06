@@ -92,7 +92,20 @@ public final class ReportFormatter {
         String scope =
                 outcome.rule().scopes().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
         return LINE_FORMAT.formatted(
-                label, scope, outcome.duration().toMillis(), outcome.rule().name());
+                        label,
+                        scope,
+                        outcome.duration().toMillis(),
+                        outcome.rule().name())
+                + skippedNote(outcome);
+    }
+
+    private static String skippedNote(RuleOutcome outcome) {
+        if (outcome.skipped().isEmpty()) {
+            return "";
+        }
+        String skipped =
+                outcome.skipped().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
+        return " (%s not checked: empty)".formatted(skipped);
     }
 
     private static String describe(Throwable finding) {

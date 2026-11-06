@@ -49,7 +49,7 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<String> violations = ArchRuleChecks.violations(definition(), context.main(), context.test());
+        List<String> violations = ArchRuleChecks.violations(definition(), context, scopes());
         checkViolations(EXPECTED_CONTRACT, violations);
     }
 

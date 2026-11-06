@@ -68,6 +68,17 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         }
     }
 
+    @Override
+    public Set<Scope> skippedScopes(ArchUnitContext context) {
+        Set<Scope> skipped = EnumSet.noneOf(Scope.class);
+        for (Scope scope : scopes()) {
+            if (context.layout().classDirs(scope).stream().noneMatch(Files::isDirectory)) {
+                skipped.add(scope);
+            }
+        }
+        return skipped;
+    }
+
     void verify(List<Path> classDirs, ClassLoader loader) {
         List<ProviderFile> providerFiles = classDirs.stream()
                 .flatMap(ServiceRegistrationRule::providerFiles)

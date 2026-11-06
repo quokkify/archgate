@@ -126,6 +126,17 @@ class ServiceRegistrationRuleTest {
                 .isInstanceOf(UnableToVerifyError.class);
     }
 
+    @Test
+    void scopeWithoutClassDirectoryIsSkipped() {
+        Path classes = FixtureContexts.classesDir();
+        Path missing = classes.resolve("does-not-exist");
+
+        assertThat(rule.skippedScopes(FixtureContexts.of("archfixtures", List.of(classes), List.of(missing))))
+                .containsExactly(Scope.TEST);
+        assertThat(rule.skippedScopes(FixtureContexts.of("archfixtures", List.of(classes), List.of(classes))))
+                .isEmpty();
+    }
+
     // regression: provider in another module's test classes
     @Test
     void providerOnlyInAnotherTestDirIsResolved() throws IOException {

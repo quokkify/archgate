@@ -146,6 +146,17 @@ class ReportFormatterTest {
     }
 
     @Test
+    void skippedScopesAreShownOnTheRuleLine() {
+        RuleOutcome partial = new RuleOutcome(
+                TestRules.satisfied("partial", Severity.ERROR), BOOM, Duration.ZERO, Set.of(Scope.TEST));
+        RuleOutcome full = new RuleOutcome(TestRules.satisfied("full", Severity.ERROR), null, Duration.ZERO);
+
+        assertThat(ReportFormatter.format(result(partial, full), Optional.empty()))
+                .anyMatch(line -> line.startsWith("[ERROR]") && line.endsWith("partial (TEST not checked: empty)"))
+                .anyMatch(line -> line.startsWith("[PASS]") && line.endsWith("full"));
+    }
+
+    @Test
     void modelBuildTimesAreSummarized() {
         GateResult result =
                 new GateResult(List.of(), Map.of("main", Duration.ofMillis(5), "all", Duration.ofMillis(3)), 5);

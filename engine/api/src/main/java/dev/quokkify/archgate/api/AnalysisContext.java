@@ -1,7 +1,11 @@
 package dev.quokkify.archgate.api;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A view of the analysed project that rules query, built once per run by a {@link ContextProvider}.
@@ -24,5 +28,45 @@ public interface AnalysisContext {
      */
     default Map<String, Duration> buildTimes() {
         return Map.of();
+    }
+
+    /**
+     * Tells whether the view of {@code scope} has nothing to analyse under the root package, so that
+     * reading it would throw {@link UnableToVerifyError}.
+     *
+     * <p>A backend that cannot tell without failing keeps the default, and its views keep failing closed
+     * on their own.
+     *
+     * @param scope the scope to look at
+     * @return {@code true} if the view of {@code scope} is empty; {@code false} by default
+     */
+    default boolean isEmpty(Scope scope) {
+        return false;
+    }
+
+    /**
+     * Returns the scopes of a rule that have something to analyse, in {@link Scope} order. A rule that
+     * reads several scopes calls this to check the scopes that have code and skip the empty ones, so that
+     * for example a module without test classes is still checked in main.
+     *
+     * @param scopes the scopes the rule applies to, usually {@link ArchitectureRule#scopes()}
+     * @return the non-empty scopes among {@code scopes}
+     * @throws UnableToVerifyError if every scope in {@code scopes} is empty, because the rule would
+     *     otherwise pass without checking anything
+     */
+    default List<Scope> scopesToCheck(Set<Scope> scopes) {
+        List<Scope> present =
+                scopes.stream().sorted().filter(scope -> !isEmpty(scope)).toList();
+        if (present.isEmpty()) {
+            String names = scopes.stream()
+                    .sorted()
+                    .map(scope -> scope.name().toLowerCase(Locale.ROOT))
+                    .collect(Collectors.joining(" and "));
+            throw new UnableToVerifyError("""
+          Every view this rule reads (%s) is empty: nothing to analyse was found under the root package. Build \
+          the modules first and check the class and source directories passed to the verification, otherwise \
+          the rule would pass without checking anything.""".formatted(names));
+        }
+        return present;
     }
 }

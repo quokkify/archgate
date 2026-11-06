@@ -51,6 +51,16 @@ class ClassGraphContextTest {
     }
 
     @Test
+    void scopeWithoutClassDirectoryIsEmpty() throws Exception {
+        Path classes = testClasses();
+        try (ClassGraphContext context = context(List.of(classes), List.of(classes.resolve("does-not-exist")))) {
+            assertThat(context.isEmpty(Scope.MAIN)).isFalse();
+            assertThat(context.isEmpty(Scope.TEST)).isTrue();
+            assertThat(context.buildTimes()).isEmpty();
+        }
+    }
+
+    @Test
     void scanIsCreatedOncePerScope() throws Exception {
         try (ClassGraphContext context = context()) {
             ScanResult first = context.scan(Scope.MAIN);

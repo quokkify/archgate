@@ -12,7 +12,7 @@ final class FixtureContexts {
     private FixtureContexts() {}
 
     static ArchUnitContext of(String fixturePackage) {
-        Path classes = testClassesDir();
+        Path classes = classesDir();
         return of(fixturePackage, List.of(classes), List.of(classes));
     }
 
@@ -21,7 +21,7 @@ final class FixtureContexts {
                 fixturePackage, mainDirs, testDirs, List.of(), List.of(), FixtureContexts.class.getClassLoader()));
     }
 
-    private static Path testClassesDir() {
+    static Path classesDir() {
         try {
             return Path.of(FixtureContexts.class
                     .getProtectionDomain()

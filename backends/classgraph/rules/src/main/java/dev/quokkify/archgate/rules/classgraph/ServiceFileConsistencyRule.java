@@ -11,7 +11,6 @@ import io.github.classgraph.Resource;
 import io.github.classgraph.ScanResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -57,7 +56,7 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
         Set<String> violations = new TreeSet<>();
         boolean serviceFileFound = false;
         for (Scope scope : scopes()) {
-            if (!hasClassDirectory(context, scope)) {
+            if (context.isEmpty(scope)) {
                 continue;
             }
             ScanResult scan = context.scan(scope);
@@ -72,10 +71,6 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
                             .formatted(allClassDirs(context)));
         }
         checkViolations(EXPECTED_CONTRACT, List.copyOf(violations));
-    }
-
-    private static boolean hasClassDirectory(ClassGraphContext context, Scope scope) {
-        return context.layout().classDirs(scope).stream().anyMatch(Files::isDirectory);
     }
 
     private static List<Path> allClassDirs(ClassGraphContext context) {

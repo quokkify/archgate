@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
+import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
@@ -14,9 +15,11 @@ import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import org.testng.annotations.Test;
 
 class GateRunnerTest {
@@ -172,5 +175,73 @@ class GateRunnerTest {
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("No ContextProvider for dev.quokkify.archgate.context.archunit.ArchUnitContext")
                 .hasMessageContaining("dev.quokkify.archgate:archgate-context-archunit");
+    }
+
+    @Test
+    void skippedScopesOfPassAndFindingAreKept() {
+        GateResult result = GateRunner.run(
+                List.of(skipping("partial pass", context -> {}), skipping("partial finding", context -> {
+                    throw BOOM;
+                })),
+                TestRules.resolver());
+
+        assertThat(result.outcomes())
+                .allSatisfy(outcome -> assertThat(outcome.skipped()).containsExactly(Scope.TEST));
+        assertThat(result.count(Severity.ERROR)).isEqualTo(1);
+    }
+
+    @Test
+    void failureWhileAskingForSkippedScopesIsUnableToVerify() {
+        ArchitectureRule<TestRules.NoContext> failing = new SkippingRule("broken skip", context -> {}) {
+            @Override
+            public Set<Scope> skippedScopes(TestRules.NoContext context) {
+                throw new IllegalStateException("cannot tell");
+            }
+        };
+
+        assertThatThrownBy(() -> GateRunner.run(List.of(failing), TestRules.resolver()))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("broken skip")
+                .hasRootCauseMessage("cannot tell");
+    }
+
+    private static ArchitectureRule<?> skipping(String name, Consumer<TestRules.NoContext> body) {
+        return new SkippingRule(name, body);
+    }
+
+    private static class SkippingRule implements ArchitectureRule<TestRules.NoContext> {
+
+        private final String name;
+        private final Consumer<TestRules.NoContext> body;
+
+        SkippingRule(String name, Consumer<TestRules.NoContext> body) {
+            this.name = name;
+            this.body = body;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public Severity severity() {
+            return Severity.ERROR;
+        }
+
+        @Override
+        public Class<TestRules.NoContext> contextType() {
+            return TestRules.NoContext.class;
+        }
+
+        @Override
+        public void verify(TestRules.NoContext context) {
+            body.accept(context);
+        }
+
+        @Override
+        public Set<Scope> skippedScopes(TestRules.NoContext context) {
+            return Set.of(Scope.TEST);
+        }
     }
 }

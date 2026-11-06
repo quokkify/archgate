@@ -36,8 +36,8 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
     private final List<Path> testDirs;
 
     private volatile JavaClasses all;
-    private volatile JavaClasses main;
-    private volatile JavaClasses test;
+    private volatile Imported main;
+    private volatile Imported test;
 
     DirectoryArchUnitContext(ProjectLayout layout) {
         this.layout = Objects.requireNonNull(layout, "layout");
@@ -58,22 +58,17 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
 
     @Override
     public JavaClasses main() {
-        synchronized (mainLock) {
-            if (Objects.isNull(main)) {
-                main = built(MAIN_MODEL, () -> importDirs("main", mainDirs));
-            }
-            return main;
-        }
+        return imported(Scope.MAIN).orFail();
     }
 
     @Override
     public JavaClasses test() {
-        synchronized (testLock) {
-            if (Objects.isNull(test)) {
-                test = built(TEST_MODEL, () -> importDirs("test", testDirs));
-            }
-            return test;
-        }
+        return imported(Scope.TEST).orFail();
+    }
+
+    @Override
+    public boolean isEmpty(Scope scope) {
+        return imported(scope).isEmpty();
     }
 
     @Override
@@ -83,7 +78,7 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
                 all = built(ALL_MODEL, () -> {
                     List<Path> dirs = new ArrayList<>(mainDirs);
                     dirs.addAll(testDirs);
-                    return importDirs("main or test", dirs);
+                    return importDirs("main or test", dirs).orFail();
                 });
             }
             return all;
@@ -95,7 +90,24 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
         return Collections.unmodifiableMap(new TreeMap<>(buildTimes));
     }
 
-    private JavaClasses importDirs(String view, List<Path> configured) {
+    private Imported imported(Scope scope) {
+        if (scope == Scope.MAIN) {
+            synchronized (mainLock) {
+                if (Objects.isNull(main)) {
+                    main = built(MAIN_MODEL, () -> importDirs("main", mainDirs));
+                }
+                return main;
+            }
+        }
+        synchronized (testLock) {
+            if (Objects.isNull(test)) {
+                test = built(TEST_MODEL, () -> importDirs("test", testDirs));
+            }
+            return test;
+        }
+    }
+
+    private Imported importDirs(String view, List<Path> configured) {
         List<Path> existing = configured.stream().filter(Files::isDirectory).toList();
         JavaClasses imported = existing.isEmpty()
                 ? null
@@ -103,11 +115,11 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
                         .importPaths(existing)
                         .that(JavaClass.Predicates.resideInAPackage(rootPackage + ".."));
         if (Objects.isNull(imported) || imported.isEmpty()) {
-            throw new UnableToVerifyError("""
+            return new Imported(null, """
           No class under %s was found in the %s class directories %s. Build the modules first, otherwise every \
           rule using this view would pass without checking anything.""".formatted(rootPackage, view, configured));
         }
-        return imported;
+        return new Imported(imported, null);
     }
 
     private <T> T built(String model, Supplier<T> build) {
@@ -115,5 +127,19 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
         T result = build.get();
         buildTimes.put(model, Duration.ofNanos(System.nanoTime() - startedAt));
         return result;
+    }
+
+    private record Imported(JavaClasses classes, String emptyMessage) {
+
+        boolean isEmpty() {
+            return Objects.isNull(classes);
+        }
+
+        JavaClasses orFail() {
+            if (isEmpty()) {
+                throw new UnableToVerifyError(emptyMessage);
+            }
+            return classes;
+        }
     }
 }
