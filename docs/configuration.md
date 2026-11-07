@@ -19,7 +19,7 @@ The Maven plugin is the goal `check` of `dev.quokkify.archgate:archgate-maven-pl
 ```groovy
 plugins {
     id 'java'
-    id 'dev.quokkify.archgate' version '0.1.2'
+    id 'dev.quokkify.archgate' version '0.2.0'
 }
 
 archgate {
@@ -107,7 +107,7 @@ Maven:
     <dependency>
       <groupId>dev.quokkify.archgate</groupId>
       <artifactId>archgate-bom</artifactId>
-      <version>0.1.2</version>
+      <version>0.2.0</version>
       <type>pom</type>
       <scope>import</scope>
     </dependency>
@@ -121,7 +121,7 @@ Gradle:
 <!-- x-release-please-start-version -->
 ```groovy
 dependencies {
-    testImplementation platform('dev.quokkify.archgate:archgate-bom:0.1.2')
+    testImplementation platform('dev.quokkify.archgate:archgate-bom:0.2.0')
 }
 ```
 <!-- x-release-please-end -->
@@ -140,7 +140,7 @@ Maven:
   <configuration>
     <archive>
       <manifestEntries>
-        <Archgate-Api-Version>0.1.2</Archgate-Api-Version>
+        <Archgate-Api-Version>0.2.0</Archgate-Api-Version>
       </manifestEntries>
     </archive>
   </configuration>
@@ -154,7 +154,7 @@ Gradle:
 ```groovy
 tasks.named('jar') {
     manifest {
-        attributes('Archgate-Api-Version': '0.1.2')
+        attributes('Archgate-Api-Version': '0.2.0')
     }
 }
 ```
