@@ -24,6 +24,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.*;
 ```
 
+**Empty scope.** Main and test are checked separately. A module without test sources is still checked in main, and one without main sources in test; the report line then names the scope that was not checked, for example `No wildcard imports (TEST not checked: empty)`. If neither scope has a Java source under `rootPackage`, the rule fails the build as unable to verify. To fail on any empty scope instead, subclass the rule and override `requireAllScopes()` to return `true` (see [Partial checks](../configuration.md#partial-checks)).
+
 **Register**
 
 ```

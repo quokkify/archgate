@@ -3,6 +3,7 @@ package dev.quokkify.archgate.api;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * A single architecture check. Consumers register rules in
@@ -63,6 +64,52 @@ public interface ArchitectureRule<C extends AnalysisContext> {
      * @throws UnableToVerifyError if the rule cannot give a trustworthy answer
      */
     void verify(C context);
+
+    /**
+     * Tells whether every scope of {@link #scopes()} must have something to analyse. By default a rule over
+     * several scopes checks the non-empty ones and fails only when all are empty. A subclass that returns
+     * {@code true} restores the strict behaviour: an empty view in any scope fails the build as unable to
+     * verify.
+     *
+     * @return {@code false} by default
+     */
+    default boolean requireAllScopes() {
+        return false;
+    }
+
+    /**
+     * Returns the scopes this rule reads in a run: the non-empty scopes of {@link #scopes()} as chosen by
+     * {@link AnalysisContext#nonEmptyScopes(Set)}, or all of them in {@link Scope} order when {@link
+     * #requireAllScopes()} is {@code true}, so that reading an empty view fails closed.
+     *
+     * @param context the context passed to {@link #verify}
+     * @return the scopes to read
+     * @throws UnableToVerifyError if there is nothing to check
+     */
+    default List<Scope> scopesToCheck(C context) {
+        if (requireAllScopes()) {
+            return scopes().stream().sorted().toList();
+        }
+        return context.nonEmptyScopes(scopes());
+    }
+
+    /**
+     * Returns the scopes of {@link #scopes()} that the last {@link #verify} did not check because their view
+     * was empty. Core calls it after {@link #verify} returned or reported a finding, and shows the result
+     * on the rule's report line so that a partial check is visible.
+     *
+     * <p>The default asks the context with {@link AnalysisContext#isEmpty(Scope)}, which matches rules that
+     * read their views through {@link #scopesToCheck(AnalysisContext)}. Override it only when the rule
+     * decides what to read in another way.
+     *
+     * @param context the context passed to {@link #verify}
+     * @return the skipped scopes; empty when every scope was checked
+     */
+    default Set<Scope> skippedScopes(C context) {
+        return scopes().stream()
+                .filter(context::isEmpty)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Scope.class)));
+    }
 
     /**
      * Throws {@link ArchitectureViolation} if {@code violations} is not empty; does nothing otherwise.

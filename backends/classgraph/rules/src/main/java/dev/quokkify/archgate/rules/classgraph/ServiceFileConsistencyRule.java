@@ -11,7 +11,6 @@ import io.github.classgraph.Resource;
 import io.github.classgraph.ScanResult;
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -56,10 +55,12 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
     public void verify(ClassGraphContext context) {
         Set<String> violations = new TreeSet<>();
         boolean serviceFileFound = false;
-        for (Scope scope : scopes()) {
-            if (!hasClassDirectory(context, scope)) {
-                continue;
-            }
+        if (!requireAllScopes() && scopes().stream().allMatch(context::isEmpty)) {
+            throw new UnableToVerifyError(
+                    "No class directory exists among %s, so no service registration was verified. Build the modules first and check the class directories passed to the verification."
+                            .formatted(allClassDirs(context)));
+        }
+        for (Scope scope : scopesToCheck(context)) {
             ScanResult scan = context.scan(scope);
             Map<String, Set<String>> listed = listedProviders(scan);
             serviceFileFound |=
@@ -72,10 +73,6 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
                             .formatted(allClassDirs(context)));
         }
         checkViolations(EXPECTED_CONTRACT, List.copyOf(violations));
-    }
-
-    private static boolean hasClassDirectory(ClassGraphContext context, Scope scope) {
-        return context.layout().classDirs(scope).stream().anyMatch(Files::isDirectory);
     }
 
     private static List<Path> allClassDirs(ClassGraphContext context) {

@@ -58,7 +58,12 @@ public final class ReportFormatter {
                 .filter(severity -> result.count(severity) > 0)
                 .map(severity -> "%d %s".formatted(result.count(severity), label(result.count(severity), severity)))
                 .collect(Collectors.joining(", "));
-        return "%s, %s".formatted(rulesPhrase(result.outcomes().size()), findings.isEmpty() ? "no findings" : findings);
+        long partial = result.outcomes().stream()
+                .filter(outcome -> !outcome.skipped().isEmpty())
+                .count();
+        String rules = rulesPhrase(result.outcomes().size())
+                + (partial == 0 ? "" : " (%d partially checked)".formatted(partial));
+        return "%s, %s".formatted(rules, findings.isEmpty() ? "no findings" : findings);
     }
 
     private static void addFailPolicy(List<String> lines, Optional<Severity> failOn) {
@@ -92,7 +97,20 @@ public final class ReportFormatter {
         String scope =
                 outcome.rule().scopes().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
         return LINE_FORMAT.formatted(
-                label, scope, outcome.duration().toMillis(), outcome.rule().name());
+                        label,
+                        scope,
+                        outcome.duration().toMillis(),
+                        outcome.rule().name())
+                + skippedNote(outcome);
+    }
+
+    private static String skippedNote(RuleOutcome outcome) {
+        if (outcome.skipped().isEmpty()) {
+            return "";
+        }
+        String skipped =
+                outcome.skipped().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
+        return " (%s not checked: empty)".formatted(skipped);
     }
 
     private static String describe(Throwable finding) {

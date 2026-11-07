@@ -52,6 +52,11 @@ final class DirectoryClassGraphContext implements ClassGraphContext {
     }
 
     @Override
+    public boolean isEmpty(Scope scope) {
+        return layout.classDirs(scope).stream().noneMatch(Files::isDirectory);
+    }
+
+    @Override
     public ScanResult scan(Scope scope) {
         if (closed.get()) {
             throw new IllegalStateException("The ClassGraph context is closed");

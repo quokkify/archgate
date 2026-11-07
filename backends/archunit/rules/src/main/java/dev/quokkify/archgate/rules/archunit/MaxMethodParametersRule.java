@@ -57,7 +57,7 @@ public class MaxMethodParametersRule implements ArchitectureRule<ArchUnitContext
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<String> violations = ArchRuleChecks.violations(definition(maxParameters), context.main(), context.test());
+        List<String> violations = ArchRuleChecks.violations(definition(maxParameters), context, scopesToCheck(context));
         checkViolations(expectedContract(), violations);
     }
 

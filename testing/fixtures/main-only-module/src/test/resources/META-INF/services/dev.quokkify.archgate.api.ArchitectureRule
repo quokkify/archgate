@@ -1,0 +1,2 @@
+dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule
+dev.quokkify.archgate.rules.archunit.NoThreadSleepRule

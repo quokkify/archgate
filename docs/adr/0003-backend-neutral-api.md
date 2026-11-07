@@ -15,7 +15,7 @@ The goal was to let a backend and its rules be adopted, copied or replaced witho
 - Each backend lives in its own pair of modules: `context-<backend>` holds the context interface, its implementation and its provider; `rules-<backend>` holds the rules written against it. Today these are ArchUnit, JavaParser (sources) and ClassGraph (classes and resources).
 - Each context module registers its provider in its own `META-INF/services/dev.quokkify.archgate.api.ContextProvider`. This is the only services file a published module may contain.
 - `ContextResolver` in `core` maps a rule's context type to a provider found through `ServiceLoader`, creates each context lazily and at most once per run, and closes it afterwards if it is `AutoCloseable`. A missing provider raises `UnableToVerifyError` that names the `archgate-context-<backend>` artifact to add.
-- An empty model for a scope that a rule requests is an unable-to-verify condition, for every backend.
+- An empty model for a scope that a rule requests is an unable-to-verify condition, for every backend. For rules over several scopes this is refined by [ADR 0008](0008-partial-scope-check.md).
 - Dependency directions: `rules-X` depends on `api` and `context-X`; `context-X` on `api` and its library; `core` on `api` only; the build plugins on `core`. Nothing depends on a `rules-*` module.
 
 ## Consequences

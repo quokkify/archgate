@@ -71,6 +71,19 @@ class JavaParserContextTest {
     }
 
     @Test
+    void isEmptyTellsWhichScopeHasSources() throws URISyntaxException {
+        try (TempDir tempDir = TempDir.create()) {
+            JavaParserContext context = context(
+                    ROOT, List.of(resource("main")), List.of(tempDir.path().resolve("absent")));
+
+            assertThat(context.isEmpty(Scope.MAIN)).isFalse();
+            assertThat(context.isEmpty(Scope.TEST)).isTrue();
+            assertThatThrownBy(() -> context.compilationUnits(Scope.TEST)).isInstanceOf(UnableToVerifyError.class);
+            assertThat(context.buildTimes()).containsOnlyKeys("javaparser main", "javaparser test");
+        }
+    }
+
+    @Test
     void parseErrorIsUnableToVerify() throws IOException {
         try (TempDir tempDir = TempDir.create()) {
             Path tmp = tempDir.path();

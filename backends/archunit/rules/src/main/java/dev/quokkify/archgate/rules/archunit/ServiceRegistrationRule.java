@@ -50,11 +50,23 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<Path> classDirs = new ArrayList<>(context.layout().classDirs(Scope.MAIN));
-        classDirs.addAll(context.layout().classDirs(Scope.TEST));
+        List<Path> classDirs = scopes().stream()
+                .sorted()
+                .flatMap(scope -> context.layout().classDirs(scope).stream())
+                .toList();
         if (classDirs.isEmpty()) {
             throw new UnableToVerifyError("""
           No class directories are configured, so no provider file can be checked.""");
+        }
+        Set<Scope> missing = skippedScopes(context);
+        if (requireAllScopes() && !missing.isEmpty()) {
+            List<Path> looked = missing.stream()
+                    .sorted()
+                    .flatMap(scope -> context.layout().classDirs(scope).stream())
+                    .toList();
+            throw new UnableToVerifyError("""
+          No class directory exists among %s, and this rule requires every scope to be checked. Build the modules \
+          first and check the class directories passed to the verification.""".formatted(looked));
         }
         URL[] urls = classDirs.stream()
                 .filter(Files::isDirectory)
@@ -66,6 +78,17 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         } catch (IOException e) {
             throw new UncheckedIOException("Cannot close the provider class loader", e);
         }
+    }
+
+    @Override
+    public Set<Scope> skippedScopes(ArchUnitContext context) {
+        Set<Scope> skipped = EnumSet.noneOf(Scope.class);
+        for (Scope scope : scopes()) {
+            if (context.layout().classDirs(scope).stream().noneMatch(Files::isDirectory)) {
+                skipped.add(scope);
+            }
+        }
+        return skipped;
     }
 
     void verify(List<Path> classDirs, ClassLoader loader) {

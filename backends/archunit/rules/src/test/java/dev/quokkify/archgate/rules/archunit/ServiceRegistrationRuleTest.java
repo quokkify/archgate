@@ -126,6 +126,50 @@ class ServiceRegistrationRuleTest {
                 .isInstanceOf(UnableToVerifyError.class);
     }
 
+    @Test
+    void scopeWithoutClassDirectoryIsSkipped() {
+        Path classes = FixtureContexts.classesDir();
+        Path missing = classes.resolve("does-not-exist");
+
+        assertThat(rule.skippedScopes(FixtureContexts.of("archfixtures", List.of(classes), List.of(missing))))
+                .containsExactly(Scope.TEST);
+        assertThat(rule.skippedScopes(FixtureContexts.of("archfixtures", List.of(classes), List.of(classes))))
+                .isEmpty();
+    }
+
+    @Test
+    void strictSubclassFailsOnMissingTestClassDirectory() {
+        ServiceRegistrationRule strict = new ServiceRegistrationRule() {
+            @Override
+            public boolean requireAllScopes() {
+                return true;
+            }
+        };
+        Path classes = FixtureContexts.classesDir();
+
+        assertThatThrownBy(() -> strict.verify(FixtureContexts.of(
+                        "archfixtures", List.of(classes), List.of(classes.resolve("does-not-exist")))))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("No class directory exists among [" + classes.resolve("does-not-exist") + "]");
+    }
+
+    @Test
+    void narrowedScopesReadOnlyThoseClassDirectories() {
+        ServiceRegistrationRule mainOnly = new ServiceRegistrationRule() {
+            @Override
+            public Set<Scope> scopes() {
+                return Set.of(Scope.MAIN);
+            }
+        };
+        Path missing = FixtureContexts.classesDir().resolve("does-not-exist");
+
+        assertThatThrownBy(() -> mainOnly.verify(
+                        FixtureContexts.of("archfixtures", List.of(missing), List.of(FixtureContexts.classesDir()))))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("does-not-exist")
+                .hasMessageNotContaining(FixtureContexts.classesDir() + ",");
+    }
+
     // regression: provider in another module's test classes
     @Test
     void providerOnlyInAnotherTestDirIsResolved() throws IOException {

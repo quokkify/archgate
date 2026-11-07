@@ -152,6 +152,42 @@ class ServiceFileConsistencyRuleTest {
     }
 
     @Test
+    void mainOnlyModuleIsCheckedInMainAndSkipsTest() throws Exception {
+        try (ClassGraphContext context = mainCase("unlisted")) {
+            assertThatThrownBy(() -> rule.verify(context)).isInstanceOf(ArchitectureViolation.class);
+            assertThat(rule.skippedScopes(context)).containsExactly(Scope.TEST);
+        }
+    }
+
+    @Test
+    void testOnlyModuleIsCheckedInTestAndSkipsMain() throws Exception {
+        try (ClassGraphContext context = context(List.of(), List.of(testClasses(), caseDir("unlisted")))) {
+            assertThatThrownBy(() -> rule.verify(context)).isInstanceOf(ArchitectureViolation.class);
+            assertThat(rule.skippedScopes(context)).containsExactly(Scope.MAIN);
+        }
+    }
+
+    @Test
+    void bothScopesWithoutClassDirectoryIsUnableToVerify() throws Exception {
+        Path missing = testClasses().resolve("does-not-exist");
+        try (ClassGraphContext context = context(List.of(missing), List.of())) {
+            assertThatThrownBy(() -> rule.verify(context))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("No class directory exists among [" + missing + "]");
+        }
+    }
+
+    @Test
+    void bothScopesPresentSkipNothing() throws Exception {
+        Path classes = testClasses();
+        try (ClassGraphContext context =
+                context(List.of(classes, caseDir("listed")), List.of(classes, caseDir("architecture-rule")))) {
+            rule.verify(context);
+            assertThat(rule.skippedScopes(context)).isEmpty();
+        }
+    }
+
+    @Test
     void contextTypeIsClassGraph() {
         assertThat(rule.contextType()).isEqualTo(ClassGraphContext.class);
     }

@@ -47,7 +47,7 @@ public class NoThreadSleepRule implements ArchitectureRule<ArchUnitContext> {
 
     @Override
     public void verify(ArchUnitContext context) {
-        List<String> violations = ArchRuleChecks.violations(definition(), context.main(), context.test());
+        List<String> violations = ArchRuleChecks.violations(definition(), context, scopesToCheck(context));
         checkViolations(EXPECTED_CONTRACT, violations);
     }
 

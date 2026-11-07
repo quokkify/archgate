@@ -3,12 +3,14 @@ package dev.quokkify.archgate.core;
 import dev.quokkify.archgate.api.AnalysisContext;
 import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
+import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,7 +32,8 @@ public final class GateRunner {
                 unable = keepFirst(unable, evaluation.unable());
                 continue;
             }
-            outcomes.add(new RuleOutcome(evaluation.rule(), evaluation.finding(), evaluation.duration()));
+            outcomes.add(new RuleOutcome(
+                    evaluation.rule(), evaluation.finding(), evaluation.duration(), evaluation.skipped()));
         }
         if (Objects.nonNull(unable)) {
             throw unable;
@@ -67,22 +70,39 @@ public final class GateRunner {
         }
     }
 
-    private static Evaluation evaluate(ArchitectureRule<?> rule, ContextResolver contexts) {
+    private static <C extends AnalysisContext> Evaluation evaluate(ArchitectureRule<C> rule, ContextResolver contexts) {
         long startedAt = System.nanoTime();
-        Throwable finding = null;
-        UnableToVerifyError unable = null;
         try {
-            verify(rule, contexts);
-        } catch (ArchitectureViolation | AssertionError violation) {
-            finding = violation;
+            C context = contexts.get(rule.contextType());
+            Throwable finding = null;
+            try {
+                rule.verify(context);
+            } catch (ArchitectureViolation | AssertionError violation) {
+                finding = violation;
+            }
+            return new Evaluation(rule, finding, skippedScopes(rule, context), null, since(startedAt));
         } catch (Throwable failure) {
-            unable = unableToVerify(rule, failure);
+            return new Evaluation(rule, null, Set.of(), unableToVerify(rule, failure), since(startedAt));
         }
-        return new Evaluation(rule, finding, unable, Duration.ofNanos(System.nanoTime() - startedAt));
     }
 
-    private static <C extends AnalysisContext> void verify(ArchitectureRule<C> rule, ContextResolver contexts) {
-        rule.verify(contexts.get(rule.contextType()));
+    private static <C extends AnalysisContext> Set<Scope> skippedScopes(ArchitectureRule<C> rule, C context) {
+        Set<Scope> skipped = rule.skippedScopes(context);
+        if (Objects.isNull(skipped) || skipped.stream().anyMatch(Objects::isNull)) {
+            throw new UnableToVerifyError(
+                    "Rule '%s' returned no valid skipped scopes (%s), so it is unclear what it checked."
+                            .formatted(rule.name(), skipped));
+        }
+        if (!rule.scopes().containsAll(skipped)) {
+            throw new UnableToVerifyError(
+                    "Rule '%s' reports skipped scopes %s outside its scopes %s, so it is unclear what it checked."
+                            .formatted(rule.name(), skipped, rule.scopes()));
+        }
+        return Set.copyOf(skipped);
+    }
+
+    private static Duration since(long startedAt) {
+        return Duration.ofNanos(System.nanoTime() - startedAt);
     }
 
     private static UnableToVerifyError unableToVerify(ArchitectureRule<?> rule, Throwable cause) {
@@ -105,10 +125,14 @@ public final class GateRunner {
     }
 
     private record Evaluation(
-            ArchitectureRule<?> rule, Throwable finding, UnableToVerifyError unable, Duration duration) {
+            ArchitectureRule<?> rule,
+            Throwable finding,
+            Set<Scope> skipped,
+            UnableToVerifyError unable,
+            Duration duration) {
 
         static Evaluation unable(ArchitectureRule<?> rule, UnableToVerifyError error) {
-            return new Evaluation(rule, null, error, Duration.ZERO);
+            return new Evaluation(rule, null, Set.of(), error, Duration.ZERO);
         }
     }
 }

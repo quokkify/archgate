@@ -34,6 +34,8 @@ com.acme.plugins.AlphaPlugin
 com.acme.plugins.BetaPlugin
 ```
 
+**Empty scope.** A scope whose class directories do not exist, for example a module without tests, is skipped, and the report line names it, for example `Service file consistency (TEST not checked: empty)`. The class is `final`; to fail on any empty scope, copy it and override `requireAllScopes()` to return `true` (see [Partial checks](../configuration.md#partial-checks)).
+
 **Register**
 
 ```

@@ -49,6 +49,21 @@ final class DirectoryJavaParserContext implements JavaParserContext {
 
     @Override
     public synchronized List<CompilationUnit> compilationUnits(Scope scope) {
+        List<CompilationUnit> units = parsed(scope);
+        if (units.isEmpty()) {
+            throw new UnableToVerifyError(
+                    "No Java source under %s was found in the %s source directories %s. Make the sources available, otherwise every rule using this view would pass without checking anything."
+                            .formatted(rootPackage, scope.name().toLowerCase(Locale.ROOT), layout.sourceDirs(scope)));
+        }
+        return units;
+    }
+
+    @Override
+    public synchronized boolean isEmpty(Scope scope) {
+        return parsed(scope).isEmpty();
+    }
+
+    private List<CompilationUnit> parsed(Scope scope) {
         List<CompilationUnit> units = parsed.get(scope);
         if (Objects.isNull(units)) {
             long startedAt = System.nanoTime();
@@ -92,11 +107,6 @@ final class DirectoryJavaParserContext implements JavaParserContext {
                     relativePaths.put(unit, dir.relativize(file).toString().replace('\\', '/'));
                 }
             }
-        }
-        if (units.isEmpty()) {
-            throw new UnableToVerifyError(
-                    "No Java source under %s was found in the %s source directories %s. Make the sources available, otherwise every rule using this view would pass without checking anything."
-                            .formatted(rootPackage, scope.name().toLowerCase(Locale.ROOT), configured));
         }
         return List.copyOf(units);
     }
