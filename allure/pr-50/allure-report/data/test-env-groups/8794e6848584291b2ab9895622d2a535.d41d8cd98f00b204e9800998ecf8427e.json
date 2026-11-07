@@ -1,0 +1,1 @@
+{"id":"8794e6848584291b2ab9895622d2a535.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRuleTest.enumConstantOfDeprecatedEnumIsReported","name":"enumConstantOfDeprecatedEnumIsReported","status":"passed","testResultsByEnv":{"default":"7dfd7adf25d249ddfebc9faf3977b7fd"}}
