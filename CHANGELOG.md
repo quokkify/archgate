@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.0](https://github.com/quokkify/archgate/compare/v0.1.2...v0.2.0) (2026-11-07)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 new · 7 internal
+
+### ✨ New
+
+- check the non-empty scopes of main + test rules ([#44](https://github.com/quokkify/archgate/pull/44))
+
+<details><summary>Internal changes (7 PRs)</summary>
+
+**Dependencies**
+
+- com.diffplug.spotless:spotless-plugin-gradle 8.10.4 → 8.11.0 ([#41](https://github.com/quokkify/archgate/pull/41))
+- gradle/actions v6.4.0 → v6.4.1 ([#38](https://github.com/quokkify/archgate/pull/38))
+- io.github.classgraph:classgraph 4.8.199 → 5.0.2 · major ([#27](https://github.com/quokkify/archgate/pull/27))
+- quokkify/ci-kit v4.1.0 → v4.2.0 ([#40](https://github.com/quokkify/archgate/pull/40))
+
+**Maintenance**
+
+- run tests as one job per Gradle project ([#37](https://github.com/quokkify/archgate/pull/37))
+- stop Renovate from raising the Maven API floor ([#42](https://github.com/quokkify/archgate/pull/42))
+- **template:** update shared project template ([#45](https://github.com/quokkify/archgate/pull/45))
+
+</details>
+
 ## [0.1.2](https://github.com/quokkify/archgate/compare/v0.1.1...v0.1.2) (2026-10-29)
 
 
