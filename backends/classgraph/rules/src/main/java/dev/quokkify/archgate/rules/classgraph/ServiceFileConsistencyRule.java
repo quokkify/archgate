@@ -97,7 +97,7 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
     private static Set<String> providerNames(Resource resource) {
         try (resource) {
             Set<String> names = new HashSet<>();
-            for (String line : resource.getContentAsString().split("\\R")) {
+            for (String line : resource.loadAsString().split("\\R")) {
                 String name =
                         (line.contains(COMMENT_MARK) ? line.substring(0, line.indexOf(COMMENT_MARK)) : line).strip();
                 if (!name.isEmpty()) {
@@ -116,7 +116,7 @@ public final class ServiceFileConsistencyRule implements ArchitectureRule<ClassG
             return Set.of();
         }
         ClassInfoList implementations =
-                serviceInfo.isInterface() ? serviceInfo.getClassesImplementing() : serviceInfo.getSubclasses();
+                serviceInfo.isInterface() ? serviceInfo.getAllClassesImplementing() : serviceInfo.getAllSubclasses();
         Set<String> violations = new TreeSet<>();
         for (ClassInfo implementation : implementations) {
             if (isPublicConcreteClass(implementation) && !providers.contains(implementation.getName())) {

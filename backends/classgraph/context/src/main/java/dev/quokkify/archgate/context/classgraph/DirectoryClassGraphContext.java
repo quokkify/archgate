@@ -111,7 +111,7 @@ final class DirectoryClassGraphContext implements ClassGraphContext {
         ScanResult result;
         try {
             result = new ClassGraph()
-                    .overrideClasspath(dirs)
+                    .enableClasspathEntries(dirs)
                     .enableClassInfo()
                     .enableExternalClasses()
                     .acceptPackages(rootPackage)
