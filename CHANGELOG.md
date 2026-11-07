@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.1](https://github.com/quokkify/archgate/compare/v0.2.0...v0.2.1) (2026-11-07)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 1 internal
+
+### 🐛 Fixed
+
+- **rules:** report use of a deprecated class in NoDeprecatedApiUsageRule ([#49](https://github.com/quokkify/archgate/pull/49))
+
+<details><summary>Internal changes (1 PR)</summary>
+
+**Maintenance**
+
+- **template:** update shared project template ([#47](https://github.com/quokkify/archgate/pull/47))
+
+</details>
+
 ## [0.2.0](https://github.com/quokkify/archgate/compare/v0.1.2...v0.2.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
