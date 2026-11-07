@@ -74,6 +74,83 @@ class NoDeprecatedApiUsageRuleTest {
                         .contains("UsesDeprecatedApi.assignsDeprecatedReturn()", "returningDeprecated"));
     }
 
+    // regression guard: members of a deprecated class carry no annotation of their own and were not reported
+    @Test
+    void constantOfDeprecatedClassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains(
+                                "UsesDeprecatedType.readsConstantOfDeprecatedClass()",
+                                "DeprecatedType.CONSTANT",
+                                "of deprecated archfixtures.deprecated.DeprecatedType"));
+    }
+
+    @Test
+    void enumConstantOfDeprecatedEnumIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("UsesDeprecatedType.readsEnumConstant()", "DeprecatedMode.LOCAL"));
+    }
+
+    @Test
+    void staticMethodOfDeprecatedClassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("UsesDeprecatedType.callsStaticMethodOfDeprecatedClass()", "staticMethod()"));
+    }
+
+    @Test
+    void instanceMethodOfDeprecatedClassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("UsesDeprecatedType.callsInstanceMethodOfDeprecatedClass()", "instanceMethod()"));
+    }
+
+    @Test
+    void constructorOfDeprecatedClassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("UsesDeprecatedType.constructsDeprecatedClass()", "DeprecatedType.<init>()"));
+    }
+
+    @Test
+    void fieldOfDeprecatedTypeIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("UsesDeprecatedType.field", "has deprecated type", "DeprecatedType"));
+    }
+
+    @Test
+    void methodReturningDeprecatedTypeIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains(
+                                "UsesDeprecatedType.returnsDeprecatedType()", "returns deprecated", "DeprecatedMode"));
+    }
+
+    @Test
+    void methodTakingDeprecatedTypeIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("UsesDeprecatedType.takesDeprecatedType(", "takes deprecated", "DeprecatedType"));
+    }
+
+    @Test
+    void deprecatedClassUsingItsOwnMembersPasses() {
+        assertThat(violations())
+                .noneSatisfy(detail -> assertThat(detail).startsWith("archfixtures.deprecated.DeprecatedType."))
+                .noneSatisfy(detail -> assertThat(detail).startsWith("archfixtures.deprecated.DeprecatedMode."));
+    }
+
+    @Test
+    void implicitSuperConstructorCallIsNotReportedTwice() {
+        assertThat(violations())
+                .filteredOn(detail -> detail.startsWith("archfixtures.deprecated.ExtendsDeprecatedClass"))
+                .singleElement()
+                .asString()
+                .contains("extends deprecated");
+    }
+
     @Test
     void modernUsagePasses() {
         assertThat(violations())
