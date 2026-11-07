@@ -1,0 +1,1 @@
+{"id":"c3099185175d373e70cbd8a8409765ab.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.javaparser.NoWildcardImportsRuleTest.strictSubclassFailsOnEmptyTestSources","name":"strictSubclassFailsOnEmptyTestSources","status":"passed","testResultsByEnv":{"default":"e898c14a91b67a63a21e14dc7bb40ffd"}}
