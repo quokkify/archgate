@@ -9,7 +9,7 @@ assertj = "3.27.7"
 archunit = "1.5.1"
 javaparser = "3.28.2"
 classgraph = "5.0.2"
-querydsl = "5.1.0"
+querydsl = "7.7"
 awaitility = "4.3.0"
 log4j = "2.26.1"
 testng = "7.12.0"
@@ -30,7 +30,7 @@ assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 javaparser-core = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
-querydsl-core = { module = "com.querydsl:querydsl-core", version.ref = "querydsl" }
+querydsl-core = { module = "io.github.openfeign.querydsl:querydsl-core", version.ref = "querydsl" }
 awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
 log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
 testng = { module = "org.testng:testng", version.ref = "testng" }
