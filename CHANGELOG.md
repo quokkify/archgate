@@ -2,24 +2,29 @@
 
 ## [0.2.0](https://github.com/quokkify/archgate/compare/v0.1.2...v0.2.0) (2026-11-07)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 new · 7 internal
 
-### ✨ Features
+### ✨ New
 
-* check the non-empty scopes of main + test rules ([#44](https://github.com/quokkify/archgate/issues/44)) ([d9c18da](https://github.com/quokkify/archgate/commit/d9c18da052444bb8ba596dce838786921ca884a3))
+- check the non-empty scopes of main + test rules ([#44](https://github.com/quokkify/archgate/pull/44))
 
+<details><summary>Internal changes (7 PRs)</summary>
 
-### 📦 Dependencies
+**Dependencies**
 
-* **github-actions:** update gradle/actions action to v6.4.1 ([#38](https://github.com/quokkify/archgate/issues/38)) ([8bf01cb](https://github.com/quokkify/archgate/commit/8bf01cbe753562564575c62df83999cb22593ca0))
-* **github-actions:** update quokkify/ci-kit action to v4.2.0 ([#40](https://github.com/quokkify/archgate/issues/40)) ([02454b9](https://github.com/quokkify/archgate/commit/02454b94dba48429e40568e32e53b67399c22642))
-* **gradle:** update com.diffplug.spotless:spotless-plugin-gradle to v8.11.0 ([#41](https://github.com/quokkify/archgate/issues/41)) ([c533f04](https://github.com/quokkify/archgate/commit/c533f046cc05cfd7e4546d06ea901e8d3aa4fa2b))
-* **gradle:** update io.github.classgraph:classgraph to v5 ([#27](https://github.com/quokkify/archgate/issues/27)) ([5485cfd](https://github.com/quokkify/archgate/commit/5485cfd62a95b25d44455086957690e6b3fc2690))
+- com.diffplug.spotless:spotless-plugin-gradle 8.10.4 → 8.11.0 ([#41](https://github.com/quokkify/archgate/pull/41))
+- gradle/actions v6.4.0 → v6.4.1 ([#38](https://github.com/quokkify/archgate/pull/38))
+- io.github.classgraph:classgraph 4.8.199 → 5.0.2 · major ([#27](https://github.com/quokkify/archgate/pull/27))
+- quokkify/ci-kit v4.1.0 → v4.2.0 ([#40](https://github.com/quokkify/archgate/pull/40))
 
+**Maintenance**
 
-### 🧹 Chores
+- run tests as one job per Gradle project ([#37](https://github.com/quokkify/archgate/pull/37))
+- stop Renovate from raising the Maven API floor ([#42](https://github.com/quokkify/archgate/pull/42))
+- **template:** update shared project template ([#45](https://github.com/quokkify/archgate/pull/45))
 
-* stop Renovate from raising the Maven API floor ([#42](https://github.com/quokkify/archgate/issues/42)) ([1513e7c](https://github.com/quokkify/archgate/commit/1513e7c4484c703cac4b79a3dee01b48bb641b67))
-* **template:** update shared project template ([#45](https://github.com/quokkify/archgate/issues/45)) ([4542e74](https://github.com/quokkify/archgate/commit/4542e7461067891fbec4cc9a35210658ec8d7324))
+</details>
 
 ## [0.1.2](https://github.com/quokkify/archgate/compare/v0.1.1...v0.1.2) (2026-10-29)
 
