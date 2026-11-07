@@ -23,7 +23,10 @@ The rule reports:
 - access to a deprecated field,
 - calls to a deprecated method — including methods returning a deprecated type or taking deprecated parameters,
 - calls to a deprecated constructor,
-- extending a deprecated class or implementing a deprecated interface.
+- extending a deprecated class or implementing a deprecated interface,
+- any use of a class that is itself deprecated: reading its fields or enum constants, calling its methods or constructors, and declaring a field, a parameter or a return type of that class. A deprecated class may still use its own members.
+
+The rule reads bytecode, so it cannot see a compile-time constant (`static final` primitive or `String` with a constant value): javac copies the value into the caller and leaves no field access behind.
 
 **Empty scope.** Main and test are checked separately. A module without test classes is still checked in main, and one without main classes in test; the report line then names the scope that was not checked, for example `No deprecated API usage (TEST not checked: empty)`. If neither scope has a class under `rootPackage`, the rule fails the build as unable to verify. To fail on any empty scope instead, subclass the rule and override `requireAllScopes()` to return `true` (see [Partial checks](../configuration.md#partial-checks)).
 

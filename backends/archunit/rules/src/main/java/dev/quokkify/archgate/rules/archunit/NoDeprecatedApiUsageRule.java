@@ -3,6 +3,9 @@ package dev.quokkify.archgate.rules.archunit;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 
 import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.core.domain.JavaConstructor;
+import com.tngtech.archunit.core.domain.JavaConstructorCall;
+import com.tngtech.archunit.core.domain.JavaModifier;
 import com.tngtech.archunit.core.domain.JavaType;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
@@ -18,6 +21,7 @@ import dev.quokkify.archgate.context.archunit.support.ArchRuleChecks;
 import dev.quokkify.archgate.context.archunit.support.GeneratedCode;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContext> {
@@ -65,28 +69,71 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
         return new ArchCondition<>("not use deprecated APIs") {
             @Override
             public void check(JavaClass javaClass, ConditionEvents events) {
-                javaClass.getFieldAccessesFromSelf().stream()
-                        .filter(access -> access.getTarget().isAnnotatedWith(Deprecated.class))
-                        .forEach(access -> events.add(violation(
+                javaClass.getFieldAccessesFromSelf().forEach(access -> {
+                    String target = access.getTarget().getFullName();
+                    if (access.getTarget().isAnnotatedWith(Deprecated.class)) {
+                        events.add(violation(
+                                access.getOrigin().getFullName(), "accesses deprecated field %s".formatted(target)));
+                    } else if (deprecatedForeign(javaClass, access.getTargetOwner())) {
+                        events.add(violation(
                                 access.getOrigin().getFullName(),
-                                "accesses deprecated field %s"
-                                        .formatted(access.getTarget().getFullName()))));
-                javaClass.getMethodCallsFromSelf().stream()
-                        .filter(call -> call.getTarget().isAnnotatedWith(Deprecated.class)
-                                || call.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class)
-                                || call.getTarget().getRawParameterTypes().stream()
-                                        .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure))
-                        .forEach(call -> events.add(violation(
+                                "accesses %s of deprecated %s"
+                                        .formatted(
+                                                target, access.getTargetOwner().getName())));
+                    }
+                });
+                javaClass.getMethodCallsFromSelf().forEach(call -> {
+                    String target = call.getTarget().getFullName();
+                    if (call.getTarget().isAnnotatedWith(Deprecated.class)
+                            || call.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class)
+                            || call.getTarget().getRawParameterTypes().stream()
+                                    .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure)) {
+                        events.add(violation(call.getOrigin().getFullName(), "calls deprecated %s".formatted(target)));
+                    } else if (deprecatedForeign(javaClass, call.getTargetOwner())) {
+                        events.add(violation(
                                 call.getOrigin().getFullName(),
-                                "calls deprecated %s".formatted(call.getTarget().getFullName()))));
-                javaClass.getConstructorCallsFromSelf().stream()
-                        .filter(call -> call.getTarget().isAnnotatedWith(Deprecated.class)
-                                || call.getTarget().getRawParameterTypes().stream()
-                                        .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure))
-                        .forEach(call -> events.add(violation(
+                                "calls %s of deprecated %s"
+                                        .formatted(target, call.getTargetOwner().getName())));
+                    }
+                });
+                javaClass.getConstructorCallsFromSelf().forEach(call -> {
+                    String target = call.getTarget().getFullName();
+                    if (call.getTarget().isAnnotatedWith(Deprecated.class)
+                            || call.getTarget().getRawParameterTypes().stream()
+                                    .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure)) {
+                        events.add(violation(
+                                call.getOrigin().getFullName(), "calls deprecated constructor %s".formatted(target)));
+                    } else if (deprecatedForeign(javaClass, call.getTargetOwner())
+                            && !superConstructorCall(javaClass, call)) {
+                        events.add(violation(
                                 call.getOrigin().getFullName(),
-                                "calls deprecated constructor %s"
-                                        .formatted(call.getTarget().getFullName()))));
+                                "calls constructor %s of deprecated %s"
+                                        .formatted(target, call.getTargetOwner().getName())));
+                    }
+                });
+                javaClass.getFields().stream()
+                        .filter(field -> !field.getModifiers().contains(JavaModifier.SYNTHETIC))
+                        .filter(field -> deprecatedForeign(javaClass, field.getRawType()))
+                        .forEach(field -> events.add(violation(
+                                field.getFullName(),
+                                "has deprecated type %s"
+                                        .formatted(field.getRawType().getName()))));
+                javaClass.getCodeUnits().stream()
+                        .filter(unit -> !unit.getModifiers().contains(JavaModifier.SYNTHETIC)
+                                && !unit.getModifiers().contains(JavaModifier.BRIDGE))
+                        .forEach(unit -> {
+                            if (deprecatedForeign(javaClass, unit.getRawReturnType())) {
+                                events.add(violation(
+                                        unit.getFullName(),
+                                        "returns deprecated %s"
+                                                .formatted(
+                                                        unit.getRawReturnType().getName())));
+                            }
+                            unit.getRawParameterTypes().stream()
+                                    .filter(type -> deprecatedForeign(javaClass, type))
+                                    .forEach(type -> events.add(violation(
+                                            unit.getFullName(), "takes deprecated %s".formatted(type.getName()))));
+                        });
                 javaClass.getAllRawSuperclasses().stream()
                         .filter(superclass -> superclass.isAnnotatedWith(Deprecated.class))
                         .forEach(superclass -> events.add(violation(
@@ -107,5 +154,27 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
 
     private static boolean deprecatedErasure(JavaType type) {
         return type.toErasure().isAnnotatedWith(Deprecated.class);
+    }
+
+    // Already reported as "extends deprecated".
+    private static boolean superConstructorCall(JavaClass user, JavaConstructorCall call) {
+        return call.getOrigin() instanceof JavaConstructor
+                && user.getRawSuperclass().filter(call.getTargetOwner()::equals).isPresent();
+    }
+
+    // A deprecated class may use its own members, as javac allows without a warning.
+    private static boolean deprecatedForeign(JavaClass user, JavaClass type) {
+        JavaClass deprecated = type.getBaseComponentType();
+        if (!deprecated.isAnnotatedWith(Deprecated.class)) {
+            return false;
+        }
+        for (JavaClass scope = user;
+                Objects.nonNull(scope);
+                scope = scope.getEnclosingClass().orElse(null)) {
+            if (scope.equals(deprecated)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
