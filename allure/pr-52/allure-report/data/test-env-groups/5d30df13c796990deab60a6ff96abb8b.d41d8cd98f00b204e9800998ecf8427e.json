@@ -1,0 +1,1 @@
+{"id":"5d30df13c796990deab60a6ff96abb8b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRuleTest.methodReturningDeprecatedTypeIsReported","name":"methodReturningDeprecatedTypeIsReported","status":"passed","testResultsByEnv":{"default":"f44f968e0006f0f6f39d092df059fb5d"}}
