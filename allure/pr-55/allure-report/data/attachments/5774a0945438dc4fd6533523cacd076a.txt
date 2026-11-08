@@ -1,0 +1,15 @@
+============================================================
+Architecture verification (2 rules, 2.0 s total)
+============================================================
+[PASS]  MAIN+TEST   1952 ms  No Thread.sleep (TEST not checked: empty)
+[WARNING] MAIN+TEST   1999 ms  No deprecated API usage (TEST not checked: empty)
+    Code must not use anything annotated @Deprecated — fields, methods, constructors, superclasses or the deprecated classes themselves. The next upgrade can remove them; replace the usage with the supported alternative from the @Deprecated documentation.
+    Violations (1):
+        - com.example.Caller.greet() calls deprecated com.example.Legacy.greet()
+Model build: ArchUnitContext 12 ms, main 1806 ms, test 12 ms
+============================================================
+Gate FAILED: 2 rules (2 partially checked), 1 warning
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
