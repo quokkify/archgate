@@ -1,0 +1,1 @@
+{"id":"a3f3077f917b69fe264ca9a004abe5d4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRuleTest.implicitSuperConstructorCallIsNotReportedTwice","name":"implicitSuperConstructorCallIsNotReportedTwice","status":"passed","testResultsByEnv":{"default":"7efd5a7a25df70d24c331261a76e3550"}}
