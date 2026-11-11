@@ -20,7 +20,7 @@ mavenPluginAnnotations = "3.16.0"
 mavenExecutor = "1.0.0"
 pluginPublish = "2.2.1"
 mavenPluginDevelopment = "1.0.3"
-q4j = "0.12.2"
+q4j = "0.14.0"
 
 [libraries]
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
