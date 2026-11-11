@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.2](https://github.com/quokkify/archgate/compare/v0.2.1...v0.2.2) (2026-11-11)
+
+
+### 📦 Dependencies
+
+* **github-actions:** update actions/setup-java action to v6.2.0 ([#52](https://github.com/quokkify/archgate/issues/52)) ([4e2fc01](https://github.com/quokkify/archgate/commit/4e2fc015e0a1873caba5ecf87642ee8e4fbeead0))
+* **gradle-wrapper:** update gradle to v9.9.0 ([#53](https://github.com/quokkify/archgate/issues/53)) ([380cffd](https://github.com/quokkify/archgate/commit/380cffdd881ce7d493a701a0d5633aa6f2b3d98b))
+* **gradle:** update dev.quokkify:testng to v0.14.0 ([#54](https://github.com/quokkify/archgate/issues/54)) ([8d8ec8d](https://github.com/quokkify/archgate/commit/8d8ec8ddc551950510f61d6b279c84935450c1c7))
+
+
+### 🧹 Chores
+
+* **deps:** move Querydsl test fixtures to the OpenFeign fork ([#50](https://github.com/quokkify/archgate/issues/50)) ([1778651](https://github.com/quokkify/archgate/commit/177865166eddb851a9f1eba099c43fbd2225cb8c))
+* **template:** update shared project template ([#55](https://github.com/quokkify/archgate/issues/55)) ([c6de07b](https://github.com/quokkify/archgate/commit/c6de07b350c2870f7babc3df5aa6647534543140))
+
 ## [0.2.1](https://github.com/quokkify/archgate/compare/v0.2.0...v0.2.1) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
