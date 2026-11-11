@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.2](https://github.com/quokkify/archgate/compare/v0.2.1...v0.2.2) (2026-11-11)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 5 internal
+
+<details><summary>Internal changes (5 PRs)</summary>
+
+**Dependencies**
+
+- actions/setup-java v6.1.0 → v6.2.0 ([#52](https://github.com/quokkify/archgate/pull/52))
+- dev.quokkify:testng 0.12.2 → 0.14.0 ([#54](https://github.com/quokkify/archgate/pull/54))
+- gradle 9.8.2 → 9.9.0 ([#53](https://github.com/quokkify/archgate/pull/53))
+
+**Maintenance**
+
+- **deps:** move Querydsl test fixtures to the OpenFeign fork ([#50](https://github.com/quokkify/archgate/pull/50))
+- **template:** update shared project template ([#55](https://github.com/quokkify/archgate/pull/55))
+
+</details>
+
 ## [0.2.1](https://github.com/quokkify/archgate/compare/v0.2.0...v0.2.1) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
