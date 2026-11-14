@@ -1,0 +1,1 @@
+{"id":"83bb12e7a353cf76adb8289fd16f0f76.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.threadSleepWithMillisAndNanosIsReported","name":"threadSleepWithMillisAndNanosIsReported","status":"passed","testResultsByEnv":{"default":"f05dc76d45a3dbc5bf813b59f506ebdb"}}
