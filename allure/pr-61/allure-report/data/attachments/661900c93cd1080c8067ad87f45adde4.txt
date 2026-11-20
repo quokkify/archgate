@@ -1,0 +1,19 @@
+============================================================
+Architecture verification (2 rules, 2.1 s total)
+============================================================
+[PASS]  MAIN+TEST   2140 ms  Issue index reader
+[ERROR] MAIN+TEST   2141 ms  Deleted issues
+    Cases refer to existing issues
+    Violations (2) "case is deleted":
+        - ISSUE-1
+        - ISSUE-2
+    Violations (1) "case has no title":
+        - ISSUE-3
+Model build: ArchUnitContext 1 ms, main 1593 ms, test 543 ms
+Shared: issue index 0 ms
+============================================================
+Gate FAILED: 2 rules, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
