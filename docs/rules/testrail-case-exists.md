@@ -17,7 +17,7 @@ Every `@TmsLink` case id on a TestNG test method, such as `C123` or `123`, must 
         - C1234567  PaymentTest.java:22 (project 3)
 ```
 
-The groups always come in this order, and empty ones are left out. Each line shows the first method that links the id and ` (+N more)` when several do. The foreign project is shown by its id.
+The groups always come in this order, and empty ones are left out. Each line shows the first method that links the id and `(+N more)` after it when several do. The foreign project is shown by its id.
 
 **Variables.** Read only when some test links a case, and then all four are required; none has a default:
 

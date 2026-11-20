@@ -17,7 +17,7 @@ Every `@TmsLink` case id on a TestNG test method, such as `C123` or `123`, must 
         - C1234567  PaymentTest.java:22 (project 3)
 ```
 
-The groups always come in this order, and empty ones are left out. Each line shows the first method that links the id and ` (+N more)` when several do. A soft-deleted case counts as deleted; the foreign project is shown by its id.
+The groups always come in this order, and empty ones are left out. Each line shows the first method that links the id and `(+N more)` after it when several do. A soft-deleted case counts as deleted; the foreign project is shown by its id. TestPlanIt shows the token only the cases of projects its user may read, so the foreign group lists only such cases; a case in a project the user cannot read is reported as not existing, so "does not exist" can also mean "not visible to the token".
 
 **Variables.** Read only when some test links a case, and then all three are required; none has a default:
 
