@@ -154,7 +154,14 @@ class ContextResolverTest {
         }
         ClassLoader loader =
                 new URLClassLoader(new URL[] {tempDir.toUri().toURL()}, ContextResolverTest.class.getClassLoader());
-        SimpleProjectLayout layout = new SimpleProjectLayout("x", List.of(), List.of(), List.of(), List.of(), loader);
+        SimpleProjectLayout layout = new SimpleProjectLayout(
+                "x",
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                loader,
+                new GateRunServices(new VariableEnvironment(name -> null, false)));
         return new ContextResolver(layout, loader);
     }
 

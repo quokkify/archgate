@@ -6,13 +6,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.ProjectLayout;
+import dev.quokkify.archgate.api.RunServices;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.testng.annotations.Test;
 
 class ArchUnitContextTest {
@@ -168,5 +172,49 @@ class ArchUnitContextTest {
     void providerIsRegisteredAsService() {
         assertThat(java.util.ServiceLoader.load(dev.quokkify.archgate.api.ContextProvider.class))
                 .anyMatch(ArchUnitContextProvider.class::isInstance);
+    }
+
+    @Test
+    void environmentDelegatesToLayout() {
+        Environment environment = new Environment() {
+            @Override
+            public Map<String, String> require(String... names) {
+                return Map.of();
+            }
+
+            @Override
+            public Optional<String> optional(String name) {
+                return Optional.empty();
+            }
+        };
+        RunServices services = () -> environment;
+        ProjectLayout layout = new ProjectLayout() {
+            @Override
+            public String rootPackage() {
+                return ROOT;
+            }
+
+            @Override
+            public List<Path> classDirs(Scope scope) {
+                return List.of();
+            }
+
+            @Override
+            public List<Path> sourceDirs(Scope scope) {
+                return List.of();
+            }
+
+            @Override
+            public ClassLoader classLoader() {
+                return ArchUnitContextTest.class.getClassLoader();
+            }
+
+            @Override
+            public RunServices services() {
+                return services;
+            }
+        };
+
+        assertThat(ArchUnitContexts.of(layout).environment()).isSameAs(environment);
     }
 }

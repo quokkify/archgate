@@ -12,6 +12,6 @@ public final class LaunchContextProvider implements ContextProvider<LaunchContex
 
     @Override
     public LaunchContext create(ProjectLayout layout) {
-        return new LaunchContext();
+        return new LaunchContext(layout.services().environment());
     }
 }

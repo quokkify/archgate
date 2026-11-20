@@ -91,7 +91,9 @@ public class CheckMojo extends AbstractMojo {
                 new ModuleDirs(mainClasses, testClasses, mainSources, testSources),
                 ownDirs(),
                 testClasspath(),
-                Optional.of(report));
+                Optional.of(report),
+                RunLookup::lookup,
+                Optional.empty());
     }
 
     private List<Path> ownDirs() {

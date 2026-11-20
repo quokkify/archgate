@@ -1,5 +1,6 @@
 package dev.quokkify.archgate.context.classgraph;
 
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
@@ -44,6 +45,11 @@ final class DirectoryClassGraphContext implements ClassGraphContext {
     @Override
     public String rootPackage() {
         return rootPackage;
+    }
+
+    @Override
+    public Environment environment() {
+        return layout.services().environment();
     }
 
     @Override

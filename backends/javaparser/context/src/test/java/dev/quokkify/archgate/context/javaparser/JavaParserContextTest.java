@@ -4,9 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.github.javaparser.ast.CompilationUnit;
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
+import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
 import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -26,7 +29,13 @@ class JavaParserContextTest {
 
     private static JavaParserContext context(String root, List<Path> main, List<Path> test) {
         SimpleProjectLayout layout = new SimpleProjectLayout(
-                root, List.of(), List.of(), main, test, JavaParserContextTest.class.getClassLoader());
+                root,
+                List.of(),
+                List.of(),
+                main,
+                test,
+                JavaParserContextTest.class.getClassLoader(),
+                new GateRunServices(new VariableEnvironment(name -> null, false)));
         return new JavaParserContextProvider().create(layout);
     }
 
@@ -144,5 +153,22 @@ class JavaParserContextTest {
 
         assertThatThrownBy(() -> context.relativePath(new CompilationUnit()))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void environmentDelegatesToLayout() {
+        VariableEnvironment environment = new VariableEnvironment(name -> null, false);
+        SimpleProjectLayout layout = new SimpleProjectLayout(
+                ROOT,
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                getClass().getClassLoader(),
+                new GateRunServices(environment));
+
+        Environment seen = new JavaParserContextProvider().create(layout).environment();
+
+        assertThat(seen).isSameAs(environment);
     }
 }

@@ -10,7 +10,9 @@ import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.classgraph.ClassGraphContext;
 import dev.quokkify.archgate.context.classgraph.ClassGraphContextProvider;
+import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
@@ -46,7 +48,8 @@ class ServiceFileConsistencyRuleTest {
                         test,
                         List.of(),
                         List.of(),
-                        ServiceFileConsistencyRuleTest.class.getClassLoader()));
+                        ServiceFileConsistencyRuleTest.class.getClassLoader(),
+                        new GateRunServices(new VariableEnvironment(name -> null, false))));
     }
 
     private static ClassGraphContext mainCase(String name) throws URISyntaxException {

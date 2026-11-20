@@ -41,7 +41,9 @@ public abstract class GateWorkAction implements WorkAction<GateWorkParameters> {
                         ExistingDirectories.of(parameters.getTestSourceDirs().getFiles())),
                 paths(parameters.getOwnDirs()),
                 paths(parameters.getRuleClasspath()),
-                Optional.of(parameters.getReportFile().get().getAsFile().toPath()));
+                Optional.of(parameters.getReportFile().get().getAsFile().toPath()),
+                RunLookup::lookup,
+                Optional.empty());
     }
 
     private static List<Path> paths(FileCollection files) {
