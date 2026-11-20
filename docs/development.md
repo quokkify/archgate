@@ -31,6 +31,7 @@ To fix formatting: `./gradlew spotlessApply`.
 | `./gradlew :testing:test -PfixtureTools=gradle` | the fixtures under Gradle only (`maven` for Maven only); nothing is compared; the Gradle plugin's caching and `archgateElements` tests always run through Gradle TestKit |
 | `./gradlew publishToItRepo` | publishes every module to `build/it-repo`, the local repository the integration tests resolve from |
 | `./gradlew :testing:test --tests '*DocsLinkTest'` | only the documentation checks |
+| `./gradlew :rules-archunit-testplanit:testplanitIntegrationTest -Parchgate.testplanitIt=true` | the TestPlanIt rules against a live TestPlanIt in Docker; see [Live TestPlanIt test](#live-testplanit-test) |
 
 `:testing:test` depends on `publishToItRepo`, so it always tests freshly built artifacts. `publishToItRepo` first empties `build/it-repo`, and the tests take the published jars and POMs as inputs, so they are up to date while the code and the fixtures are unchanged. Each Maven run gets a fresh local repository for the ArchGate snapshots and reads third-party plugins and libraries from `build/maven-it-cache` (`-Dmaven.repo.local.tail`), which the runs fill as they go, so each artifact is downloaded once until `clean`.
 
@@ -49,7 +50,7 @@ Each end-to-end build run writes its output to `testing/build/test-logs/<scenari
 
 ### Allure report
 
-Every test task writes Allure results to its module's `build/allure-results` and clears them before it runs. `build-logic` is an included build whose tests do not run with `./gradlew test`; run them with `./gradlew -p build-logic test`. The report groups tests by module and class. Each end-to-end scenario is a case named after the scenario, tagged with the build tools it ran, with one step per build run that carries the Maven or Gradle output and a compare step that carries both `report.txt` files.
+Every `test` task writes Allure results to its module's `build/allure-results` and clears them before it runs; any other test task, such as `testplanitIntegrationTest`, uses `build/allure-results-<task>` instead. `build-logic` is an included build whose tests do not run with `./gradlew test`; run them with `./gradlew -p build-logic test`. The report groups tests by module and class. Each end-to-end scenario is a case named after the scenario, tagged with the build tools it ran, with one step per build run that carries the Maven or Gradle output and a compare step that carries both `report.txt` files.
 
 In CI the `java` component runs a `checks` job (lint and `build -x test`) and one `test (<module>)` job per Gradle project, in parallel, each running that project's `check`. A failing module does not stop the others. Each module job uploads its own `build/allure-results` as the `allure-results-archgate-java-<module>` artifact, on success and on failure. The module list is `test_modules` in `.copier-answers.java.yml`; add a project with tests there. The `Allure report` workflow then builds one report from every module's artifact, comments on the pull request with a summary and publishes it to GitHub Pages under `allure/pr-<number>`. The workflow is rendered by the ci-kit `allure` module; change its settings through `.copier-answers.allure.yml` (see [ci-kit](ci-kit.md)). See [ADR 0007](adr/0007-per-module-test-jobs.md).
 
@@ -64,6 +65,16 @@ npx allure@3.22.1 open build/allure-report
 ### Shared fixtures
 
 `testing/fixtures/<scenario>/` holds the sources and the services file of one scenario, plus `fixture.properties` and `expected.properties`. The test support in `:testing` generates a `build.gradle` or a `pom.xml` around it, so the same scenario runs under both tools. To add a scenario, add a directory there; the end-to-end test picks it up. Mark a run that must end with an "unable to verify" error with `run.N.unableToVerify=true`, so the end-to-end test compares its message instead of a report.
+
+### Live TestPlanIt test
+
+`rules-archunit-testplanit` has one test class, `TestPlanItLiveIT`, that runs both TestPlanIt rules against a real TestPlanIt. It needs Docker with Compose v2 and never runs with `test` or `build`; run it explicitly:
+
+```
+./gradlew :rules-archunit-testplanit:testplanitIntegrationTest -Parchgate.testplanitIt=true
+```
+
+Without the property the task is skipped. The test copies `src/test/resources/testplanit/docker-compose.yml` (TestPlanIt with Postgres and Valkey only) to `backends/archunit/rules-testplanit/build/testplanit-it/` and starts it with `docker compose up -d --wait` under a unique project name (`archgate-tpi-<random>`), on a free port bound to 127.0.0.1 and with fresh random secrets. It then logs in as the seeded admin, mints an API token and creates an automated, a manual and a soft-deleted case in the demo project plus a case in a second project; the fixture `archfixtures.testplanitlive` links those ids and one that does not exist. After the class, even when it fails, `docker compose down -v --remove-orphans` removes the containers, the network and the volumes; a JVM shutdown hook does the same if the run is killed. Compose output goes to `build/testplanit-it/<project>.log`. The images stay cached: the first run pulls about 4 GB (`ghcr.io/testplanit/testplanit-selfhost`, `postgres:18-alpine`, `valkey/valkey:8-alpine`), later runs start in under a minute. Set `TESTPLANIT_VERSION` to try another TestPlanIt image; the test fails with a clear message if that version numbers the seeded cases differently.
 
 ## Version
 

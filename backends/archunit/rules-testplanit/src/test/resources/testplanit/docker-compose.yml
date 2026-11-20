@@ -1,0 +1,56 @@
+# A minimal TestPlanIt for the live test of the TestPlanIt rules: the app with Postgres and Valkey only.
+# The test passes the project name, the host port and fresh secrets; see TestPlanItLiveIT.
+x-testplanit-env: &testplanit-env
+  DATABASE_URL: postgresql://testplanit:testplanit@postgres:5432/testplanit?schema=public
+  NEXTAUTH_URL: http://127.0.0.1:${TESTPLANIT_PORT:?}
+  APP_URL: http://127.0.0.1:${TESTPLANIT_PORT:?}
+  NEXTAUTH_SECRET: ${TESTPLANIT_AUTH_SECRET:?}
+  ENCRYPTION_KEY: ${TESTPLANIT_ENCRYPTION_KEY:?}
+  VALKEY_URL: valkey://valkey:6379
+  ADMIN_EMAIL: ${TESTPLANIT_ADMIN_EMAIL:?}
+  ADMIN_NAME: Gate Admin
+  ADMIN_PASSWORD: ${TESTPLANIT_ADMIN_PASSWORD:?}
+  NODE_ENV: production
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: testplanit
+      POSTGRES_PASSWORD: testplanit
+      POSTGRES_DB: testplanit
+      POSTGRES_INITDB_ARGS: "--locale-provider=icu --icu-locale=und"
+      PGDATA: /var/lib/postgresql/data
+    tmpfs: [/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U testplanit -d testplanit"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  valkey:
+    image: valkey/valkey:8-alpine
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  # Runs the migrations and the seed, which creates the admin and a demo project with cases 1 to 5.
+  db-init:
+    image: ghcr.io/testplanit/testplanit-selfhost:${TESTPLANIT_VERSION:-1.2.4}
+    environment: *testplanit-env
+    command: ["tsx", "db/seed.ts"]
+    depends_on:
+      postgres: {condition: service_healthy}
+  app:
+    image: ghcr.io/testplanit/testplanit-selfhost:${TESTPLANIT_VERSION:-1.2.4}
+    environment: *testplanit-env
+    ports: ["127.0.0.1:${TESTPLANIT_PORT:?}:3000"]
+    depends_on:
+      db-init: {condition: service_completed_successfully}
+      valkey: {condition: service_healthy}
+    healthcheck:
+      # The server listens on the container's host name, not on 127.0.0.1.
+      test: ["CMD-SHELL", "wget -qO- http://$${HOSTNAME}:3000/api/health >/dev/null || exit 1"]
+      interval: 3s
+      timeout: 3s
+      retries: 100

@@ -60,10 +60,16 @@ tasks.withType(Test).configureEach {
         exceptionFormat = 'full'
     }
     addTestListener(new TestSummaryListener(path))
-    // Allure appends to its results directory; clear it so a report shows only this run.
-    outputs.dir(allureResults).withPropertyName('allureResults')
+    // Allure appends to its results directory; clear it so a report shows only this run. Only `test` writes to
+    // build/allure-results, which CI uploads; any other test task, such as an opt-in live test, gets its own
+    // directory so it neither wipes nor mixes into the results of `test`.
+    def results = name == 'test' ? allureResults : layout.buildDirectory.dir("allure-results-${name}")
+    if (name != 'test') {
+        systemProperty 'allure.results.directory', results.get().asFile.absolutePath
+    }
+    outputs.dir(results).withPropertyName('allureResults')
     doFirst {
-        allureResults.get().asFile.deleteDir()
+        results.get().asFile.deleteDir()
     }
 }
 
@@ -109,7 +115,7 @@ tasks.named('jacocoTestCoverageVerification') {
     }
 }
 
-if (path ==~ /:(api|core|context-.+|rules-.+)/) {
+if (path ==~ /:(api|core|context-.+|cases-.+|rules-.+)/) {
     tasks.named('check') {
         dependsOn tasks.named('jacocoTestCoverageVerification')
     }
@@ -125,7 +131,7 @@ tasks.named('jar', Jar) {
     }
 }
 
-if (path ==~ /:rules-.+/) {
+if (path ==~ /:(cases|rules)-.+/) {
     tasks.named('test', Test) {
         dependsOn tasks.named('jar')
         systemProperty 'archgate.rulesJar', tasks.named('jar', Jar).flatMap { it.archiveFile }.get().asFile.absolutePath
