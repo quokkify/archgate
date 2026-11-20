@@ -1,0 +1,1 @@
+{"id":"53ebc8419ae4e65832a23ee00af2c4e3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.nullPatternIsRejected","name":"Null pattern is rejected at construction","status":"passed","testResultsByEnv":{"default":"3afcbb730566d46bdb1f5f90d1ba7706"}}

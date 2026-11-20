@@ -1,0 +1,1 @@
+{"id":"74a8478ff67da2275c40c81690ac6b83.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredAnnotationTest.rejectsBlankOrUnqualified","name":"blank or unqualified names are rejected and named in the message","status":"passed","testResultsByEnv":{"default":"dda12fe8b73d8f4964d20b5a94d6cd12"}}

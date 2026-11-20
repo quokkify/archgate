@@ -1,0 +1,1 @@
+{"id":"61ac4e6936acf94392121a58ca4e4101.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.missingVariablesSkip","name":"Missing variables give the skip signal naming all four, before any request","status":"passed","testResultsByEnv":{"default":"80d5c9058a63af9b3288919166c31f90"}}

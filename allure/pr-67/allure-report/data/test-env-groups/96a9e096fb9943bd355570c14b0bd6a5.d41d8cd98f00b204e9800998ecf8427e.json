@@ -1,0 +1,1 @@
+{"id":"96a9e096fb9943bd355570c14b0bd6a5.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.jsonMapperAndMethodReferenceAreReported","name":"Tree building through JsonMapper and mutation by method reference are reported","status":"passed","testResultsByEnv":{"default":"da49866a9c3a8dc1707e0b5aea667f60"}}

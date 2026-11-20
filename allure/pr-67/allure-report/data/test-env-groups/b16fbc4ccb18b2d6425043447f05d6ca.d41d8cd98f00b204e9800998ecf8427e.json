@@ -1,0 +1,1 @@
+{"id":"b16fbc4ccb18b2d6425043447f05d6ca.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.plainPackageKeyIsRejected","name":"Package name without '..' or '*' is not a package pattern and is rejected","status":"passed","testResultsByEnv":{"default":"aa150a9cc2f76fc8a99bb9cd691714f5"}}

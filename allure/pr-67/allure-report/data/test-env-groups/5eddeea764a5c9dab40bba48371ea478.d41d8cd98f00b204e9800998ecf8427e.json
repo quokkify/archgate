@@ -1,0 +1,1 @@
+{"id":"5eddeea764a5c9dab40bba48371ea478.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.manualTypesAreConfigurable","name":"Configured manual types are never reported, and Manual is reported when not one of them","status":"passed","testResultsByEnv":{"default":"b3cb181c7fca84314116f38b711fbe2d"}}

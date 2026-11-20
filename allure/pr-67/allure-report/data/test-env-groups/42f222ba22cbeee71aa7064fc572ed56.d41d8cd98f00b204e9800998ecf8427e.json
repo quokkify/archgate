@@ -1,0 +1,1 @@
+{"id":"42f222ba22cbeee71aa7064fc572ed56.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.subclassAllowsSameClassDuplicates","name":"Subclass allowing same-class duplicates passes on a class with an internal duplicate only","status":"passed","testResultsByEnv":{"default":"3b3f275f31b9659bcc486d8c7542a4f8"}}

@@ -1,0 +1,1 @@
+{"id":"a0575baff68470dcb12340c609401ee5.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.suffixMatchesOnSlashBoundary","name":"Regression guard: a path only ending with the same text does not match","status":"passed","testResultsByEnv":{"default":"ebfa25c298a335ee15a744a1fa6e16c2"}}

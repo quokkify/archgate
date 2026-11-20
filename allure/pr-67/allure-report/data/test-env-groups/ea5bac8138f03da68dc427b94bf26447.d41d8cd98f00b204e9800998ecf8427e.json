@@ -1,0 +1,1 @@
+{"id":"ea5bac8138f03da68dc427b94bf26447.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.verifyReportsViolationWithContract","name":"verify reports the violation with the contract naming the layer and forbidden packages","status":"passed","testResultsByEnv":{"default":"0e9f10b11ddbe3adcb947a931402e507"}}

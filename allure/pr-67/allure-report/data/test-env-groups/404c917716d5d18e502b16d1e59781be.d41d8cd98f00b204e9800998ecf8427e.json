@@ -1,0 +1,1 @@
+{"id":"404c917716d5d18e502b16d1e59781be.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.nonTestMethodsAreNotChecked","name":"Non-test methods are not checked","status":"passed","testResultsByEnv":{"default":"1883de075706030baa518a7d2d58b6eb"}}

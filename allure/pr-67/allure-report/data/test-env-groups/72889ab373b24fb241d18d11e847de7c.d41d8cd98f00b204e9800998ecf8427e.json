@@ -1,0 +1,1 @@
+{"id":"72889ab373b24fb241d18d11e847de7c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.unsetOrBlankVariableIsEmpty","name":"An unset or blank variable means a full check","status":"passed","testResultsByEnv":{"default":"ce061604c89ca89afbfe88026e85d917"}}

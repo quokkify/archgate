@@ -1,0 +1,1 @@
+{"id":"ee2acf7268f74091aec83593d26644e9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.concurrentCallsLoadOnce","name":"Parallel callers share one load","status":"passed","testResultsByEnv":{"default":"6d3b4337581c4fc998227d32e45faa2b"}}

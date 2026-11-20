@@ -1,0 +1,1 @@
+{"id":"97758c3dd1ea325680dff320fd35fe29.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.mainScopeRuleVerifiesMainClasses","name":"A rule over main classes reads the main view with its supertypes and allowlist","status":"passed","testResultsByEnv":{"default":"501c820a45dde7ecab5906302c0c51d1"}}

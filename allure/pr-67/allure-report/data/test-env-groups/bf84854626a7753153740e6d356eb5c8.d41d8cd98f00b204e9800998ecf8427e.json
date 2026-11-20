@@ -1,0 +1,1 @@
+{"id":"bf84854626a7753153740e6d356eb5c8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.arrayClassLiteralIsReported","name":"Regression guard: an array class literal of a Jackson tree type is reported","status":"passed","testResultsByEnv":{"default":"192692b453edd7324aca753f034f1f3a"}}

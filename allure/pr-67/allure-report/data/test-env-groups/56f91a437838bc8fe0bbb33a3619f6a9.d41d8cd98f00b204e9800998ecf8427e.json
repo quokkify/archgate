@@ -1,0 +1,1 @@
+{"id":"56f91a437838bc8fe0bbb33a3619f6a9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.stopsOnShortPage","name":"A short non-empty page ends the suite","status":"passed","testResultsByEnv":{"default":"c524233d65245a94dc0b2284b247db5d"}}
