@@ -5,7 +5,7 @@
 Use typed models instead of the Jackson tree API (`JsonNode`, `readTree`, `valueToTree`, …), so the shape of each request and response stays checked by the compiler. The rule reports a class that:
 
 - has a field, parameter or return type that is, or has a type argument that is, `JsonNode`, one of its subtypes such as `ObjectNode`, or `JsonNodeFactory`;
-- extends a node type, or extends a generic type with a node type as argument, such as `new TypeReference<ObjectNode>() {}`;
+- extends a node type, or extends or implements a generic type with a node type as argument, such as `new TypeReference<ObjectNode>() {}` or `interface NodeSupplier extends Supplier<JsonNode>`;
 - names a node type as a class literal, such as `mapper.readValue(json, JsonNode.class)`;
 - builds nodes: `JsonNodeFactory`, a node constructor, `valueOf`, `getInstance`, or a node constant such as `BooleanNode.TRUE`;
 - mutates a node: methods starting with `put`, `set`, `add`, `insert`, `remove`, `replace`, `retain` or `with`;

@@ -124,6 +124,13 @@ public class JsonTreeUsageRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("WrapperTreeMutation", "ArrayNode.add"));
     }
 
+    @Test(description = "Regression guard: a Jackson tree type as argument of a generic interface is reported")
+    public void interfaceTypeArgumentIsReported() {
+        assertThat(usageViolations())
+                .anySatisfy(detail -> assertThat(detail).contains("NodeSupplier", "supertype", "JsonNode"))
+                .noneSatisfy(detail -> assertThat(detail).contains("TextSupplier"));
+    }
+
     @Test(description = "An own subclass of a Jackson tree type is reported")
     public void treeSubclassIsReported() {
         assertThat(usageViolations()).anySatisfy(detail -> assertThat(detail).contains("CustomJsonNode", "extends"));

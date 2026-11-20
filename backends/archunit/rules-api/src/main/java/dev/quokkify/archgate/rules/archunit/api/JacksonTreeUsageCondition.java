@@ -12,6 +12,7 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Reports every way a class holds, builds or mutates a Jackson tree. Jackson types are named as strings, so this module
@@ -48,9 +49,8 @@ final class JacksonTreeUsageCondition extends ArchCondition<JavaClass> {
                     JSON_NODE,
                     javaClass.getSourceCodeLocation());
         }
-        javaClass
-                .getSuperclass()
-                .ifPresent(supertype -> treeTypeArgumentsIn(supertype)
+        Stream.concat(javaClass.getSuperclass().stream(), javaClass.getInterfaces().stream())
+                .forEach(supertype -> treeTypeArgumentsIn(supertype)
                         .forEach(type -> violated(
                                 events,
                                 javaClass,
