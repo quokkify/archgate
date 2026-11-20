@@ -1,0 +1,43 @@
+package dev.quokkify.archgate.rules.archunit.api;
+
+import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+import dev.quokkify.archgate.context.archunit.ArchUnitContexts;
+import dev.quokkify.archgate.core.GateRunServices;
+import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.util.List;
+
+final class FixtureContexts {
+
+    private FixtureContexts() {}
+
+    static ArchUnitContext of(String fixturePackage) {
+        Path classes = classesDir();
+        return of(fixturePackage, List.of(classes), List.of(classes));
+    }
+
+    static ArchUnitContext of(String fixturePackage, List<Path> mainDirs, List<Path> testDirs) {
+        return ArchUnitContexts.of(new SimpleProjectLayout(
+                fixturePackage,
+                mainDirs,
+                testDirs,
+                List.of(),
+                List.of(),
+                FixtureContexts.class.getClassLoader(),
+                new GateRunServices(new VariableEnvironment(name -> null, false))));
+    }
+
+    static Path classesDir() {
+        try {
+            return Path.of(FixtureContexts.class
+                    .getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI());
+        } catch (URISyntaxException e) {
+            throw new IllegalStateException("Cannot locate the test class directory", e);
+        }
+    }
+}

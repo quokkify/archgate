@@ -27,6 +27,10 @@ java_components:
         module: ":rules-archunit-tms"
         results: backends/archunit/rules-tms/build/allure-results
         test_command: "./gradlew :rules-archunit-tms:check --console=plain"
+      - id: rules-archunit-api
+        module: ":rules-archunit-api"
+        results: backends/archunit/rules-api/build/allure-results
+        test_command: "./gradlew :rules-archunit-api:check --console=plain"
       - id: context-javaparser
         module: ":context-javaparser"
         results: backends/javaparser/context/build/allure-results
