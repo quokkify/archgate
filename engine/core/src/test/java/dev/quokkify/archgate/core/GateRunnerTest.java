@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.testng.annotations.Test;
 
@@ -249,6 +250,125 @@ class GateRunnerTest {
 
         assertThat(result.failsOn(Optional.of(Severity.INFO))).isFalse();
         assertThat(result.worst()).isEmpty();
+    }
+
+    @Test
+    void sharedTimeExcludedFromRuleDuration() {
+        GateRunServices services = sharedServices();
+        CountDownLatch started = new CountDownLatch(2);
+        Consumer<TestRules.NoContext> body = context -> {
+            started.countDown();
+            awaitQuietly(started);
+            services.shared("load", () -> {
+                sleep(300);
+                return 1;
+            });
+        };
+
+        GateResult result = GateRunner.run(
+                List.of(new TestRules("builder", Severity.ERROR, body), new TestRules("waiter", Severity.ERROR, body)),
+                TestRules.resolver(services),
+                TestRules.NOT_CI);
+
+        assertThat(result.outcomes())
+                .hasSize(2)
+                .allSatisfy(outcome -> assertThat(outcome.duration()).isLessThan(Duration.ofMillis(150)));
+        assertThat(result.sharedBuildTimes()).containsOnlyKeys("load");
+        assertThat(result.sharedBuildTimes().get("load")).isGreaterThanOrEqualTo(Duration.ofMillis(300));
+    }
+
+    @Test
+    void ruleTimeOutsideSharedIsStillMeasured() {
+        GateRunServices services = sharedServices();
+        ArchitectureRule<?> rule = new TestRules("own work", Severity.ERROR, context -> {
+            services.shared("load", () -> 1);
+            sleep(200);
+        });
+
+        GateResult result = GateRunner.run(List.of(rule), TestRules.resolver(services), TestRules.NOT_CI);
+
+        assertThat(result.outcomes().get(0).duration()).isGreaterThanOrEqualTo(Duration.ofMillis(200));
+    }
+
+    @Test
+    void noSharedValuesMeansNoSharedBuildTimes() {
+        GateResult result =
+                GateRunner.run(List.of(satisfied("plain", Severity.ERROR)), TestRules.resolver(), TestRules.NOT_CI);
+
+        assertThat(result.sharedBuildTimes()).isEmpty();
+    }
+
+    @Test
+    void sharedUnavailableSkipsEveryUser() {
+        GateRunServices services = sharedServices();
+        AtomicInteger builds = new AtomicInteger();
+        Consumer<TestRules.NoContext> body = context -> services.shared("tracker", () -> {
+            builds.incrementAndGet();
+            throw ExternalDependencyUnavailable.serviceUnavailable("Tracker", new IOException("down"));
+        });
+
+        GateResult result = GateRunner.run(
+                List.of(new TestRules("first", Severity.ERROR, body), new TestRules("second", Severity.ERROR, body)),
+                TestRules.resolver(services),
+                TestRules.NOT_CI);
+
+        assertThat(result.outcomes()).hasSize(2).allSatisfy(outcome -> {
+            assertThat(outcome.externallySkipped()).isTrue();
+            assertThat(outcome.externalSkip().message()).isEqualTo("Tracker is unavailable: down");
+        });
+        assertThat(builds).hasValue(1);
+    }
+
+    @Test
+    void sharedUnavailableInCiNamesTheFirstRule() {
+        GateRunServices services = sharedServices();
+        Consumer<TestRules.NoContext> body = context -> services.shared("tracker", () -> {
+            throw ExternalDependencyUnavailable.serviceUnavailable("Tracker", new IOException("down"));
+        });
+
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(new TestRules("a", Severity.ERROR, body), new TestRules("b", Severity.ERROR, body)),
+                        TestRules.resolver(services),
+                        TestRules.CI))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessage("Rule 'a' cannot run in CI (CI is set): Tracker is unavailable: down")
+                .satisfies(error -> assertThat(error.getSuppressed())
+                        .singleElement()
+                        .satisfies(next -> assertThat(next).hasMessageStartingWith("Rule 'b'")));
+    }
+
+    // Regression guard: one cached failure reaching several rules is reported once, never suppressed twice.
+    @Test
+    void sharedUnableToVerifyIsReportedOnce() {
+        GateRunServices services = sharedServices();
+        UnableToVerifyError cached = new UnableToVerifyError("cannot load");
+        Consumer<TestRules.NoContext> body = context -> services.shared("load", () -> {
+            throw cached;
+        });
+        UnableToVerifyError other = new UnableToVerifyError("other");
+
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(
+                                throwing("a", Severity.ERROR, other),
+                                new TestRules("b", Severity.ERROR, body),
+                                new TestRules("c", Severity.ERROR, body)),
+                        TestRules.resolver(services),
+                        TestRules.NOT_CI))
+                .isSameAs(other)
+                .satisfies(error -> assertThat(error.getSuppressed()).containsExactly(cached));
+        assertThat(cached.getSuppressed()).isEmpty();
+    }
+
+    private static GateRunServices sharedServices() {
+        return new GateRunServices(new VariableEnvironment(name -> null, false));
+    }
+
+    private static void awaitQuietly(CountDownLatch latch) {
+        try {
+            latch.await(5, TimeUnit.SECONDS);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private static ArchitectureRule<?> unavailable(String name, ExternalDependencyUnavailable signal) {

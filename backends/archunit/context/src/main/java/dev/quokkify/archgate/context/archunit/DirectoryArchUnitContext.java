@@ -58,6 +58,11 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
     }
 
     @Override
+    public <T> T shared(String name, Supplier<T> build) {
+        return layout.services().shared(name, build);
+    }
+
+    @Override
     public ProjectLayout layout() {
         return layout;
     }

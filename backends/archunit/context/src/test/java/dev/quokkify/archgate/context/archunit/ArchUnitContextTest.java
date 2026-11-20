@@ -14,9 +14,11 @@ import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 import org.testng.annotations.Test;
 
 class ArchUnitContextTest {
@@ -188,7 +190,34 @@ class ArchUnitContextTest {
             }
         };
         RunServices services = () -> environment;
-        ProjectLayout layout = new ProjectLayout() {
+
+        assertThat(ArchUnitContexts.of(layoutWith(services)).environment()).isSameAs(environment);
+    }
+
+    @Test
+    void sharedDelegatesToLayout() {
+        List<String> requested = new ArrayList<>();
+        RunServices services = new RunServices() {
+            @Override
+            public Environment environment() {
+                throw new AssertionError("not used");
+            }
+
+            @Override
+            public <T> T shared(String name, Supplier<T> build) {
+                requested.add(name);
+                return build.get();
+            }
+        };
+
+        String seen = ArchUnitContexts.of(layoutWith(services)).shared("load", () -> "value");
+
+        assertThat(seen).isEqualTo("value");
+        assertThat(requested).containsExactly("load");
+    }
+
+    private static ProjectLayout layoutWith(RunServices services) {
+        return new ProjectLayout() {
             @Override
             public String rootPackage() {
                 return ROOT;
@@ -214,7 +243,5 @@ class ArchUnitContextTest {
                 return services;
             }
         };
-
-        assertThat(ArchUnitContexts.of(layout).environment()).isSameAs(environment);
     }
 }

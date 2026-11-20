@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 final class DirectoryJavaParserContext implements JavaParserContext {
@@ -46,6 +47,11 @@ final class DirectoryJavaParserContext implements JavaParserContext {
     @Override
     public Environment environment() {
         return layout.services().environment();
+    }
+
+    @Override
+    public <T> T shared(String name, Supplier<T> build) {
+        return layout.services().shared(name, build);
     }
 
     @Override

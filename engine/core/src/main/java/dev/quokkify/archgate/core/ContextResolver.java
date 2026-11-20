@@ -60,6 +60,18 @@ public final class ContextResolver implements AutoCloseable {
         return Map.copyOf(merged);
     }
 
+    /**
+     * Returns how long each value shared through the run services of the layout took to build.
+     *
+     * @return build durations by name, sorted by name; empty when the layout has no {@link GateRunServices}
+     */
+    public Map<String, Duration> sharedBuildTimes() {
+        if (layout instanceof SimpleProjectLayout simple && simple.services() instanceof GateRunServices services) {
+            return services.sharedBuildTimes();
+        }
+        return Map.of();
+    }
+
     @Override
     public void close() {
         UnableToVerifyError failure = null;

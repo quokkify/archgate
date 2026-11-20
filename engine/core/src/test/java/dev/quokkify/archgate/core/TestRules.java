@@ -51,14 +51,12 @@ record TestRules(String name, Severity severity, Consumer<NoContext> body)
     }
 
     static ContextResolver resolver() {
+        return resolver(new GateRunServices(new VariableEnvironment(name -> null, false)));
+    }
+
+    static ContextResolver resolver(GateRunServices services) {
         SimpleProjectLayout layout = new SimpleProjectLayout(
-                "x",
-                List.of(),
-                List.of(),
-                List.of(),
-                List.of(),
-                TestRules.class.getClassLoader(),
-                new GateRunServices(new VariableEnvironment(name -> null, false)));
+                "x", List.of(), List.of(), List.of(), List.of(), TestRules.class.getClassLoader(), services);
         return new ContextResolver(layout, layout.classLoader());
     }
 
