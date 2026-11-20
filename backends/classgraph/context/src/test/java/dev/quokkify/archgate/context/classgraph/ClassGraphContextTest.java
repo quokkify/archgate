@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.quokkify.archgate.api.ContextProvider;
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
+import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
 import io.github.classgraph.Resource;
 import io.github.classgraph.ScanResult;
 import java.net.URISyntaxException;
@@ -43,7 +46,13 @@ class ClassGraphContextTest {
     private static ClassGraphContext context(List<Path> main, List<Path> test) {
         return new ClassGraphContextProvider()
                 .create(new SimpleProjectLayout(
-                        ROOT, main, test, List.of(), List.of(), ClassGraphContextTest.class.getClassLoader()));
+                        ROOT,
+                        main,
+                        test,
+                        List.of(),
+                        List.of(),
+                        ClassGraphContextTest.class.getClassLoader(),
+                        new GateRunServices(new VariableEnvironment(name -> null, false))));
     }
 
     private static ClassGraphContext context() throws URISyntaxException {
@@ -127,7 +136,8 @@ class ClassGraphContextTest {
                         List.of(),
                         List.of(),
                         List.of(),
-                        ClassGraphContextTest.class.getClassLoader()));
+                        ClassGraphContextTest.class.getClassLoader(),
+                        new GateRunServices(new VariableEnvironment(name -> null, false))));
         try (other) {
             assertThat(other.scan(Scope.MAIN).getAllStandardClasses()).isEmpty();
         }
@@ -177,5 +187,22 @@ class ClassGraphContextTest {
         ServiceLoader.load(ContextProvider.class).forEach(provider -> types.add(provider.type()));
 
         assertThat(types).containsExactly(ClassGraphContext.class);
+    }
+
+    @Test
+    void environmentDelegatesToLayout() {
+        VariableEnvironment environment = new VariableEnvironment(name -> null, false);
+        SimpleProjectLayout layout = new SimpleProjectLayout(
+                ROOT,
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                getClass().getClassLoader(),
+                new GateRunServices(environment));
+
+        Environment seen = new ClassGraphContextProvider().create(layout).environment();
+
+        assertThat(seen).isSameAs(environment);
     }
 }

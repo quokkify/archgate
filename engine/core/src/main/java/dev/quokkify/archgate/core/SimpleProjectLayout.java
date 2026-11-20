@@ -1,6 +1,7 @@
 package dev.quokkify.archgate.core;
 
 import dev.quokkify.archgate.api.ProjectLayout;
+import dev.quokkify.archgate.api.RunServices;
 import dev.quokkify.archgate.api.Scope;
 import java.nio.file.Path;
 import java.util.List;
@@ -11,7 +12,8 @@ public record SimpleProjectLayout(
         List<Path> testClassDirs,
         List<Path> mainSourceDirs,
         List<Path> testSourceDirs,
-        ClassLoader classLoader)
+        ClassLoader classLoader,
+        RunServices services)
         implements ProjectLayout {
 
     @Override

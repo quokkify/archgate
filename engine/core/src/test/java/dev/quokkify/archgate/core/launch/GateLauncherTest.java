@@ -4,7 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import archfixtures.launch.CleanLaunchRule;
+import archfixtures.launch.DirectlyUnavailableLaunchRule;
+import archfixtures.launch.EnvironmentHoldingLaunchRule;
 import archfixtures.launch.LaunchContextProvider;
+import archfixtures.launch.OptionalReadingLaunchRule;
+import archfixtures.launch.ReportBlockingLaunchRule;
+import archfixtures.launch.RequireThenFailLaunchRule;
+import archfixtures.launch.RequiringLaunchRule;
+import archfixtures.launch.UnavailableServiceLaunchRule;
 import archfixtures.launch.UnregisteredLaunchRule;
 import archfixtures.launch.WarningLaunchRule;
 import dev.quokkify.archgate.api.ArchitectureRule;
@@ -21,6 +28,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 class GateLauncherTest {
@@ -112,6 +121,8 @@ class GateLauncherTest {
                     dirs(),
                     List.of(),
                     List.of(rulesDir(env.tempDir, CleanLaunchRule.class)),
+                    Optional.empty(),
+                    name -> null,
                     Optional.empty());
 
             assertThatThrownBy(() -> GateLauncher.run(bad, env.sink)).isInstanceOf(UnableToVerifyError.class);
@@ -170,7 +181,9 @@ class GateLauncherTest {
                     dirs(),
                     List.of(),
                     List.of(rulesDir(env.tempDir, CleanLaunchRule.class)),
-                    Optional.of(report));
+                    Optional.of(report),
+                    name -> null,
+                    Optional.empty());
 
             assertThatThrownBy(() -> GateLauncher.run(bad, env.sink)).isInstanceOf(UnableToVerifyError.class);
 
@@ -178,9 +191,239 @@ class GateLauncherTest {
         }
     }
 
+    @Test
+    void invalidSwitchFailsWithoutExternalRules() {
+        try (Env env = new Env()) {
+            Path report = env.tempDir.resolve("gate.txt");
+            Function<String, String> lookup = name -> "archgate.offline".equals(name) ? "maybe" : null;
+
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(env.tempDir, "WARNING", List.of(), report, CleanLaunchRule.class, lookup, none()),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("archgate.offline");
+
+            assertThat(report).doesNotExist();
+            assertThat(env.texts).isEmpty();
+        }
+    }
+
+    @Test
+    void offlineWarningLoggedInCi() {
+        try (Env env = new Env()) {
+            Function<String, String> lookup = name -> switch (name) {
+                case "CI" -> "true";
+                case "archgate.offline" -> "true";
+                default -> null;
+            };
+
+            GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "WARNING",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            CleanLaunchRule.class,
+                            lookup,
+                            none()),
+                    env.sink);
+
+            assertThat(env.texts.get(0)).startsWith("archgate.offline=true is ignored in CI");
+            assertThat(env.levels.get(0)).isEqualTo(Severity.WARNING);
+        }
+    }
+
+    @Test
+    void skipRaisesReportLevelToWarning() {
+        try (Env env = new Env()) {
+            GateResult result = GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "ERROR",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            RequiringLaunchRule.class,
+                            name -> null,
+                            none()),
+                    env.sink);
+
+            assertThat(result.externallySkipped()).isEqualTo(1);
+            assertThat(env.levels).isNotEmpty().containsOnly(Severity.WARNING);
+        }
+    }
+
+    @Test
+    void stateFileRecordsEnvironmentRead() throws IOException {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("state/env.txt");
+
+            GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "WARNING",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            OptionalReadingLaunchRule.class,
+                            name -> null,
+                            Optional.of(state)),
+                    env.sink);
+            assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=true");
+
+            GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "WARNING",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            CleanLaunchRule.class,
+                            name -> null,
+                            Optional.of(state)),
+                    env.sink);
+            assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=false");
+        }
+    }
+
+    @DataProvider
+    static Object[][] environmentTouchingRules() {
+        return new Object[][] {
+            {UnavailableServiceLaunchRule.class},
+            {EnvironmentHoldingLaunchRule.class},
+            {DirectlyUnavailableLaunchRule.class}
+        };
+    }
+
+    /** Regression guard: a rule that touched the environment without require or optional must not be reused. */
+    @Test(dataProvider = "environmentTouchingRules")
+    void stateFileRecordsEveryRunThatTouchedTheEnvironment(Class<?> rule) throws IOException {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+
+            GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "WARNING",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            rule,
+                            name -> null,
+                            Optional.of(state)),
+                    env.sink);
+
+            assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=true");
+        }
+    }
+
+    @Test
+    void stateFileIsWrittenWhenTheGateFails() throws IOException {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(
+                                    env.tempDir,
+                                    "WARNING",
+                                    List.of(),
+                                    env.tempDir.resolve("gate.txt"),
+                                    WarningLaunchRule.class,
+                                    name -> null,
+                                    Optional.of(state)),
+                            env.sink))
+                    .isInstanceOf(GateFailure.class);
+
+            assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=false");
+        }
+    }
+
+    @Test
+    void stateFileIsNotWrittenWhenUnableToVerify() throws IOException {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+            Files.writeString(state, "readEnvironment=true");
+
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(
+                                    env.tempDir,
+                                    "WARNING",
+                                    List.of(),
+                                    env.tempDir.resolve("gate.txt"),
+                                    RequireThenFailLaunchRule.class,
+                                    name -> "value",
+                                    Optional.of(state)),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class);
+
+            assertThat(state).doesNotExist();
+        }
+    }
+
+    /** Regression guard: a report that cannot be written must not leave a state file behind. */
+    @Test
+    void stateFileIsNotWrittenWhenTheReportCannotBeWritten() {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+            Path blocker = env.tempDir.resolve("blocker");
+
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(
+                                    env.tempDir,
+                                    "WARNING",
+                                    List.of(),
+                                    blocker.resolve("gate.txt"),
+                                    ReportBlockingLaunchRule.class,
+                                    name -> "BLOCK".equals(name) ? blocker.toString() : null,
+                                    Optional.of(state)),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageStartingWith("Cannot write the report file");
+
+            assertThat(state).doesNotExist();
+        }
+    }
+
+    /** Regression guard: a rule that required a variable and then failed for another reason must not be skipped. */
+    @Test
+    void requireThenUnrelatedFailureIsUnableToVerifyNotSkip() {
+        try (Env env = new Env()) {
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(
+                                    env.tempDir,
+                                    "WARNING",
+                                    List.of(),
+                                    env.tempDir.resolve("gate.txt"),
+                                    RequireThenFailLaunchRule.class,
+                                    name -> "X".equals(name) ? "value" : null,
+                                    none()),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageContaining("unrelated failure after require");
+        }
+    }
+
+    private static Optional<Path> none() {
+        return Optional.empty();
+    }
+
     private static LaunchRequest request(Path tempDir, String failOn, List<Path> ownDirs, Path report, Class<?> rule) {
+        return request(tempDir, failOn, ownDirs, report, rule, name -> null, Optional.empty());
+    }
+
+    private static LaunchRequest request(
+            Path tempDir,
+            String failOn,
+            List<Path> ownDirs,
+            Path report,
+            Class<?> rule,
+            Function<String, String> lookup,
+            Optional<Path> stateFile) {
         return new LaunchRequest(
-                "com.example", failOn, dirs(), ownDirs, List.of(rulesDir(tempDir, rule)), Optional.of(report));
+                "com.example",
+                failOn,
+                dirs(),
+                ownDirs,
+                List.of(rulesDir(tempDir, rule)),
+                Optional.of(report),
+                lookup,
+                stateFile);
     }
 
     private static ModuleDirs dirs() {

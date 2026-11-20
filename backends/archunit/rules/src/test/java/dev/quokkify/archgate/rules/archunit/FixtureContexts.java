@@ -2,7 +2,9 @@ package dev.quokkify.archgate.rules.archunit;
 
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
 import dev.quokkify.archgate.context.archunit.ArchUnitContexts;
+import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.util.List;
@@ -18,7 +20,13 @@ final class FixtureContexts {
 
     static ArchUnitContext of(String fixturePackage, List<Path> mainDirs, List<Path> testDirs) {
         return ArchUnitContexts.of(new SimpleProjectLayout(
-                fixturePackage, mainDirs, testDirs, List.of(), List.of(), FixtureContexts.class.getClassLoader()));
+                fixturePackage,
+                mainDirs,
+                testDirs,
+                List.of(),
+                List.of(),
+                FixtureContexts.class.getClassLoader(),
+                new GateRunServices(new VariableEnvironment(name -> null, false))));
     }
 
     static Path classesDir() {

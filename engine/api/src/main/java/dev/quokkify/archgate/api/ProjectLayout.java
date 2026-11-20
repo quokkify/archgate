@@ -39,4 +39,18 @@ public interface ProjectLayout {
      * @return the class loader of the gate module's test runtime
      */
     ClassLoader classLoader();
+
+    /**
+     * Returns the services shared by the whole run, such as the {@link Environment}.
+     *
+     * <p>Implementations that take part in a run with rules that read the environment must override this.
+     *
+     * @return the run services
+     * @throws UnableToVerifyError by default, because the layout provides none
+     */
+    default RunServices services() {
+        throw new UnableToVerifyError(
+                "%s provides no run services, so rules that read the environment or share values cannot run with it. Update it to implement ProjectLayout.services()."
+                        .formatted(getClass().getName()));
+    }
 }

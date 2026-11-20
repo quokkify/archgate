@@ -166,6 +166,44 @@ class ReportFormatterTest {
         assertThat(ReportFormatter.format(result, Optional.empty())).contains("Model build: all 3 ms, main 5 ms");
     }
 
+    @Test
+    void skipRowsBetweenPassAndFindings() {
+        RuleOutcome pass = new RuleOutcome(TestRules.satisfied("a pass", Severity.ERROR), null, Duration.ZERO);
+        RuleOutcome skip = skipped("m skip");
+        RuleOutcome finding = new RuleOutcome(TestRules.satisfied("z fail", Severity.INFO), BOOM, Duration.ZERO);
+
+        List<String> lines = ReportFormatter.format(result(finding, skip, pass), Optional.empty());
+
+        assertThat(lines)
+                .containsSubsequence(
+                        String.format("%-7s %-9s %6d ms  %s", "[PASS]", "MAIN+TEST", 0, "a pass"),
+                        String.format("%-7s %-9s %6d ms  %s", "[SKIP]", "MAIN+TEST", 5, "m skip"),
+                        "    Missing T. Pass them as -DNAME=value or as environment variables.",
+                        "    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.",
+                        String.format("%-7s %-9s %6d ms  %s", "[INFO]", "MAIN+TEST", 0, "z fail"));
+    }
+
+    @Test
+    void verdictCountsSkips() {
+        GateResult result = result(
+                new RuleOutcome(TestRules.satisfied("ok", Severity.ERROR), null, Duration.ZERO), skipped("skip"));
+
+        assertThat(ReportFormatter.counts(result)).isEqualTo("2 rules, no findings, 1 skipped");
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .contains("Gate PASSED: 2 rules, no findings, 1 skipped");
+    }
+
+    private static RuleOutcome skipped(String name) {
+        return new RuleOutcome(
+                TestRules.satisfied(name, Severity.ERROR),
+                null,
+                Duration.ofMillis(5),
+                Set.of(),
+                new ExternalSkip(
+                        "Missing T. Pass them as -DNAME=value or as environment variables.",
+                        "Skipped because this is not a CI run (no CI variable set); in CI this fails the build."));
+    }
+
     private static GateResult result(RuleOutcome... outcomes) {
         return new GateResult(List.of(outcomes), Map.of(), 7);
     }

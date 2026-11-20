@@ -5,6 +5,7 @@ import com.github.javaparser.ParseResult;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.nodeTypes.NodeWithName;
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
@@ -40,6 +41,11 @@ final class DirectoryJavaParserContext implements JavaParserContext {
     DirectoryJavaParserContext(ProjectLayout layout) {
         this.layout = Objects.requireNonNull(layout, "layout");
         this.rootPackage = Objects.requireNonNull(layout.rootPackage(), "rootPackage");
+    }
+
+    @Override
+    public Environment environment() {
+        return layout.services().environment();
     }
 
     @Override

@@ -127,7 +127,7 @@ dependencies {
 
 **2. List the rules to run** in `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`, the same file as for Maven.
 
-**3. Run** `./gradlew check`. The task `archgateCheck` (group `verification`) depends on `testClasses`, is wired into `check` and prints the same report as the Maven plugin. The report is also written to `build/reports/archgate/report.txt`. The task is cacheable and compatible with the configuration cache.
+**3. Run** `./gradlew check`. The task `archgateCheck` (group `verification`) depends on `testClasses`, is wired into `check` and prints the same report as the Maven plugin. The report is also written to `build/reports/archgate/report.txt`. The task is incremental, not build-cached, and compatible with the configuration cache.
 
 `rootPackage` is required. Modules in `modules(...)` must apply the plugin themselves, and modules that only expose classes to a gate set `archgate { skip = true }`. See [Configuration](docs/configuration.md#gradle).
 
@@ -215,7 +215,7 @@ Context available inside `verify`, per backend:
 | `ClassGraphContext` | `scan(Scope)` | the ClassGraph `ScanResult` of the scope's class directories |
 | | `layout()` | the `ProjectLayout` |
 
-A rule reports violations by throwing `ArchitectureViolation`, which `checkViolations` does for you, or an ArchUnit `AssertionError`. If a rule has nothing to check, for example an empty class view, it throws `UnableToVerifyError`. That always fails the build. A rule over main and test reads its views through `scopesToCheck(context)`, which skips an empty scope and fails only when all of them are empty (override `requireAllScopes()` to fail on any empty scope); see [Writing a backend or rule](docs/extending.md#rules).
+A rule reports violations by throwing `ArchitectureViolation`, which `checkViolations` does for you, or an ArchUnit `AssertionError`. If a rule has nothing to check, for example an empty class view, it throws `UnableToVerifyError`. That always fails the build. A rule over main and test reads its views through `scopesToCheck(context)`, which skips an empty scope and fails only when all of them are empty (override `requireAllScopes()` to fail on any empty scope); see [Writing a backend or rule](docs/extending.md#rules). A rule that needs a token or a service reads it through `context.environment()` and is skipped outside CI when it is missing; see [Rules that call external services](docs/configuration.md#rules-that-call-external-services).
 
 ## More
 

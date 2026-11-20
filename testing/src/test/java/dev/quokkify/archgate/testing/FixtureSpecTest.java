@@ -117,6 +117,37 @@ class FixtureSpecTest {
     }
 
     @Test
+    void systemPropertiesAreSharedVerbatimByBothTools() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path dir = tempDir.path();
+            Files.writeString(
+                    dir.resolve("expected.properties"),
+                    "runs=1\nrun.1.args=-Darchgate.failOn=ERROR\n"
+                            + "run.1.systemProperties=archgate.ci=false   TRACKER_TOKEN=x\n");
+            Expectation expectation = Expectation.load(dir).get(0);
+
+            assertThat(expectation.systemProperties()).containsExactly("archgate.ci=false", "TRACKER_TOKEN=x");
+            assertThat(expectation.args(BuildTool.MAVEN))
+                    .containsExactly("-Darchgate.failOn=ERROR", "-Darchgate.ci=false", "-DTRACKER_TOKEN=x");
+            assertThat(expectation.args(BuildTool.GRADLE))
+                    .containsExactly("-Parchgate.failOn=ERROR", "-Darchgate.ci=false", "-DTRACKER_TOKEN=x");
+        }
+    }
+
+    @Test
+    void systemPropertyWithoutValueFailsWithFile() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path dir = tempDir.path();
+            Files.writeString(dir.resolve("expected.properties"), "runs=1\nrun.1.systemProperties=archgate.ci\n");
+
+            assertThatThrownBy(() -> Expectation.load(dir))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("archgate.ci")
+                    .hasMessageContaining("key=value");
+        }
+    }
+
+    @Test
     void toolScopedAbsentAppliesToItsToolOnly() throws Exception {
         try (TempDir tempDir = TempDir.create()) {
             Path dir = tempDir.path();

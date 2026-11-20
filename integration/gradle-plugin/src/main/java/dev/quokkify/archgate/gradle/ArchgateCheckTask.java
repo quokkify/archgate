@@ -1,11 +1,14 @@
 package dev.quokkify.archgate.gradle;
 
 import dev.quokkify.archgate.api.ArchitectureRule;
+import dev.quokkify.archgate.core.ExternalPolicy;
 import dev.quokkify.archgate.core.launch.GateLauncher;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
@@ -14,7 +17,6 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -24,10 +26,11 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
-@CacheableTask
+@DisableCachingByDefault(because = "rules may read external services")
 public abstract class ArchgateCheckTask extends DefaultTask {
 
     private static final List<Class<?>> WORKER_CLASSES =
@@ -42,6 +45,34 @@ public abstract class ArchgateCheckTask extends DefaultTask {
 
     @Input
     public abstract Property<String> getFailOn();
+
+    /**
+     * Returns the {@code archgate.ci} Gradle property, which the worker reads before system properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getCi();
+
+    /**
+     * Returns the {@code archgate.offline} Gradle property, which the worker reads before system properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getOffline();
+
+    /**
+     * Returns the {@code archgate.ci.serviceUnavailable} Gradle property, which the worker reads before system
+     * properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getServiceUnavailable();
 
     @Classpath
     public abstract ConfigurableFileCollection getRuleClasspath();
@@ -74,6 +105,14 @@ public abstract class ArchgateCheckTask extends DefaultTask {
     @OutputFile
     public abstract RegularFileProperty getReportFile();
 
+    /**
+     * Returns the file that records whether a rule read the environment in the last run.
+     *
+     * @return the state file
+     */
+    @OutputFile
+    public abstract RegularFileProperty getStateFile();
+
     @Inject
     protected abstract WorkerExecutor getWorkerExecutor();
 
@@ -97,7 +136,23 @@ public abstract class ArchgateCheckTask extends DefaultTask {
             parameters.getOwnDirs().from(getOwnDirs());
             parameters.getRuleClasspath().from(getRuleClasspath());
             parameters.getReportFile().set(getReportFile());
+            parameters.getStateFile().set(getStateFile());
+            parameters.getSwitches().putAll(switches());
         });
+    }
+
+    private Map<String, String> switches() {
+        Map<String, String> switches = new LinkedHashMap<>();
+        putIfPresent(switches, ExternalPolicy.CI_PROPERTY, getCi());
+        putIfPresent(switches, ExternalPolicy.OFFLINE_PROPERTY, getOffline());
+        putIfPresent(switches, ExternalPolicy.SERVICE_UNAVAILABLE_PROPERTY, getServiceUnavailable());
+        return switches;
+    }
+
+    private static void putIfPresent(Map<String, String> switches, String name, Property<String> value) {
+        if (value.isPresent()) {
+            switches.put(name, value.get());
+        }
     }
 
     static List<File> workerClasspath() {

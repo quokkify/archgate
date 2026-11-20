@@ -9,7 +9,9 @@ import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.javaparser.JavaParserContext;
 import dev.quokkify.archgate.context.javaparser.JavaParserContextProvider;
+import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
+import dev.quokkify.archgate.core.VariableEnvironment;
 import dev.quokkify.archgate.testsupport.TempDir;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -33,7 +35,8 @@ class NoWildcardImportsRuleTest {
                 List.of(),
                 List.of(resource(mainDir)),
                 List.of(resource("test")),
-                NoWildcardImportsRuleTest.class.getClassLoader());
+                NoWildcardImportsRuleTest.class.getClassLoader(),
+                new GateRunServices(new VariableEnvironment(name -> null, false)));
         return new JavaParserContextProvider().create(layout);
     }
 
@@ -64,7 +67,8 @@ class NoWildcardImportsRuleTest {
                         List.of(),
                         main,
                         test,
-                        NoWildcardImportsRuleTest.class.getClassLoader()));
+                        NoWildcardImportsRuleTest.class.getClassLoader(),
+                        new GateRunServices(new VariableEnvironment(name -> null, false))));
     }
 
     // regression guard for #43: a module without test sources was not checked at all
@@ -164,7 +168,8 @@ class NoWildcardImportsRuleTest {
                     List.of(),
                     List.of(tmp.resolve("main")),
                     List.of(tmp.resolve("main")),
-                    NoWildcardImportsRuleTest.class.getClassLoader());
+                    NoWildcardImportsRuleTest.class.getClassLoader(),
+                    new GateRunServices(new VariableEnvironment(name -> null, false)));
             JavaParserContext context = new JavaParserContextProvider().create(layout);
 
             assertThatThrownBy(() -> new NoWildcardImportsRule().verify(context))

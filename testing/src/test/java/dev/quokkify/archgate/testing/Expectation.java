@@ -17,6 +17,7 @@ import java.util.stream.Stream;
 public record Expectation(
         int run,
         List<String> args,
+        List<String> systemProperties,
         boolean success,
         boolean skipped,
         boolean unableToVerify,
@@ -33,7 +34,7 @@ public record Expectation(
     private static final String MAVEN_PROPERTY_FLAG = "-D";
     private static final String GRADLE_PROPERTY_FLAG = "-P";
     private static final Pattern RUN_KEY = Pattern.compile(
-            "run\\.(\\d+)\\.(args|outcome|skipped|unableToVerify|((maven|gradle)\\.)?(contains|absent|matches)\\.\\d+)");
+            "run\\.(\\d+)\\.(args|systemProperties|outcome|skipped|unableToVerify|((maven|gradle)\\.)?(contains|absent|matches)\\.\\d+)");
 
     public static List<Expectation> load(Path fixtureDir) {
         Properties properties = PropertyFiles.load(fixtureDir.resolve("expected.properties"));
@@ -46,6 +47,7 @@ public record Expectation(
             expectations.add(new Expectation(
                     run,
                     args.isEmpty() ? List.of() : Arrays.asList(args.split("\\s+")),
+                    systemProperties(properties.getProperty(prefix + "systemProperties", "")),
                     "success"
                             .equals(properties
                                     .getProperty(prefix + "outcome", "success")
@@ -102,15 +104,37 @@ public record Expectation(
         return concat(absent, tool == BuildTool.MAVEN ? mavenAbsent : gradleAbsent);
     }
 
+    /**
+     * Returns the command-line arguments of this run for a tool: {@code args}, translated from {@code -D} to
+     * {@code -P} for Gradle, followed by the system properties, which both tools receive verbatim as
+     * {@code -Dkey=value}.
+     */
     public List<String> args(BuildTool tool) {
-        if (tool == BuildTool.MAVEN) {
-            return args;
+        List<String> tailored = tool == BuildTool.MAVEN
+                ? args
+                : args.stream()
+                        .map(arg -> arg.startsWith(MAVEN_PROPERTY_FLAG)
+                                ? GRADLE_PROPERTY_FLAG + arg.substring(MAVEN_PROPERTY_FLAG.length())
+                                : arg)
+                        .toList();
+        return concat(
+                tailored,
+                systemProperties.stream().map(MAVEN_PROPERTY_FLAG::concat).toList());
+    }
+
+    private static List<String> systemProperties(String value) {
+        String trimmed = value.trim();
+        if (trimmed.isEmpty()) {
+            return List.of();
         }
-        return args.stream()
-                .map(arg -> arg.startsWith(MAVEN_PROPERTY_FLAG)
-                        ? GRADLE_PROPERTY_FLAG + arg.substring(MAVEN_PROPERTY_FLAG.length())
-                        : arg)
-                .toList();
+        List<String> pairs = List.of(trimmed.split("\\s+"));
+        for (String pair : pairs) {
+            if (pair.indexOf('=') < 1) {
+                throw new IllegalArgumentException(
+                        "systemProperties entry '" + pair + "' must be key=value, entries separated by whitespace");
+            }
+        }
+        return pairs;
     }
 
     private static List<String> concat(List<String> first, List<String> second) {

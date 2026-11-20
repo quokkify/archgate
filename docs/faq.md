@@ -44,6 +44,10 @@ Check out the branch and publish it to your local Maven repository with `./gradl
 
 In `META-INF/services`. The file `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule` lists every rule that runs, built-in and your own. The build file holds only plugin settings (`rootPackage`, `failOn`, `modules`, `skip`). Listing class names in the build file would break silently on a rename and duplicate the code. See [ADR 0001](adr/0001-opt-in-rule-registration.md).
 
+### Why is a rule marked `[SKIP]`?
+
+The rule needs something from outside the build (variables, or a service that answers) and did not get it, in a run that is not CI. The verdict line counts it as `N skipped` and the build log shows the report as a warning. A skipped rule checked nothing. In CI the same situation fails the build. See [Configuration → Rules that call external services](configuration.md#rules-that-call-external-services).
+
 ### Why does a rule say `(TEST not checked: empty)`?
 
 The rule checks main and test, and the test view had no class under `rootPackage`, so only main was checked. The verdict line counts such rules as partially checked. Typical causes are a module without tests, test classes that were not built (Gradle `-x compileTestJava`), or tests outside `rootPackage`. Maven's `-Dmaven.test.skip=true` skips the services file as well, so it fails the gate instead. To require every scope, subclass the rule and override `requireAllScopes()`; see [Configuration → Partial checks](configuration.md#partial-checks).
@@ -88,7 +92,7 @@ Only the matching rules artifact: `archgate-rules-javaparser` or `archgate-rules
 
 ### Why does the console show no report on the second run?
 
-The task `archgateCheck` is cacheable. When its inputs are unchanged it is `UP-TO-DATE`, or `FROM-CACHE` after a cache hit, and Gradle does not run it, so it prints nothing. The report of the last real run is in `build/reports/archgate/report.txt`.
+When the inputs of `archgateCheck` are unchanged and no rule obtained `Environment` or was skipped in the previous run, the task is `UP-TO-DATE` and Gradle does not run it, so it prints nothing. The task is not stored in the build cache. The report of the last real run is in `build/reports/archgate/report.txt`.
 
 ### The build fails with "does not apply dev.quokkify.archgate".
 

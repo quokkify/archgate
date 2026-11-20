@@ -6,12 +6,15 @@ import dev.quokkify.archgate.core.launch.GateFailure;
 import dev.quokkify.archgate.core.launch.GateLauncher;
 import dev.quokkify.archgate.core.launch.LaunchRequest;
 import dev.quokkify.archgate.core.launch.ModuleDirs;
+import dev.quokkify.archgate.core.launch.VariableLookup;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.AbstractMojo;
@@ -71,6 +74,16 @@ public class CheckMojo extends AbstractMojo {
         return roots.stream().map(Path::of).filter(Files::isDirectory).toList();
     }
 
+    /**
+     * Builds the variable lookup: session user properties, then system properties, then environment variables.
+     *
+     * @param userProperties the session user properties, read on every lookup
+     * @return the first non-blank value of a name, or null
+     */
+    static Function<String, String> lookup(Properties userProperties) {
+        return VariableLookup.firstNonBlank(List.of(userProperties::getProperty, System::getProperty, System::getenv));
+    }
+
     private LaunchRequest request() throws MojoExecutionException {
         List<MavenProject> selected = ModuleSelection.select(project, session.getProjects(), modules);
         List<Path> mainClasses = new ArrayList<>();
@@ -91,7 +104,9 @@ public class CheckMojo extends AbstractMojo {
                 new ModuleDirs(mainClasses, testClasses, mainSources, testSources),
                 ownDirs(),
                 testClasspath(),
-                Optional.of(report));
+                Optional.of(report),
+                lookup(session.getUserProperties()),
+                Optional.empty());
     }
 
     private List<Path> ownDirs() {

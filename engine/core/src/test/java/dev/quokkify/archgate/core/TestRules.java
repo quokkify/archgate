@@ -11,6 +11,12 @@ import java.util.function.Consumer;
 record TestRules(String name, Severity severity, Consumer<NoContext> body)
         implements ArchitectureRule<TestRules.NoContext> {
 
+    /** A policy for a run outside CI. */
+    static final ExternalPolicy NOT_CI = ExternalPolicy.detect(name -> null);
+
+    /** A policy for a CI run with the default service-unavailable behavior. */
+    static final ExternalPolicy CI = ExternalPolicy.detect(name -> "CI".equals(name) ? "true" : null);
+
     record NoContext() implements AnalysisContext {}
 
     public static final class NoContextProvider implements ContextProvider<NoContext> {
@@ -46,7 +52,13 @@ record TestRules(String name, Severity severity, Consumer<NoContext> body)
 
     static ContextResolver resolver() {
         SimpleProjectLayout layout = new SimpleProjectLayout(
-                "x", List.of(), List.of(), List.of(), List.of(), TestRules.class.getClassLoader());
+                "x",
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                TestRules.class.getClassLoader(),
+                new GateRunServices(new VariableEnvironment(name -> null, false)));
         return new ContextResolver(layout, layout.classLoader());
     }
 

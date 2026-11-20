@@ -34,8 +34,8 @@ archgate {
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
-- The task is cacheable and safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, and a build-cache hit is `FROM-CACHE`.
-- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE` or `FROM-CACHE`, so read the report file in those cases.
+- The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule obtained `Environment` or was skipped in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
+- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case.
 - A failing gate throws a `GradleException` whose message is the counts line, for example `Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING`; the report itself goes to the console and the report file. When a rule cannot be verified, the message is the reason, and no report is written.
 
 ### Precedence
@@ -218,6 +218,47 @@ platform/
 - A `modules` entry is not part of the build (Maven: not in the reactor; Gradle: does not apply the plugin).
 - A registration failure, as described above.
 - A rule throws something other than a violation.
+- An external rule cannot run in CI: variables are missing, or the service does not answer and `archgate.ci.serviceUnavailable` is not `skip`. See [Rules that call external services](#rules-that-call-external-services).
+
+## Rules that call external services
+
+A rule can need something from outside the build: a token, a URL or a service that has to answer. It reads variables through `context.environment()`, see [Writing a rule that needs variables or a service](extending.md#rules-that-need-variables-or-a-service). This section describes how the build treats such a rule.
+
+### Where variables come from
+
+The first non-blank value wins; an unset or blank value counts as missing.
+
+- Maven: Maven user properties (`-DNAME=value` on the command line, or a line in `.mvn/maven.config`), then JVM system properties, then environment variables.
+- Gradle: system properties of the build JVM (`gradle -DNAME=value`), then environment variables. `-PNAME=value` is not read for rule variables; only the three switches below also accept it.
+
+A required variable is read with `require(names...)`, which lists every missing name at once: `Missing A, B. Pass them as -DNAME=value or as environment variables.` A variable the rule can run without is read with `optional(name)`. It returns an empty value when unset or blank, never skips the rule, and is not affected by `archgate.offline`.
+
+### CI, offline and service failures
+
+The gate treats a run as CI when the `CI` variable is set to anything other than `false`. Set `archgate.ci=true` or `archgate.ci=false` to override that. Any other value fails the build. A CI system that does not set `CI` must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
+
+| Property | Values | Effect |
+|---|---|---|
+| `archgate.ci` | `true`, `false` | Overrides the `CI` variable. |
+| `archgate.offline` | `true`, `false` | `true` skips every external rule outside CI. In CI it is ignored and the build logs `archgate.offline=true is ignored in CI (<source>); external rules run.` |
+| `archgate.ci.serviceUnavailable` | `fail` (default), `skip` | In CI, `skip` reports a rule as skipped when its service does not answer. It applies only to that case, never to missing variables, and has no effect outside CI. |
+
+These three are plain properties: there is no plugin parameter and no `archgate { }` property for them. Maven reads them like variables, for example `-Darchgate.ci=true`. Gradle accepts `-Parchgate.ci=true` like every other `archgate.*` setting, or `-Darchgate.ci=true`; a `-P` value wins over a `-D` value. They are read when the gate starts, so an invalid value fails the build even when no rule uses `Environment`; for example `Unknown archgate.ci.serviceUnavailable value 'maybe'. Use fail or skip.`
+
+What happens when a rule cannot get what it needs:
+
+| Situation | Outside CI | In CI |
+|---|---|---|
+| Required variables are missing | `[SKIP]`, the build continues | The build fails: `Rule '<name>' cannot run in CI (<source>): Missing A, B. ...` |
+| `archgate.offline=true` | `[SKIP]` | Ignored, the rule runs (a warning is logged) |
+| The service does not answer | `[SKIP]` | The build fails, or `[SKIP]` with `archgate.ci.serviceUnavailable=skip` |
+| A rule finds a violation, or throws anything else | Same as always | Same as always |
+
+A skipped rule never fails the gate. A rule that cannot run in CI fails it always, whatever `failOn` says.
+
+### Gradle caching
+
+`archgateCheck` is not stored in the build cache, because a rule may read an external service. It is `UP-TO-DATE` on a second run with unchanged inputs only when the rules of the previous run did not touch the environment. A run in which a rule obtained `context.environment()`, for `require`, `optional` or `unavailable`, or in which any rule was skipped, always runs again. A rule that calls a service should therefore obtain the environment before the call, not only when the call fails. See [ADR 0009](adr/0009-archgate-check-not-build-cached.md).
 
 ## Reading the report
 
@@ -240,6 +281,16 @@ Failure policy (failOn=WARNING):
 ```
 
 Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. The verdict line then counts such rules, for example `Gate PASSED: 7 rules (2 partially checked), no findings`; see [Partial checks](#partial-checks). Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. The `Model build:` line shows how long each analysis model took to build. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
+
+A rule that could not reach what it needs outside the build is shown as `[SKIP]` with two detail lines: what the rule reported, and why the run treats it as a skip.
+
+```
+[SKIP]  TEST           0 ms  tracker-check
+    Missing TRACKER_USER, TRACKER_PASSWORD. Pass them as -DNAME=value or as environment variables.
+    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.
+```
+
+The second line varies: `Skipped because this is not a CI run (archgate.ci=false); in CI this fails the build.` outside CI, and `Skipped in CI because the service is unavailable (archgate.ci.serviceUnavailable=skip); the rule checked nothing.` when that property lets the service case skip. For `archgate.offline=true` the first line reads `External rules are switched off by archgate.offline=true.` The verdict line gets a count, for example `Gate PASSED: 3 rules, 1 info, 1 skipped`. A report with a skip is logged at WARNING at least, so a skipped rule is easy to see in the build log. A skip is not a pass: the rule checked nothing.
 
 Maven and Gradle print the same text for the same sources, rules and `failOn`.
 

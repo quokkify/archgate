@@ -3,6 +3,7 @@ package dev.quokkify.archgate.context.archunit;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
+import dev.quokkify.archgate.api.Environment;
 import dev.quokkify.archgate.api.ProjectLayout;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
@@ -49,6 +50,11 @@ final class DirectoryArchUnitContext implements ArchUnitContext {
     @Override
     public String rootPackage() {
         return rootPackage;
+    }
+
+    @Override
+    public Environment environment() {
+        return layout.services().environment();
     }
 
     @Override

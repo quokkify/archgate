@@ -7,10 +7,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
+import dev.quokkify.archgate.api.ExternalDependencyUnavailable;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +32,8 @@ class GateRunnerTest {
 
     @Test
     void passingRuleHasNullFinding() {
-        GateResult result = GateRunner.run(List.of(satisfied("green", Severity.ERROR)), TestRules.resolver());
+        GateResult result =
+                GateRunner.run(List.of(satisfied("green", Severity.ERROR)), TestRules.resolver(), TestRules.NOT_CI);
 
         assertThat(result.outcomes()).singleElement().satisfies(outcome -> {
             assertThat(outcome.finding()).isNull();
@@ -45,7 +48,8 @@ class GateRunnerTest {
 
         GateResult result = GateRunner.run(
                 List.of(throwing("a", Severity.ERROR, BOOM), throwing("b", Severity.WARNING, archUnit)),
-                TestRules.resolver());
+                TestRules.resolver(),
+                TestRules.NOT_CI);
 
         assertThat(result.outcomes()).extracting(RuleOutcome::finding).containsExactly(BOOM, archUnit);
         assertThat(result.count(Severity.ERROR)).isEqualTo(1);
@@ -58,7 +62,8 @@ class GateRunnerTest {
     void runtimeExceptionIsUnableToVerify() {
         IllegalStateException cause = new IllegalStateException("broken");
 
-        assertThatThrownBy(() -> GateRunner.run(List.of(throwing("bad", Severity.INFO, cause)), TestRules.resolver()))
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(throwing("bad", Severity.INFO, cause)), TestRules.resolver(), TestRules.NOT_CI))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("bad")
                 .hasCause(cause);
@@ -75,7 +80,8 @@ class GateRunnerTest {
                                 throwing("a-unverifiable", Severity.WARNING, first),
                                 recording,
                                 throwing("z-unverifiable", Severity.WARNING, new UnableToVerifyError("second"))),
-                        TestRules.resolver()))
+                        TestRules.resolver(),
+                        TestRules.NOT_CI))
                 .isSameAs(first)
                 .hasMessageContaining("classpath element missing")
                 .satisfies(error -> assertThat(error.getSuppressed()).hasSize(1));
@@ -89,7 +95,7 @@ class GateRunnerTest {
         ArchitectureRule<?> one = new TestRules("one", Severity.ERROR, ctx -> awaitPeer(started, observed));
         ArchitectureRule<?> two = new TestRules("two", Severity.ERROR, ctx -> awaitPeer(started, observed));
 
-        GateResult result = GateRunner.run(List.of(one, two), TestRules.resolver());
+        GateResult result = GateRunner.run(List.of(one, two), TestRules.resolver(), TestRules.NOT_CI);
 
         assertThat(observed).containsExactly(true, true);
         assertThat(result.outcomes()).hasSize(2);
@@ -99,7 +105,8 @@ class GateRunnerTest {
     void outcomesSortedByRuleName() {
         GateResult result = GateRunner.run(
                 List.of(satisfied("c", Severity.ERROR), satisfied("a", Severity.ERROR), satisfied("b", Severity.ERROR)),
-                TestRules.resolver());
+                TestRules.resolver(),
+                TestRules.NOT_CI);
 
         assertThat(result.outcomes())
                 .extracting(outcome -> outcome.rule().name())
@@ -112,7 +119,7 @@ class GateRunnerTest {
             sleep(150);
         });
 
-        GateResult result = GateRunner.run(List.of(waiting), TestRules.resolver());
+        GateResult result = GateRunner.run(List.of(waiting), TestRules.resolver(), TestRules.NOT_CI);
 
         assertThat(result.outcomes().get(0).duration()).isLessThan(Duration.ofSeconds(5));
         assertThat(result.elapsedMillis()).isGreaterThanOrEqualTo(100);
@@ -120,7 +127,8 @@ class GateRunnerTest {
 
     @Test
     void failsOnThreshold() {
-        GateResult warning = GateRunner.run(List.of(throwing("w", Severity.WARNING, BOOM)), TestRules.resolver());
+        GateResult warning =
+                GateRunner.run(List.of(throwing("w", Severity.WARNING, BOOM)), TestRules.resolver(), TestRules.NOT_CI);
 
         assertThat(warning.failsOn(Optional.of(Severity.WARNING))).isTrue();
         assertThat(warning.failsOn(Optional.of(Severity.INFO))).isTrue();
@@ -130,9 +138,121 @@ class GateRunnerTest {
 
     @Test
     void failsOnNeverIsAlwaysFalse() {
-        GateResult error = GateRunner.run(List.of(throwing("e", Severity.ERROR, BOOM)), TestRules.resolver());
+        GateResult error =
+                GateRunner.run(List.of(throwing("e", Severity.ERROR, BOOM)), TestRules.resolver(), TestRules.NOT_CI);
 
         assertThat(error.failsOn(Optional.empty())).isFalse();
+    }
+
+    @Test
+    void missingVariableSkipsOutsideCi() {
+        GateResult result = GateRunner.run(
+                List.of(unavailable("ext", ExternalDependencyUnavailable.missingVariables(List.of("T")))),
+                TestRules.resolver(),
+                TestRules.NOT_CI);
+
+        assertThat(result.outcomes()).singleElement().satisfies(outcome -> {
+            assertThat(outcome.externallySkipped()).isTrue();
+            assertThat(outcome.finding()).isNull();
+            assertThat(outcome.skipped()).isEmpty();
+            assertThat(outcome.externalSkip().message())
+                    .isEqualTo("Missing T. Pass them as -DNAME=value or as environment variables.");
+            assertThat(outcome.externalSkip().reason())
+                    .isEqualTo(
+                            "Skipped because this is not a CI run (no CI variable set); in CI this fails the build.");
+        });
+        assertThat(result.externallySkipped()).isEqualTo(1);
+    }
+
+    @Test
+    void missingVariableFailsInCi() {
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(unavailable("ext", ExternalDependencyUnavailable.missingVariables(List.of("T")))),
+                        TestRules.resolver(),
+                        TestRules.CI))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessage("Rule 'ext' cannot run in CI (CI is set): Missing T. "
+                        + "Pass them as -DNAME=value or as environment variables.")
+                .hasCauseInstanceOf(ExternalDependencyUnavailable.class);
+    }
+
+    // Regression guard: the not-CI reason names the real source of the decision, not a fixed text.
+    @Test
+    void notCiReasonNamesTheOverrideThatDecidedIt() {
+        ExternalPolicy overridden =
+                ExternalPolicy.detect(name -> ExternalPolicy.CI_PROPERTY.equals(name) ? "false" : null);
+
+        GateResult result = GateRunner.run(
+                List.of(unavailable("ext", ExternalDependencyUnavailable.missingVariables(List.of("T")))),
+                TestRules.resolver(),
+                overridden);
+
+        assertThat(result.outcomes())
+                .singleElement()
+                .satisfies(outcome -> assertThat(outcome.externalSkip().reason())
+                        .isEqualTo("Skipped because this is not a CI run (archgate.ci=false); "
+                                + "in CI this fails the build."));
+    }
+
+    @Test
+    void serviceUnavailableSkipsInCiWhenAllowed() {
+        ExternalPolicy skipping = ExternalPolicy.detect(name -> switch (name) {
+            case ExternalPolicy.CI_PROPERTY -> "true";
+            case ExternalPolicy.SERVICE_UNAVAILABLE_PROPERTY -> "skip";
+            default -> null;
+        });
+
+        GateResult result = GateRunner.run(
+                List.of(unavailable(
+                        "ext", ExternalDependencyUnavailable.serviceUnavailable("Tracker", new IOException("down")))),
+                TestRules.resolver(),
+                skipping);
+
+        assertThat(result.outcomes())
+                .singleElement()
+                .satisfies(outcome -> assertThat(outcome.externalSkip().reason())
+                        .isEqualTo("Skipped in CI because the service is unavailable "
+                                + "(archgate.ci.serviceUnavailable=skip); the rule checked nothing."));
+    }
+
+    @Test
+    void serviceUnavailableFailsInCiByDefault() {
+        assertThatThrownBy(() -> GateRunner.run(
+                        List.of(unavailable(
+                                "ext",
+                                ExternalDependencyUnavailable.serviceUnavailable("Tracker", new IOException("down")))),
+                        TestRules.resolver(),
+                        TestRules.CI))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("Rule 'ext' cannot run in CI (CI is set): Tracker is unavailable: down");
+    }
+
+    @Test
+    void requireThenUnrelatedFailureIsUnableToVerify() {
+        ArchitectureRule<?> rule = new TestRules("ext", Severity.ERROR, context -> {
+            ExternalDependencyUnavailable.missingVariables(List.of("T"));
+            throw new IllegalStateException("unrelated");
+        });
+
+        assertThatThrownBy(() -> GateRunner.run(List.of(rule), TestRules.resolver(), TestRules.NOT_CI))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("Rule 'ext'")
+                .hasRootCauseMessage("unrelated");
+    }
+
+    @Test
+    void skipNeverFailsGate() {
+        GateResult result = GateRunner.run(
+                List.of(unavailable("ext", ExternalDependencyUnavailable.missingVariables(List.of("T")))),
+                TestRules.resolver(),
+                TestRules.NOT_CI);
+
+        assertThat(result.failsOn(Optional.of(Severity.INFO))).isFalse();
+        assertThat(result.worst()).isEmpty();
+    }
+
+    private static ArchitectureRule<?> unavailable(String name, ExternalDependencyUnavailable signal) {
+        return TestRules.throwing(name, Severity.ERROR, signal);
     }
 
     private static void awaitPeer(CountDownLatch started, Collection<Boolean> observed) {
@@ -173,7 +293,9 @@ class GateRunnerTest {
     void twoRulesSharingAMissingProviderReportOneUnableToVerify() {
         // regression: shared cached failure was self-suppressed by keepFirst
         assertThatThrownBy(() -> GateRunner.run(
-                        List.of(new NeedsMissingProvider("a"), new NeedsMissingProvider("b")), TestRules.resolver()))
+                        List.of(new NeedsMissingProvider("a"), new NeedsMissingProvider("b")),
+                        TestRules.resolver(),
+                        TestRules.NOT_CI))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("No ContextProvider for dev.quokkify.archgate.context.archunit.ArchUnitContext")
                 .hasMessageContaining("dev.quokkify.archgate:archgate-context-archunit");
@@ -185,7 +307,8 @@ class GateRunnerTest {
                 List.of(skipping("partial pass", context -> {}), skipping("partial finding", context -> {
                     throw BOOM;
                 })),
-                TestRules.resolver());
+                TestRules.resolver(),
+                TestRules.NOT_CI);
 
         assertThat(result.outcomes())
                 .allSatisfy(outcome -> assertThat(outcome.skipped()).containsExactly(Scope.TEST));
@@ -201,7 +324,7 @@ class GateRunnerTest {
             }
         };
 
-        assertThatThrownBy(() -> GateRunner.run(List.of(failing), TestRules.resolver()))
+        assertThatThrownBy(() -> GateRunner.run(List.of(failing), TestRules.resolver(), TestRules.NOT_CI))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("broken skip")
                 .hasRootCauseMessage("cannot tell");
@@ -224,7 +347,7 @@ class GateRunnerTest {
                 }
             };
 
-            assertThatThrownBy(() -> GateRunner.run(List.of(rule), TestRules.resolver()))
+            assertThatThrownBy(() -> GateRunner.run(List.of(rule), TestRules.resolver(), TestRules.NOT_CI))
                     .as("skipped scopes %s", invalid)
                     .isInstanceOf(UnableToVerifyError.class)
                     .hasMessageContaining("Rule 'bad skip'");
