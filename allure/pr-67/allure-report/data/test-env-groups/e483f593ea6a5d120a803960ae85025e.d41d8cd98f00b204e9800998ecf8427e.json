@@ -1,1 +1,1 @@
-{"id":"e483f593ea6a5d120a803960ae85025e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.javaparser.NoWildcardImportsRuleTest.severityAndScopes","name":"severityAndScopes","status":"passed","testResultsByEnv":{"default":"d76126021cfa3ba15144e8a8e3a386e3"}}
+{"id":"e483f593ea6a5d120a803960ae85025e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.javaparser.NoWildcardImportsRuleTest.severityAndScopes","name":"severityAndScopes","status":"passed","testResultsByEnv":{"default":"4212229e47823dfaf14a81d9bff09d41"}}

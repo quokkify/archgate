@@ -1,0 +1,1 @@
+{"id":"1dc1435f8f0d4e0667bd02d0a8f69c31.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.endlessSuitePagesAreCutOff","name":"Regression guard: a suite whose pages never end is cut off","status":"passed","testResultsByEnv":{"default":"e2e1739cd378287dbf5b32d8027826d6"}}

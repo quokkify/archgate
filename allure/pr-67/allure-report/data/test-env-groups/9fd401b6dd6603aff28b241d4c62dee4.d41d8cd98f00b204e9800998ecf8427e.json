@@ -1,1 +1,1 @@
-{"id":"9fd401b6dd6603aff28b241d4c62dee4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.contextTypeIsArchUnit","name":"contextTypeIsArchUnit","status":"passed","testResultsByEnv":{"default":"611a3a83b64245f9812ff3e66e113063"}}
+{"id":"9fd401b6dd6603aff28b241d4c62dee4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.contextTypeIsArchUnit","name":"contextTypeIsArchUnit","status":"passed","testResultsByEnv":{"default":"cd9856dc2767df7b908355a3bfebbd26"}}

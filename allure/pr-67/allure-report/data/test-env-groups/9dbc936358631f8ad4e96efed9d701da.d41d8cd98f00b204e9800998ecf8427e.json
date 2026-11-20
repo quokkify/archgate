@@ -1,1 +1,1 @@
-{"id":"9dbc936358631f8ad4e96efed9d701da.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.MaxMethodParametersRuleTest.limitIsConfigurable","name":"limitIsConfigurable","status":"passed","testResultsByEnv":{"default":"88e4b13c2700a8ce7e02225b6d628fa9"}}
+{"id":"9dbc936358631f8ad4e96efed9d701da.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.MaxMethodParametersRuleTest.limitIsConfigurable","name":"limitIsConfigurable","status":"passed","testResultsByEnv":{"default":"1583ed3adfe13934d36bc164d9d69999"}}

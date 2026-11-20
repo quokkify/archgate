@@ -1,0 +1,1 @@
+{"id":"6c1a3b26a6e8902c1dc9e43254f4c237.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.AutomationTypesTest.failsWhenTheOptionsAreBlank","name":"Regression guard: an option list with only blank lines counts as no options","status":"passed","testResultsByEnv":{"default":"ea8620344acaee15fd74fa10d3386324"}}
