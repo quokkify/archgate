@@ -56,7 +56,7 @@ public void verify(ArchUnitContext context) {
 }
 ```
 
-- `require(names...)` returns the values. If any is unset or blank it throws `ExternalDependencyUnavailable` naming all of them. It throws the same signal, without looking at the names, when `archgate.offline=true` switches external rules off outside CI.
+- `require(names...)` returns the values. If any is unset or blank it throws `ExternalDependencyUnavailable` naming all of them. After validating the names (a null or blank one throws `IllegalArgumentException`), it throws the same signal when `archgate.offline=true` switches external rules off outside CI.
 - `optional(name)` returns an empty value for an unset or blank variable. It never skips the rule, and `archgate.offline` does not apply to it.
 - `unavailable(service, cause)` creates the signal for a service that does not answer. `throw` it; it is not thrown for you.
 - `ExternalDependencyUnavailable` is the only signal that makes a rule `[SKIP]`. Outside CI the rule is skipped; in CI the build fails, except that `archgate.ci.serviceUnavailable=skip` skips a service failure. A finding is still an `ArchitectureViolation`. See [Rules that call external services](configuration.md#rules-that-call-external-services).
