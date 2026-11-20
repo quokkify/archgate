@@ -32,6 +32,9 @@ ArchGate runs architecture rules as a step of the Maven or Gradle build. It stop
 | `HashCodeEqualsTogetherRule` | ArchUnit | ERROR | main | [hashCode and equals together](docs/rules/hash-code-equals-together.md) |
 | `UtilityClassFinalityRule` | ArchUnit | WARNING | main | [Utility class finality](docs/rules/utility-class-finality.md) |
 | `MaxMethodParametersRule` | ArchUnit | WARNING | main + test | [Max method parameters](docs/rules/max-method-parameters.md) |
+| `TmsLinkRequiredRule` | ArchUnit | WARNING | test | [TmsLink required](docs/rules/tms-link-required.md) |
+| `TmsLinkUniqueRule` | ArchUnit | WARNING | test | [TmsLink unique](docs/rules/tms-link-unique.md) |
+| `TmsLinkFormatRule` | ArchUnit | WARNING | test | [TmsLink format](docs/rules/tms-link-format.md) |
 | `NoWildcardImportsRule` | JavaParser | WARNING | main + test | [No wildcard imports](docs/rules/no-wildcard-imports.md) |
 | `ServiceFileConsistencyRule` | ClassGraph | ERROR | main + test | [Service file consistency](docs/rules/service-file-consistency.md) |
 
@@ -42,6 +45,19 @@ Each backend ships as a pair of artifacts in group `dev.quokkify.archgate`:
 | ArchUnit | `archgate-rules-archunit` (`dev.quokkify.archgate.rules.archunit`) | `archgate-context-archunit` |
 | JavaParser | `archgate-rules-javaparser` (`dev.quokkify.archgate.rules.javaparser`) | `archgate-context-javaparser` |
 | ClassGraph | `archgate-rules-classgraph` (`dev.quokkify.archgate.rules.classgraph`) | `archgate-context-classgraph` |
+| ArchUnit, TmsLink | `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`) | `archgate-context-archunit` |
+
+The TmsLink rules live in a separate ArchUnit rules artifact, `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`), because they target TestNG with Allure `@TmsLink`. It depends on `archgate-context-archunit`, needs neither Allure nor TestNG on its classpath, and is added next to `archgate-rules-archunit`:
+
+```groovy
+testImplementation 'dev.quokkify.archgate:archgate-rules-archunit-tms'
+```
+
+List the rules to run in `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`:
+
+```
+dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRule
+```
 
 A rules artifact depends on its context artifact, so adding the rules is enough to run them. Add the context on its own to write your own rules for that backend. If no context provider for a rule's backend is on the classpath, the build fails with `No ContextProvider for … is registered on the classpath. Add dev.quokkify.archgate:archgate-context-<backend> as a test dependency.`
 

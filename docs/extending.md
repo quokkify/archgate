@@ -91,3 +91,25 @@ public void verify(ArchUnitContext context) {
 - Implement `isEmpty(Scope)` so that rules reading several scopes can skip an empty one: return `true` exactly when reading that view would throw for lack of anything to analyse. It may build the view, so remember the result and build it once. The default returns `false`, so a backend that does not implement it keeps failing closed on every empty view. The built-in backends treat a view as empty when ArchUnit finds no class under `rootPackage`, JavaParser no source under `rootPackage`, and ClassGraph no existing class directory.
 - If the context holds resources, implement `AutoCloseable`; core closes it after the run. Do not close it from a rule.
 - `buildTimes()` is printed in the `Model build:` line of the report. Core merges the maps of all contexts into one map, and also adds an entry under each context's simple class name, so the keys of all backends share one namespace. Prefix keys with the backend name, for example `javaparser main`, so two backends never overwrite each other's entries.
+
+## Requiring another annotation on test methods
+
+`RequiredTestAnnotationRule` in `archgate-rules-archunit-tms` is an abstract base for rules of the form "every TestNG test method carries annotation X". It is not registrable itself. Extend it in your project, pass a `RequiredAnnotation` and the exclusions, and list your subclass in the services file. [TmsLink required](rules/tms-link-required.md) is built this way.
+
+```java
+public class OwnerRequiredRule extends RequiredTestAnnotationRule {
+  public OwnerRequiredRule() {
+    super(
+        RequiredAnnotation.of("io.qameta.allure.Owner").requiringNonBlankValue(),
+        Map.of("..setup..", "fixtures, not cases"));
+  }
+}
+```
+
+- `RequiredAnnotation.of(name)` takes the fully qualified name; a nested annotation is written `Outer$Inner`.
+- `requiringNonBlankValue()` also rejects a missing, blank or non-`String` `value()`.
+- `withContainer(name)` is needed for a repeatable annotation, because a method that repeats it carries only the container.
+- Exclusion keys are package patterns (with `..` or `*`) or annotation names, as in [TmsLink required](rules/tms-link-required.md).
+- The rule is named `<AnnotationSimpleName> on test methods`, has severity **WARNING**, and reads the test classes only. Override `expectedContract()` to change the text shown with the violations.
+
+Annotations are matched by name, so neither the annotation nor TestNG has to be on the rule's compile classpath. A project annotation such as `com.example.Smoke` works the same way.
