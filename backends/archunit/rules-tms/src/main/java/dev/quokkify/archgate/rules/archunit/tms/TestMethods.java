@@ -43,9 +43,17 @@ final class TestMethods {
         Set<JavaModifier> modifiers = method.getModifiers();
         return hasClassLevelTest(method.getOwner())
                 && modifiers.contains(JavaModifier.PUBLIC)
-                && !modifiers.contains(JavaModifier.STATIC)
+                && !isMainEntryPoint(method)
                 && method.getRawReturnType().isEquivalentTo(void.class)
                 && NON_TEST_ANNOTATIONS.stream().noneMatch(method::isAnnotatedWith);
+    }
+
+    /** TestNG leaves out {@code public static void main(String[])} but runs every other public static method. */
+    private static boolean isMainEntryPoint(JavaMethod method) {
+        return method.getModifiers().contains(JavaModifier.STATIC)
+                && method.getName().equals("main")
+                && method.getRawParameterTypes().size() == 1
+                && method.getRawParameterTypes().get(0).isEquivalentTo(String[].class);
     }
 
     private static boolean hasClassLevelTest(JavaClass javaClass) {

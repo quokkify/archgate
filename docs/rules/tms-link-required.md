@@ -6,7 +6,7 @@ Every TestNG test method must carry an Allure `@TmsLink` whose value is not blan
 
 **Why.** The case id is what ties an automated test to its entry in the test management system. A test without one cannot be traced, reported or retired with its case.
 
-A test method is a method annotated with `org.testng.annotations.Test`, or a public, non-static, `void` method of a class that has `@Test` on itself or on a superclass, unless it is a TestNG configuration, factory or data-provider method. Annotations are matched by name, so the rule needs neither Allure nor TestNG on its own classpath.
+A test method is a method annotated with `org.testng.annotations.Test`, or a public `void` method of a class that has `@Test` on itself or on a superclass, unless it is `public static void main(String[])` or a TestNG configuration, factory or data-provider method. Annotations are matched by name, so the rule needs neither Allure nor TestNG on its own classpath.
 
 ```java
 // ✗ violation
