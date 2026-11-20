@@ -18,11 +18,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.testng.annotations.Test;
@@ -255,26 +257,48 @@ class GateRunnerTest {
     @Test
     void sharedTimeExcludedFromRuleDuration() {
         GateRunServices services = sharedServices();
-        CountDownLatch started = new CountDownLatch(2);
-        Consumer<TestRules.NoContext> body = context -> {
-            started.countDown();
-            awaitQuietly(started);
+        AtomicInteger builds = new AtomicInteger();
+        CountDownLatch buildStarted = new CountDownLatch(1);
+        AtomicBoolean buildFinished = new AtomicBoolean();
+        CountDownLatch waiterEntered = new CountDownLatch(1);
+        AtomicBoolean waiterEnteredWhileBuilding = new AtomicBoolean();
+        Consumer<TestRules.NoContext> builder = context -> services.shared("load", () -> {
+            builds.incrementAndGet();
+            buildStarted.countDown();
+            sleep(500);
+            buildFinished.set(true);
+            return 1;
+        });
+        Consumer<TestRules.NoContext> waiter = context -> {
+            awaitQuietly(buildStarted);
+            waiterEnteredWhileBuilding.set(!buildFinished.get());
+            waiterEntered.countDown();
             services.shared("load", () -> {
-                sleep(300);
-                return 1;
+                builds.incrementAndGet();
+                return 2;
             });
         };
 
         GateResult result = GateRunner.run(
-                List.of(new TestRules("builder", Severity.ERROR, body), new TestRules("waiter", Severity.ERROR, body)),
+                List.of(
+                        new TestRules("builder", Severity.ERROR, builder),
+                        new TestRules("waiter", Severity.ERROR, waiter)),
                 TestRules.resolver(services),
                 TestRules.NOT_CI);
 
+        assertThat(builds).hasValue(1);
+        assertThat(waiterEntered.getCount()).isZero();
+        assertThat(waiterEnteredWhileBuilding).isTrue();
         assertThat(result.outcomes())
                 .hasSize(2)
-                .allSatisfy(outcome -> assertThat(outcome.duration()).isLessThan(Duration.ofMillis(150)));
+                .allSatisfy(outcome -> assertThat(outcome.duration()).isLessThan(Duration.ofMillis(250)));
         assertThat(result.sharedBuildTimes()).containsOnlyKeys("load");
-        assertThat(result.sharedBuildTimes().get("load")).isGreaterThanOrEqualTo(Duration.ofMillis(300));
+        assertThat(result.sharedBuildTimes().get("load")).isGreaterThanOrEqualTo(Duration.ofMillis(500));
+    }
+
+    @Test
+    void resultRejectsMissingSharedBuildTimes() {
+        assertThatThrownBy(() -> new GateResult(List.of(), Map.of(), null, 0)).isInstanceOf(NullPointerException.class);
     }
 
     @Test

@@ -22,6 +22,15 @@ public record GateResult(
         long elapsedMillis) {
 
     /**
+     * Creates a result.
+     *
+     * @throws NullPointerException if {@code sharedBuildTimes} is null
+     */
+    public GateResult {
+        Objects.requireNonNull(sharedBuildTimes, "sharedBuildTimes");
+    }
+
+    /**
      * Creates a result of a run that shared no values.
      *
      * @param outcomes the outcome of every rule, sorted by rule name
