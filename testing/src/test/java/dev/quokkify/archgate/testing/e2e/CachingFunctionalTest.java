@@ -66,6 +66,38 @@ class CachingFunctionalTest {
             }
             """;
 
+    private static final String UNAVAILABLE_SERVICE_RULE = """
+            package com.example;
+
+            import dev.quokkify.archgate.api.ArchitectureRule;
+            import dev.quokkify.archgate.api.Severity;
+            import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+            import java.io.IOException;
+
+            public class TrackerServiceRule implements ArchitectureRule<ArchUnitContext> {
+
+                @Override
+                public String name() {
+                    return "Tracker service";
+                }
+
+                @Override
+                public Severity severity() {
+                    return Severity.ERROR;
+                }
+
+                @Override
+                public Class<ArchUnitContext> contextType() {
+                    return ArchUnitContext.class;
+                }
+
+                @Override
+                public void verify(ArchUnitContext context) {
+                    throw context.environment().unavailable("Tracker", new IOException("Connect timed out"));
+                }
+            }
+            """;
+
     @DataProvider
     static Object[][] scenarios() {
         return new Object[][] {{SCENARIO}, {"multi-module"}};
@@ -118,6 +150,21 @@ class CachingFunctionalTest {
     // shares the TestKit build and configuration caches
     @SingleThread
     @Test
+    void configurationCacheIsReusedWithCiSwitch() {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            List<String> args = List.of(CONFIGURATION_CACHE, "-Parchgate.ci=false");
+            runner(project, args).build();
+
+            BuildResult second = runner(project, args).build();
+
+            assertThat(second.getOutput()).contains(REUSED);
+        }
+    }
+
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test
     void buildCacheIsNotUsed() throws IOException {
         try (TempDir tempDir = TempDir.create()) {
             Path project = materialize(tempDir);
@@ -152,6 +199,24 @@ class CachingFunctionalTest {
 
             assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
             assertThat(second.getOutput()).contains(TRACKER_TOKEN_FINDING.formatted("unset"));
+        }
+    }
+
+    /** Regression guard: a rule that only reported its service as unavailable was reused as UP-TO-DATE. */
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test
+    void runWithUnavailableServiceIsNotUpToDate() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            addRule(project, "TrackerServiceRule", UNAVAILABLE_SERVICE_RULE);
+            List<String> args = List.of("-Darchgate.ci=false");
+            BuildResult first = runner(project, args).build();
+
+            BuildResult second = runner(project, args).build();
+
+            assertThat(first.getOutput()).contains("[SKIP]");
+            assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
         }
     }
 
@@ -254,10 +319,14 @@ class CachingFunctionalTest {
     }
 
     private static void addTrackerTokenRule(Path project) throws IOException {
-        Path rule = project.resolve("src/test/java/com/example/TrackerTokenRule.java");
+        addRule(project, "TrackerTokenRule", TRACKER_TOKEN_RULE);
+    }
+
+    private static void addRule(Path project, String simpleName, String source) throws IOException {
+        Path rule = project.resolve("src/test/java/com/example/" + simpleName + ".java");
         Files.createDirectories(rule.getParent());
-        Files.writeString(rule, TRACKER_TOKEN_RULE, StandardCharsets.UTF_8);
-        appendTo(project, RULE_SERVICES, "com.example.TrackerTokenRule\n");
+        Files.writeString(rule, source, StandardCharsets.UTF_8);
+        appendTo(project, RULE_SERVICES, "com.example." + simpleName + "\n");
     }
 
     private static void appendTo(Path project, String file, String text) throws IOException {

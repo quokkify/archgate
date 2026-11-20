@@ -92,7 +92,7 @@ Only the matching rules artifact: `archgate-rules-javaparser` or `archgate-rules
 
 ### Why does the console show no report on the second run?
 
-When the inputs of `archgateCheck` are unchanged and no rule read a variable through `Environment` in the previous run, the task is `UP-TO-DATE` and Gradle does not run it, so it prints nothing. The task is not stored in the build cache. The report of the last real run is in `build/reports/archgate/report.txt`.
+When the inputs of `archgateCheck` are unchanged and no rule obtained `Environment` or was skipped in the previous run, the task is `UP-TO-DATE` and Gradle does not run it, so it prints nothing. The task is not stored in the build cache. The report of the last real run is in `build/reports/archgate/report.txt`.
 
 ### The build fails with "does not apply dev.quokkify.archgate".
 

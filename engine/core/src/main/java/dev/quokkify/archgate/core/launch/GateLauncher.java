@@ -45,7 +45,8 @@ public final class GateLauncher {
             GateResult result = evaluate(request, rootPackage, loader, policy, environment);
             policy.offlineWarning().ifPresent(warning -> sink.line(Severity.WARNING, warning));
             report(result, threshold, request.reportFile(), sink);
-            request.stateFile().ifPresent(file -> writeState(file, environment));
+            boolean readEnvironment = environment.wasRead() || result.externallySkipped() > 0;
+            request.stateFile().ifPresent(file -> writeState(file, readEnvironment));
             if (result.failsOn(threshold)) {
                 throw new GateFailure(
                         "Architecture gate failed: %s; failure policy: failOn=%s"
@@ -95,8 +96,8 @@ public final class GateLauncher {
         reportFile.ifPresent(file -> write(file, lines));
     }
 
-    private static void writeState(Path file, VariableEnvironment environment) {
-        write(file, "readEnvironment=" + environment.wasRead(), "state file");
+    private static void writeState(Path file, boolean readEnvironment) {
+        write(file, "readEnvironment=" + readEnvironment, "state file");
     }
 
     private static void write(Path file, List<String> lines) {

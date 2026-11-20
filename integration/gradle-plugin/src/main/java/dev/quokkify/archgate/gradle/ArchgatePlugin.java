@@ -1,5 +1,6 @@
 package dev.quokkify.archgate.gradle;
 
+import dev.quokkify.archgate.core.ExternalPolicy;
 import dev.quokkify.archgate.core.FailOn;
 import java.io.IOException;
 import java.io.Reader;
@@ -50,6 +51,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
     }
 
     private static void register(Project project, ArchgateExtension extension) {
+        ProviderFactory providers = project.getProviders();
         SourceSetContainer sourceSets =
                 project.getExtensions().getByType(JavaPluginExtension.class).getSourceSets();
         SourceSet main = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
@@ -64,6 +66,10 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.getRootPackage().set(extension.getRootPackage());
                     task.getProjectPath().set(project.getPath());
                     task.getFailOn().set(extension.getFailOn());
+                    task.getCi().set(providers.gradleProperty(ExternalPolicy.CI_PROPERTY));
+                    task.getOffline().set(providers.gradleProperty(ExternalPolicy.OFFLINE_PROPERTY));
+                    task.getServiceUnavailable()
+                            .set(providers.gradleProperty(ExternalPolicy.SERVICE_UNAVAILABLE_PROPERTY));
                     task.getRuleClasspath().from(test.getRuntimeClasspath());
                     task.getMainClassesDirs()
                             .from(

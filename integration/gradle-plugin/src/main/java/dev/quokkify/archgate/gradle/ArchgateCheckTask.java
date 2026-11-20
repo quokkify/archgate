@@ -1,11 +1,14 @@
 package dev.quokkify.archgate.gradle;
 
 import dev.quokkify.archgate.api.ArchitectureRule;
+import dev.quokkify.archgate.core.ExternalPolicy;
 import dev.quokkify.archgate.core.launch.GateLauncher;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import javax.inject.Inject;
 import org.gradle.api.DefaultTask;
@@ -42,6 +45,34 @@ public abstract class ArchgateCheckTask extends DefaultTask {
 
     @Input
     public abstract Property<String> getFailOn();
+
+    /**
+     * Returns the {@code archgate.ci} Gradle property, which the worker reads before system properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getCi();
+
+    /**
+     * Returns the {@code archgate.offline} Gradle property, which the worker reads before system properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getOffline();
+
+    /**
+     * Returns the {@code archgate.ci.serviceUnavailable} Gradle property, which the worker reads before system
+     * properties.
+     *
+     * @return the value, or none when the property is not set
+     */
+    @Input
+    @Optional
+    public abstract Property<String> getServiceUnavailable();
 
     @Classpath
     public abstract ConfigurableFileCollection getRuleClasspath();
@@ -106,7 +137,22 @@ public abstract class ArchgateCheckTask extends DefaultTask {
             parameters.getRuleClasspath().from(getRuleClasspath());
             parameters.getReportFile().set(getReportFile());
             parameters.getStateFile().set(getStateFile());
+            parameters.getSwitches().putAll(switches());
         });
+    }
+
+    private Map<String, String> switches() {
+        Map<String, String> switches = new LinkedHashMap<>();
+        putIfPresent(switches, ExternalPolicy.CI_PROPERTY, getCi());
+        putIfPresent(switches, ExternalPolicy.OFFLINE_PROPERTY, getOffline());
+        putIfPresent(switches, ExternalPolicy.SERVICE_UNAVAILABLE_PROPERTY, getServiceUnavailable());
+        return switches;
+    }
+
+    private static void putIfPresent(Map<String, String> switches, String name, Property<String> value) {
+        if (value.isPresent()) {
+            switches.put(name, value.get());
+        }
     }
 
     static List<File> workerClasspath() {

@@ -13,9 +13,9 @@ A spike on Gradle 9.7.1, the minimum supported version, and 9.9.1 tested `output
 ## Decision
 
 - `ArchgateCheckTask` is `@DisableCachingByDefault(because = "rules may read external services")` instead of `@CacheableTask`. Its inputs and outputs stay declared, so it stays incremental.
-- The task has a second output, `build/reports/archgate/state.properties`, next to the report file. The worker writes `readEnvironment=true` or `readEnvironment=false` after the report, also when the gate fails. It writes nothing when the rules cannot be verified or the report cannot be written.
+- The task has a second output, `build/reports/archgate/state.properties`, next to the report file. The worker writes `readEnvironment=true` or `readEnvironment=false` after the report, also when the gate fails. It writes `true` when a rule obtained `environment()`, which covers `require`, `optional` and `unavailable`, or when any rule was skipped. It writes nothing when the rules cannot be verified or the report cannot be written.
 - `outputs.upToDateWhen` reads that file before execution. The task is `UP-TO-DATE` only when the file exists, is readable and records `readEnvironment=false`. Up-to-date checks run on the outputs of the previous run, so this check does not hit the problem the spike found.
-- Variables are read inside the worker at execution time, from system properties and then from environment variables. Nothing reads them at configuration time, so the configuration cache stays reusable when a variable changes.
+- Variables are read inside the worker at execution time, from system properties and then from environment variables. The switches `archgate.ci`, `archgate.offline` and `archgate.ci.serviceUnavailable` are also read from Gradle properties first, like every other `archgate.*` setting; they reach the worker as task inputs. Nothing reads them at configuration time, so the configuration cache stays reusable when a variable changes.
 
 ## Consequences
 

@@ -60,7 +60,7 @@ public void verify(ArchUnitContext context) {
 - `optional(name)` returns an empty value for an unset or blank variable. It never skips the rule, and `archgate.offline` does not apply to it.
 - `unavailable(service, cause)` creates the signal for a service that does not answer. `throw` it; it is not thrown for you.
 - `ExternalDependencyUnavailable` is the only signal that makes a rule `[SKIP]`. Outside CI the rule is skipped; in CI the build fails, except that `archgate.ci.serviceUnavailable=skip` skips a service failure. A finding is still an `ArchitectureViolation`. See [Rules that call external services](configuration.md#rules-that-call-external-services).
-- A third-party `AnalysisContext` or `ProjectLayout` gets an actionable `UnableToVerifyError` when a rule calls `environment()` or `services()` until it implements them. A context should delegate `environment()` to `ProjectLayout.services()`.
+- A third-party `AnalysisContext` or `ProjectLayout` gets an actionable `UnableToVerifyError` when a rule calls `environment()` or `services()` until it implements them. A context should delegate `environment()` to `ProjectLayout.services()` on each call, not when it is created: on Gradle, obtaining the environment means the next run cannot be `UP-TO-DATE`.
 
 ## Backends
 

@@ -34,7 +34,7 @@ archgate {
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
-- The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule read a variable through `Environment` in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
+- The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule obtained `Environment` or was skipped in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
 - The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case.
 - A failing gate throws a `GradleException` whose message is the counts line, for example `Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING`; the report itself goes to the console and the report file. When a rule cannot be verified, the message is the reason, and no report is written.
 
@@ -229,13 +229,13 @@ A rule can need something from outside the build: a token, a URL or a service th
 The first non-blank value wins; an unset or blank value counts as missing.
 
 - Maven: Maven user properties (`-DNAME=value` on the command line, or a line in `.mvn/maven.config`), then JVM system properties, then environment variables.
-- Gradle: system properties of the build JVM (`gradle -DNAME=value`), then environment variables. `-PNAME=value` is not read.
+- Gradle: system properties of the build JVM (`gradle -DNAME=value`), then environment variables. `-PNAME=value` is not read for rule variables; only the three switches below also accept it.
 
 A required variable is read with `require(names...)`, which lists every missing name at once: `Missing A, B. Pass them as -DNAME=value or as environment variables.` A variable the rule can run without is read with `optional(name)`. It returns an empty value when unset or blank, never skips the rule, and is not affected by `archgate.offline`.
 
 ### CI, offline and service failures
 
-The gate treats a run as CI when the `CI` variable is set to anything other than `false`. Set `archgate.ci=true` or `archgate.ci=false` to override that. Any other value fails the build.
+The gate treats a run as CI when the `CI` variable is set to anything other than `false`. Set `archgate.ci=true` or `archgate.ci=false` to override that. Any other value fails the build. A CI system that does not set `CI` must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
 
 | Property | Values | Effect |
 |---|---|---|
@@ -243,7 +243,7 @@ The gate treats a run as CI when the `CI` variable is set to anything other than
 | `archgate.offline` | `true`, `false` | `true` skips every external rule outside CI. In CI it is ignored and the build logs `archgate.offline=true is ignored in CI (<source>); external rules run.` |
 | `archgate.ci.serviceUnavailable` | `fail` (default), `skip` | In CI, `skip` reports a rule as skipped when its service does not answer. It applies only to that case, never to missing variables, and has no effect outside CI. |
 
-These three are plain properties: there is no plugin parameter and no `archgate { }` property for them. They are read when the gate starts, so an invalid value fails the build even when no rule uses `Environment`; for example `Unknown archgate.ci.serviceUnavailable value 'maybe'. Use fail or skip.`
+These three are plain properties: there is no plugin parameter and no `archgate { }` property for them. Maven reads them like variables, for example `-Darchgate.ci=true`. Gradle accepts `-Parchgate.ci=true` like every other `archgate.*` setting, or `-Darchgate.ci=true`; a `-P` value wins over a `-D` value. They are read when the gate starts, so an invalid value fails the build even when no rule uses `Environment`; for example `Unknown archgate.ci.serviceUnavailable value 'maybe'. Use fail or skip.`
 
 What happens when a rule cannot get what it needs:
 
@@ -258,7 +258,7 @@ A skipped rule never fails the gate. A rule that cannot run in CI fails it alway
 
 ### Gradle caching
 
-`archgateCheck` is not stored in the build cache, because a rule may read an external service. It is `UP-TO-DATE` on a second run with unchanged inputs only when the rules of the previous run did not read the environment; a run in which a rule called `require` or `optional` always runs again. See [ADR 0009](adr/0009-archgate-check-not-build-cached.md).
+`archgateCheck` is not stored in the build cache, because a rule may read an external service. It is `UP-TO-DATE` on a second run with unchanged inputs only when the rules of the previous run did not touch the environment. A run in which a rule obtained `context.environment()`, for `require`, `optional` or `unavailable`, or in which any rule was skipped, always runs again. A rule that calls a service should therefore obtain the environment before the call, not only when the call fails. See [ADR 0009](adr/0009-archgate-check-not-build-cached.md).
 
 ## Reading the report
 

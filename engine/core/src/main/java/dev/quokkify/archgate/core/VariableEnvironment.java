@@ -36,12 +36,17 @@ public final class VariableEnvironment implements Environment {
     }
 
     /**
-     * Tells whether a rule asked for any variable.
+     * Tells whether a rule touched the environment.
      *
-     * @return true once {@code require} or {@code optional} was called, even if the call then threw
+     * @return true once a rule obtained the environment through {@link GateRunServices#environment()}, or called
+     *     {@code require} or {@code optional}, even if the call then threw
      */
     public boolean wasRead() {
         return read.get();
+    }
+
+    void markRead() {
+        read.set(true);
     }
 
     @Override

@@ -4,11 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import archfixtures.launch.CleanLaunchRule;
+import archfixtures.launch.DirectlyUnavailableLaunchRule;
+import archfixtures.launch.EnvironmentHoldingLaunchRule;
 import archfixtures.launch.LaunchContextProvider;
 import archfixtures.launch.OptionalReadingLaunchRule;
 import archfixtures.launch.ReportBlockingLaunchRule;
 import archfixtures.launch.RequireThenFailLaunchRule;
 import archfixtures.launch.RequiringLaunchRule;
+import archfixtures.launch.UnavailableServiceLaunchRule;
 import archfixtures.launch.UnregisteredLaunchRule;
 import archfixtures.launch.WarningLaunchRule;
 import dev.quokkify.archgate.api.ArchitectureRule;
@@ -26,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 class GateLauncherTest {
@@ -276,6 +280,36 @@ class GateLauncherTest {
                             Optional.of(state)),
                     env.sink);
             assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=false");
+        }
+    }
+
+    @DataProvider
+    static Object[][] environmentTouchingRules() {
+        return new Object[][] {
+            {UnavailableServiceLaunchRule.class},
+            {EnvironmentHoldingLaunchRule.class},
+            {DirectlyUnavailableLaunchRule.class}
+        };
+    }
+
+    /** Regression guard: a rule that touched the environment without require or optional must not be reused. */
+    @Test(dataProvider = "environmentTouchingRules")
+    void stateFileRecordsEveryRunThatTouchedTheEnvironment(Class<?> rule) throws IOException {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+
+            GateLauncher.run(
+                    request(
+                            env.tempDir,
+                            "WARNING",
+                            List.of(),
+                            env.tempDir.resolve("gate.txt"),
+                            rule,
+                            name -> null,
+                            Optional.of(state)),
+                    env.sink);
+
+            assertThat(Files.readString(state, StandardCharsets.UTF_8)).isEqualTo("readEnvironment=true");
         }
     }
 

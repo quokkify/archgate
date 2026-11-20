@@ -18,4 +18,15 @@ public record GateRunServices(VariableEnvironment environment) implements RunSer
     public GateRunServices {
         Objects.requireNonNull(environment, "environment");
     }
+
+    /**
+     * Returns the environment and records that a rule touched it, so a later run does not reuse this one.
+     *
+     * @return the environment every context of the run shares
+     */
+    @Override
+    public VariableEnvironment environment() {
+        environment.markRead();
+        return environment;
+    }
 }
