@@ -48,6 +48,34 @@ class TestRailClientTest {
         }
     }
 
+    @Test(description = "Regression guard: the field configuration of the configured project wins over others")
+    void readsTheFieldConfigurationOfTheConfiguredProject() {
+        try (StubTestRail stub = new StubTestRail()) {
+            stub.reply("get_case_fields", 200, """
+                    [
+                      {"id": 2, "system_name": "custom_automation_type", "configs": [
+                        {"context": {"is_global": false, "project_ids": [3]}, "options": {"items": "2, Manual"}},
+                        {"context": {"is_global": true, "project_ids": null}, "options": {"items": "2, Other"}},
+                        {"context": {"is_global": false, "project_ids": [5, 7]}, "options": {"items": "2, Automated"}}
+                      ]},
+                      {"id": 3, "system_name": "custom_global", "configs": [
+                        {"context": {"is_global": false, "project_ids": [3]}, "options": {"items": "1, Elsewhere"}},
+                        {"context": {"is_global": true, "project_ids": null}, "options": {"items": "1, Everywhere"}}
+                      ]},
+                      {"id": 4, "system_name": "custom_foreign", "configs": [
+                        {"context": {"is_global": false, "project_ids": [3]}, "options": {"items": "1, Elsewhere"}}
+                      ]}
+                    ]
+                    """);
+
+            assertThat(stub.client().caseFields())
+                    .containsExactly(
+                            new FieldRecord("custom_automation_type", "2, Automated"),
+                            new FieldRecord("custom_global", "1, Everywhere"),
+                            new FieldRecord("custom_foreign", null));
+        }
+    }
+
     @Test
     void readsCaseFields() {
         try (StubTestRail stub = new StubTestRail()) {

@@ -100,7 +100,7 @@ final class TestRailClient implements CaseSource, AutoCloseable {
     @Override
     public List<FieldRecord> caseFields() {
         String endpoint = "get_case_fields";
-        return FieldRecord.listFrom(endpoint, get(endpoint));
+        return FieldRecord.listFrom(endpoint, get(endpoint), connection.projectId());
     }
 
     @Override
