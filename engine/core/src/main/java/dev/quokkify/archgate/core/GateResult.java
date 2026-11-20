@@ -16,6 +16,15 @@ public record GateResult(List<RuleOutcome> outcomes, Map<String, Duration> model
                 .count();
     }
 
+    /**
+     * Counts the rules that did not run because an outside dependency was unavailable.
+     *
+     * @return the number of skipped rules
+     */
+    public int externallySkipped() {
+        return (int) outcomes.stream().filter(RuleOutcome::externallySkipped).count();
+    }
+
     public Optional<Severity> worst() {
         return outcomes.stream()
                 .filter(outcome -> Objects.nonNull(outcome.finding()))

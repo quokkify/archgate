@@ -7,6 +7,7 @@ import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.context.classgraph.ClassGraphContext;
 import dev.quokkify.archgate.core.ContextResolver;
+import dev.quokkify.archgate.core.ExternalPolicy;
 import dev.quokkify.archgate.core.GateResult;
 import dev.quokkify.archgate.core.GateRunner;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
@@ -37,7 +38,7 @@ class ContextResolverIntegrationTest {
         ContextResolver resolver = new ContextResolver(layout, ContextResolverIntegrationTest.class.getClassLoader());
         List<ArchitectureRule<?>> rules = List.of(new ServiceFileConsistencyRule());
 
-        GateResult result = GateRunner.run(rules, resolver);
+        GateResult result = GateRunner.run(rules, resolver, ExternalPolicy.detect(name -> null));
         ClassGraphContext context = resolver.get(ClassGraphContext.class);
         resolver.close();
 

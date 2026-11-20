@@ -28,8 +28,13 @@ public final class ReportFormatter {
                 .formatted(rulesPhrase(result.outcomes().size()), total(result)));
         lines.add(SEPARATOR);
         result.outcomes().stream()
-                .filter(outcome -> Objects.isNull(outcome.finding()))
+                .filter(outcome -> Objects.isNull(outcome.finding()) && !outcome.externallySkipped())
                 .forEach(outcome -> lines.add(row("[PASS]", outcome)));
+        result.outcomes().stream().filter(RuleOutcome::externallySkipped).forEach(outcome -> {
+            lines.add(row("[SKIP]", outcome));
+            lines.add(CONTINUATION_INDENT + outcome.externalSkip().message());
+            lines.add(CONTINUATION_INDENT + outcome.externalSkip().reason());
+        });
         result.outcomes().stream()
                 .filter(outcome -> Objects.nonNull(outcome.finding()))
                 .forEach(outcome -> {
@@ -63,7 +68,12 @@ public final class ReportFormatter {
                 .count();
         String rules = rulesPhrase(result.outcomes().size())
                 + (partial == 0 ? "" : " (%d partially checked)".formatted(partial));
-        return "%s, %s".formatted(rules, findings.isEmpty() ? "no findings" : findings);
+        int externallySkipped = result.externallySkipped();
+        return "%s, %s%s"
+                .formatted(
+                        rules,
+                        findings.isEmpty() ? "no findings" : findings,
+                        externallySkipped == 0 ? "" : ", %d skipped".formatted(externallySkipped));
     }
 
     private static void addFailPolicy(List<String> lines, Optional<Severity> failOn) {

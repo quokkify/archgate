@@ -4,6 +4,7 @@ import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.Severity;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import dev.quokkify.archgate.core.ContextResolver;
+import dev.quokkify.archgate.core.ExternalPolicy;
 import dev.quokkify.archgate.core.FailOn;
 import dev.quokkify.archgate.core.GateResult;
 import dev.quokkify.archgate.core.GateRunner;
@@ -60,7 +61,7 @@ public final class GateLauncher {
         SimpleProjectLayout layout = new SimpleProjectLayout(
                 rootPackage, dirs.mainClasses(), dirs.testClasses(), dirs.mainSources(), dirs.testSources(), loader);
         try (ContextResolver contexts = new ContextResolver(layout, loader)) {
-            return GateRunner.run(rules, contexts);
+            return GateRunner.run(rules, contexts, ExternalPolicy.detect(name -> null));
         }
     }
 
