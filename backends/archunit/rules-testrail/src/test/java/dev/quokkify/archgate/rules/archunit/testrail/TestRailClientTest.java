@@ -337,7 +337,7 @@ class TestRailClientTest {
                     0);
 
             long started = System.nanoTime();
-            assertThatThrownBy(() -> new TestRailClient(connection).findCase(5))
+            assertThatThrownBy(() -> stub.client(connection).findCase(5))
                     .isInstanceOf(UncheckedIOException.class)
                     .hasMessage("TestRail get_case/5 timed out after 200 ms")
                     .hasMessageNotContaining(PASSWORD);
@@ -360,7 +360,7 @@ class TestRailClientTest {
                     Duration.ofMillis(150),
                     0);
 
-            assertThatThrownBy(() -> new TestRailClient(connection).findCase(5))
+            assertThatThrownBy(() -> stub.client(connection).findCase(5))
                     .isInstanceOf(UncheckedIOException.class)
                     .hasMessage("TestRail get_case/5 timed out after 150 ms");
         }
@@ -374,7 +374,7 @@ class TestRailClientTest {
                 port = socket.getLocalPort();
             }
             TestRailClient unreachable =
-                    new TestRailClient(TestRailConnection.of("http://127.0.0.1:" + port, USER, PASSWORD, PROJECT));
+                    stub.client(TestRailConnection.of("http://127.0.0.1:" + port, USER, PASSWORD, PROJECT));
 
             assertThatThrownBy(unreachable::caseFields)
                     .isInstanceOf(UncheckedIOException.class)
@@ -389,7 +389,8 @@ class TestRailClientTest {
         try (StubTestRail stub = new StubTestRail()) {
             stub.reply("get_case_fields", 200, "[]");
 
-            new TestRailClient(TestRailConnection.of(stub.baseUrl() + "/", USER, PASSWORD, PROJECT)).caseFields();
+            stub.client(TestRailConnection.of(stub.baseUrl() + "/", USER, PASSWORD, PROJECT))
+                    .caseFields();
 
             assertThat(stub.requests().get(0).path()).isEqualTo("/index.php");
         }
@@ -465,6 +466,7 @@ class TestRailClientTest {
         private final HttpServer server;
         private final Map<String, Reply> replies = new ConcurrentHashMap<>();
         private final List<Request> requests = new CopyOnWriteArrayList<>();
+        private final List<TestRailClient> clients = new CopyOnWriteArrayList<>();
         private final CountDownLatch release = new CountDownLatch(1);
         private final ExecutorService executor = Executors.newCachedThreadPool();
         private volatile boolean pageForever;
@@ -481,7 +483,14 @@ class TestRailClientTest {
         }
 
         TestRailClient client() {
-            return new TestRailClient(TestRailConnection.of(baseUrl(), USER, PASSWORD, PROJECT));
+            return client(TestRailConnection.of(baseUrl(), USER, PASSWORD, PROJECT));
+        }
+
+        /** Creates a client that {@link #close()} closes, so no test leaks its HTTP client. */
+        TestRailClient client(TestRailConnection connection) {
+            TestRailClient client = new TestRailClient(connection);
+            clients.add(client);
+            return client;
         }
 
         String baseUrl() {
@@ -510,6 +519,7 @@ class TestRailClientTest {
 
         @Override
         public void close() {
+            clients.forEach(TestRailClient::close);
             release.countDown();
             server.stop(0);
             executor.shutdownNow();
