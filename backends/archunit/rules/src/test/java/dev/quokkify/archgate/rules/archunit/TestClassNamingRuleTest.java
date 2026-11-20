@@ -51,14 +51,14 @@ class TestClassNamingRuleTest {
         assertThatThrownBy(() -> rule.verify(new ClassFileImporter().importClasses()))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("test naming was not verified")
-                .hasMessageNotContaining("casino");
+                .hasMessageContaining("Build the test classes first");
     }
 
     @Test
     void emptyTestClassViewIsUnableToVerify() {
         assertThatThrownBy(() -> new TestClassNamingRule().verify(FixtureContexts.of("archfixtures.nosuchpackage")))
                 .isInstanceOf(UnableToVerifyError.class)
-                .hasMessageNotContaining("casino");
+                .hasMessageContaining("Build the modules first");
     }
 
     @Test
