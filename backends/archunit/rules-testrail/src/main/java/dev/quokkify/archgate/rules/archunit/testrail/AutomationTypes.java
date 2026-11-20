@@ -38,7 +38,7 @@ final class AutomationTypes {
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("TestRail case field %s not found".formatted(field)));
         if (Objects.isNull(automationType.items())) {
-            throw new IllegalStateException("TestRail case field %s has no options".formatted(field));
+            throw noOptions(field);
         }
         Map<Integer, String> names = new LinkedHashMap<>();
         for (String line : automationType.items().split("\n")) {
@@ -61,6 +61,13 @@ final class AutomationTypes {
                         "TestRail case field %s has an unreadable option '%s'".formatted(field, option), unreadable);
             }
         }
+        if (names.isEmpty()) {
+            throw noOptions(field);
+        }
         return Collections.unmodifiableMap(names);
+    }
+
+    private static IllegalStateException noOptions(String field) {
+        return new IllegalStateException("TestRail case field %s has no options".formatted(field));
     }
 }

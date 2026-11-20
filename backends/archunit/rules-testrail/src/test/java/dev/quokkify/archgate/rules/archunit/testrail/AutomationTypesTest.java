@@ -33,6 +33,13 @@ class AutomationTypesTest {
                 .hasMessage("TestRail case field custom_automation_type has no options");
     }
 
+    @Test(description = "Regression guard: an option list with only blank lines counts as no options")
+    void failsWhenTheOptionsAreBlank() {
+        assertThatThrownBy(() -> AutomationTypes.parse(List.of(new FieldRecord("custom_automation_type", " \n\r\n "))))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("TestRail case field custom_automation_type has no options");
+    }
+
     @Test
     void failsOnAnUnreadableOption() {
         assertThatThrownBy(() -> AutomationTypes.parse(List.of(new FieldRecord("custom_automation_type", "x, Manual"))))
