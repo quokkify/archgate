@@ -20,7 +20,7 @@ import java.util.concurrent.Future;
 public final class GateRunner {
 
     private static final String NOT_CI_REASON =
-            "Skipped because this is not a CI run (no CI variable set); in CI this fails the build.";
+            "Skipped because this is not a CI run (%s); in CI this fails the build.";
     private static final String CI_SERVICE_REASON = "Skipped in CI because the service is unavailable (%s=skip); "
                     .formatted(ExternalPolicy.SERVICE_UNAVAILABLE_PROPERTY)
             + "the rule checked nothing.";
@@ -113,7 +113,8 @@ public final class GateRunner {
     private static Evaluation unavailable(
             ArchitectureRule<?> rule, ExternalDependencyUnavailable signal, ExternalPolicy policy, Duration duration) {
         if (!policy.ci()) {
-            return Evaluation.skipped(rule, new ExternalSkip(signal.getMessage(), NOT_CI_REASON), duration);
+            return Evaluation.skipped(
+                    rule, new ExternalSkip(signal.getMessage(), NOT_CI_REASON.formatted(policy.ciSource())), duration);
         }
         if (policy.skipsInCi(signal)) {
             return Evaluation.skipped(rule, new ExternalSkip(signal.getMessage(), CI_SERVICE_REASON), duration);

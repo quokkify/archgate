@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Objects;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
 import org.gradle.testkit.runner.TaskOutcome;
@@ -39,6 +40,7 @@ class CachingFunctionalTest {
             import dev.quokkify.archgate.api.Severity;
             import dev.quokkify.archgate.context.archunit.ArchUnitContext;
             import java.util.List;
+import java.util.Objects;
 
             public class TrackerTokenRule implements ArchitectureRule<ArchUnitContext> {
 
@@ -151,6 +153,34 @@ class CachingFunctionalTest {
 
             assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
             assertThat(second.getOutput()).contains(TRACKER_TOKEN_FINDING.formatted("unset"));
+        }
+    }
+
+    @DataProvider
+    static Object[][] unreadableStates() {
+        return new Object[][] {{"deleted", null}, {"garbage", "readEnvironment=\\u00zz\n"}};
+    }
+
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test(dataProvider = "unreadableStates")
+    void unreadableStateFileIsNotUpToDate(String kind, String content) throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            runner(project, List.of()).build();
+            Path state = project.resolve("build/reports/archgate/state.properties");
+            assertThat(state).as("state file after the first run").isRegularFile();
+            if (Objects.isNull(content)) {
+                Files.delete(state);
+            } else {
+                Files.writeString(state, content, StandardCharsets.UTF_8);
+            }
+
+            BuildResult second = runner(project, List.of()).build();
+
+            assertThat(second.task(CHECK_TASK).getOutcome())
+                    .as("state file %s", kind)
+                    .isEqualTo(TaskOutcome.SUCCESS);
         }
     }
 

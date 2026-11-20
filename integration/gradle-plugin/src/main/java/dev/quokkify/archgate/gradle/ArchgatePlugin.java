@@ -115,7 +115,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
             Properties state = new Properties();
             try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
                 state.load(reader);
-            } catch (IOException e) {
+            } catch (IOException | IllegalArgumentException e) {
                 task.getLogger().info("archgate: cannot read the state file {}: {}", file, e.getMessage());
                 return false;
             }

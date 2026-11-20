@@ -176,6 +176,24 @@ class GateRunnerTest {
                 .hasCauseInstanceOf(ExternalDependencyUnavailable.class);
     }
 
+    // Regression guard: the not-CI reason names the real source of the decision, not a fixed text.
+    @Test
+    void notCiReasonNamesTheOverrideThatDecidedIt() {
+        ExternalPolicy overridden =
+                ExternalPolicy.detect(name -> ExternalPolicy.CI_PROPERTY.equals(name) ? "false" : null);
+
+        GateResult result = GateRunner.run(
+                List.of(unavailable("ext", ExternalDependencyUnavailable.missingVariables(List.of("T")))),
+                TestRules.resolver(),
+                overridden);
+
+        assertThat(result.outcomes())
+                .singleElement()
+                .satisfies(outcome -> assertThat(outcome.externalSkip().reason())
+                        .isEqualTo("Skipped because this is not a CI run (archgate.ci=false); "
+                                + "in CI this fails the build."));
+    }
+
     @Test
     void serviceUnavailableSkipsInCiWhenAllowed() {
         ExternalPolicy skipping = ExternalPolicy.detect(name -> switch (name) {
