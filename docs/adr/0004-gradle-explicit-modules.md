@@ -22,5 +22,5 @@ Gradle has no equivalent that is both cheap and correct. Reading the class direc
 ## Consequences
 
 - The Gradle and Maven plugins differ on purpose in the default module selection. The documentation says so, and the parity tests cover the single-module and explicit `modules` cases.
-- Consumers write one line per checked project, and get correct up-to-date behaviour and build cache hits in return.
+- Consumers write one line per checked project, and get correct up-to-date behaviour in return. The task is not build-cached and is `UP-TO-DATE` only when the previous run did not touch the environment; see [ADR 0009](0009-archgate-check-not-build-cached.md).
 - A forgotten `skip = true` or `rootPackage` fails loudly instead of silently checking nothing.
