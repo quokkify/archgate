@@ -10,6 +10,7 @@ import archfixtures.uniquetmslink.ConcreteChildTest;
 import archfixtures.uniquetmslink.GenericCheck;
 import archfixtures.uniquetmslink.HelperMethods;
 import archfixtures.uniquetmslink.MultipleIdsTest;
+import archfixtures.uniquetmslink.PrefixSpellingTest;
 import archfixtures.uniquetmslink.SameClassDuplicateTest;
 import archfixtures.uniquetmslink.UniqueIdsTest;
 import archfixtures.uniquetmslink.WhitespaceAndBlankIdsTest;
@@ -80,6 +81,22 @@ public class TmsLinkUniqueRuleTest {
         JavaClasses bridged = new ClassFileImporter().importClasses(BridgedOverrideTest.class, GenericCheck.class);
 
         assertThat(TmsLinkUniqueRule.violations(bridged, Map.of(), false)).isEmpty();
+    }
+
+    @Test(
+            description =
+                    "Regression guard: a bare id and its C-prefixed spelling name the same case, also on one method")
+    public void bareAndPrefixedSpellingsCollide() {
+        JavaClasses spellings = new ClassFileImporter().importClasses(PrefixSpellingTest.class);
+
+        assertThat(TmsLinkUniqueRule.violations(spellings, Map.of(), false))
+                .singleElement()
+                .satisfies(detail -> assertThat(detail)
+                        .contains(
+                                "TmsLink id <C131>",
+                                "2 test methods",
+                                "PrefixSpellingTest.bare()",
+                                "PrefixSpellingTest.prefixed()"));
     }
 
     @Test(description = "Id shared by test methods of different classes is reported with every method")

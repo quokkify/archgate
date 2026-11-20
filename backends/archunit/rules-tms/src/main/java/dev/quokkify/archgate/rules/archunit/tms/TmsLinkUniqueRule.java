@@ -26,6 +26,8 @@ public class TmsLinkUniqueRule implements ArchitectureRule<ArchUnitContext> {
       Every @io.qameta.allure.TmsLink case id must identify a single TestNG test method; \
       one method may still carry several distinct case ids.""";
 
+    private static final String CASE_PREFIX = "C";
+
     private static final Comparator<String> BY_ID =
             Comparator.comparingInt(String::length).thenComparing(Comparator.naturalOrder());
 
@@ -97,7 +99,9 @@ public class TmsLinkUniqueRule implements ArchitectureRule<ArchUnitContext> {
                 .flatMap(javaClass -> javaClass.getMethods().stream())
                 .filter(TestMethods::isTestMethod)
                 .filter(method -> excludedAnnotations.stream().noneMatch(method::isAnnotatedWith))
-                .forEach(method -> TmsLinks.ids(method)
+                .forEach(method -> TmsLinks.ids(method).stream()
+                        .map(TmsLinkUniqueRule::canonicalId)
+                        .distinct()
                         .forEach(id -> methodsById
                                 .computeIfAbsent(id, key -> new ArrayList<>())
                                 .add(method)));
@@ -106,6 +110,13 @@ public class TmsLinkUniqueRule implements ArchitectureRule<ArchUnitContext> {
                 .filter(entry -> !(allowDuplicatesWithinClass && declaredByOneClass(entry.getValue())))
                 .map(entry -> describe(entry.getKey(), entry.getValue()))
                 .toList();
+    }
+
+    private static String canonicalId(String id) {
+        if (!TmsLinkFormatRule.DEFAULT_FORMAT.matcher(id).matches()) {
+            return id;
+        }
+        return id.startsWith(CASE_PREFIX) ? id : CASE_PREFIX + id;
     }
 
     private static Predicate<JavaClass> skippedClasses(Map<String, String> exclusions) {

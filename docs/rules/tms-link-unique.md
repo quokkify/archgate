@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRule` · **WARNING** · test · artifact `archgate-rules-archunit-tms`
 
-A `@TmsLink` case id may appear on one TestNG test method only. Ids come from `@TmsLink` and from every `@TmsLink` inside `@TmsLinks`; surrounding whitespace is stripped before ids are compared and blank values are ignored. One method may carry several different ids.
+A `@TmsLink` case id may appear on one TestNG test method only. Ids come from `@TmsLink` and from every `@TmsLink` inside `@TmsLinks`; surrounding whitespace is stripped before ids are compared and blank values are ignored. An id in the default case-id shape (see [TmsLink format](tms-link-format.md)) is compared with its `C` prefix, so `123` and `C123` are the same case and are reported as `C123`; other ids are compared as written. One method may carry several different ids.
 
 **Why.** When two methods claim the same case, a result for that case is ambiguous: one failing method hides behind the other's pass.
 
