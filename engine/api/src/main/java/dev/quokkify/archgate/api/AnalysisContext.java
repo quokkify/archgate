@@ -74,4 +74,18 @@ public interface AnalysisContext {
         }
         return present;
     }
+
+    /**
+     * Returns the variables rules may read from outside the build.
+     *
+     * <p>Implementations should delegate to {@link ProjectLayout#services()}.
+     *
+     * @return the environment of this run
+     * @throws UnableToVerifyError by default, because the context provides none
+     */
+    default Environment environment() {
+        throw new UnableToVerifyError(
+                "%s provides no environment. Update it to delegate environment() to ProjectLayout.services()."
+                        .formatted(getClass().getName()));
+    }
 }
