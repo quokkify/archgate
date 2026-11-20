@@ -32,6 +32,7 @@ final class StubCaseSource implements CaseSource {
     private final Map<Integer, RuntimeException> caseFailures = new ConcurrentHashMap<>();
     private final List<PageRequest> pageRequests = new CopyOnWriteArrayList<>();
     private final Map<Integer, AtomicInteger> activePagesBySuite = new ConcurrentHashMap<>();
+    private final Set<Integer> endlessSuites = ConcurrentHashMap.newKeySet();
     private final AtomicBoolean pagesOfSuitesOverlapped = new AtomicBoolean();
     private final List<Integer> findCaseIds = new CopyOnWriteArrayList<>();
     private final AtomicInteger active = new AtomicInteger();
@@ -63,6 +64,12 @@ final class StubCaseSource implements CaseSource {
                 caseIds.stream().map(id -> record(id, suiteId)).toList();
         suites.put(suiteId, suiteCases);
         suiteCases.forEach(record -> cases.put(record.id(), record));
+        return this;
+    }
+
+    /** A suite whose every page is full, however far the offset goes. */
+    StubCaseSource endlessPages(int suiteId) {
+        endlessSuites.add(suiteId);
         return this;
     }
 
@@ -172,6 +179,11 @@ final class StubCaseSource implements CaseSource {
         try {
             return call(suitePageDelay, failure, () -> {
                 List<CaseRecord> suiteCases = suites.getOrDefault(suiteId, List.of());
+                if (endlessSuites.contains(suiteId)) {
+                    return IntStream.range(offset, offset + PAGE_SIZE)
+                            .mapToObj(index -> record(-1 - index, suiteId))
+                            .toList();
+                }
                 if (offset >= suiteCases.size()) {
                     return List.of();
                 }

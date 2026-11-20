@@ -428,6 +428,19 @@ class IndexLoaderTest {
                 .hasMessage("TestRail request failed: java.lang.IllegalStateException");
     }
 
+    @Test(timeOut = TIMEOUT_MS, description = "Regression guard: a suite whose pages never end is cut off")
+    void endlessSuitePagesAreCutOff() {
+        StubCaseSource source = new StubCaseSource().suite(1, 1, 60).endlessPages(1);
+
+        CaseServiceUnavailableException thrown = failLoad(source, 2, BUDGET, ids(1, 60, 1));
+
+        assertThat(thrown)
+                .hasMessage("TestRail suite 1 returned %d full pages without an end"
+                        .formatted(IndexLoader.MAX_PAGES_PER_SUITE))
+                .hasCauseInstanceOf(IllegalStateException.class);
+        assertThat(source.suitePageOffsets(1)).hasSizeLessThanOrEqualTo(IndexLoader.MAX_PAGES_PER_SUITE + 2);
+    }
+
     @Test(timeOut = TIMEOUT_MS, description = "The first failure cancels outstanding requests without waiting for them")
     void firstFailureCancelsOutstandingRequests() throws InterruptedException {
         TestRailApiException failure = new TestRailApiException("get_cases/7", 500);

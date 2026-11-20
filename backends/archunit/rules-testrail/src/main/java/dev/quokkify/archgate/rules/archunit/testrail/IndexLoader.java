@@ -43,6 +43,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 final class IndexLoader {
 
+    /** Most case pages read from one suite; a suite that still returns a full page at this count is cut off. */
+    static final int MAX_PAGES_PER_SUITE = 1000;
+
     private static final int RATE_LIMITED = 429;
     private static final int UNAUTHORIZED = 401;
     private static final int FORBIDDEN = 403;
@@ -204,7 +207,12 @@ final class IndexLoader {
                 inFlight.remove(done);
                 Page page = result(done, inFlight);
                 collect(page);
-                queue.complete(page);
+                try {
+                    queue.complete(page);
+                } catch (IllegalStateException endless) {
+                    cancel(inFlight);
+                    throw new CaseServiceUnavailableException(endless.getMessage(), endless);
+                }
             }
         }
 
@@ -348,7 +356,7 @@ final class IndexLoader {
 
     /**
      * Queue of suite pages still to fetch. Every newly found suite contributes its first page; a full page adds the
-     * next one, and a page with fewer cases than requested ends that suite.
+     * next one, and a page with fewer cases than requested ends that suite. A full last allowed page fails the load.
      */
     private static final class PageQueue {
 
@@ -377,6 +385,9 @@ final class IndexLoader {
             if (page.cases().size() < CaseSource.PAGE_SIZE) {
                 openSuites.remove(page.suiteId());
                 closedSuites.add(page.suiteId());
+            } else if (page.offset() / CaseSource.PAGE_SIZE + 1 >= MAX_PAGES_PER_SUITE) {
+                throw new IllegalStateException("TestRail suite %d returned %d full pages without an end"
+                        .formatted(page.suiteId(), MAX_PAGES_PER_SUITE));
             } else if (!closedSuites.contains(page.suiteId())) {
                 openSuites.putIfAbsent(page.suiteId(), page.offset() + CaseSource.PAGE_SIZE);
             }
