@@ -43,9 +43,9 @@ public final class GateLauncher {
             thread.setContextClassLoader(loader);
             VariableEnvironment environment = new VariableEnvironment(request.lookup(), policy.offline());
             GateResult result = evaluate(request, rootPackage, loader, policy, environment);
-            request.stateFile().ifPresent(file -> writeState(file, environment));
             policy.offlineWarning().ifPresent(warning -> sink.line(Severity.WARNING, warning));
             report(result, threshold, request.reportFile(), sink);
+            request.stateFile().ifPresent(file -> writeState(file, environment));
             if (result.failsOn(threshold)) {
                 throw new GateFailure(
                         "Architecture gate failed: %s; failure policy: failOn=%s"

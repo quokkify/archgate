@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import archfixtures.launch.CleanLaunchRule;
 import archfixtures.launch.LaunchContextProvider;
 import archfixtures.launch.OptionalReadingLaunchRule;
+import archfixtures.launch.ReportBlockingLaunchRule;
 import archfixtures.launch.RequireThenFailLaunchRule;
 import archfixtures.launch.RequiringLaunchRule;
 import archfixtures.launch.UnregisteredLaunchRule;
@@ -316,6 +317,30 @@ class GateLauncherTest {
                                     Optional.of(state)),
                             env.sink))
                     .isInstanceOf(UnableToVerifyError.class);
+
+            assertThat(state).doesNotExist();
+        }
+    }
+
+    /** Regression guard: a report that cannot be written must not leave a state file behind. */
+    @Test
+    void stateFileIsNotWrittenWhenTheReportCannotBeWritten() {
+        try (Env env = new Env()) {
+            Path state = env.tempDir.resolve("env.txt");
+            Path blocker = env.tempDir.resolve("blocker");
+
+            assertThatThrownBy(() -> GateLauncher.run(
+                            request(
+                                    env.tempDir,
+                                    "WARNING",
+                                    List.of(),
+                                    blocker.resolve("gate.txt"),
+                                    ReportBlockingLaunchRule.class,
+                                    name -> "BLOCK".equals(name) ? blocker.toString() : null,
+                                    Optional.of(state)),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessageStartingWith("Cannot write the report file");
 
             assertThat(state).doesNotExist();
         }

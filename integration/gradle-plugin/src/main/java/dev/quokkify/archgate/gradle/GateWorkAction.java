@@ -6,6 +6,7 @@ import dev.quokkify.archgate.core.launch.GateFailure;
 import dev.quokkify.archgate.core.launch.GateLauncher;
 import dev.quokkify.archgate.core.launch.LaunchRequest;
 import dev.quokkify.archgate.core.launch.ModuleDirs;
+import dev.quokkify.archgate.core.launch.VariableLookup;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
@@ -42,7 +43,7 @@ public abstract class GateWorkAction implements WorkAction<GateWorkParameters> {
                 paths(parameters.getOwnDirs()),
                 paths(parameters.getRuleClasspath()),
                 Optional.of(parameters.getReportFile().get().getAsFile().toPath()),
-                RunLookup::lookup,
+                VariableLookup.firstNonBlank(List.of(System::getProperty, System::getenv)),
                 Optional.empty());
     }
 
