@@ -268,6 +268,36 @@ Rules that need the same expensive input, such as the answer of an outside servi
 - A failed build is kept. Every rule that uses the name gets the same failure, and the build is not repeated, so a service that is down is asked once. If the failure is an `unavailable(...)` signal, every rule that uses the value is skipped under the rules in [CI, offline and service failures](#ci-offline-and-service-failures). If it is an `AssertionError` or `ArchitectureViolation`, it becomes a finding in each of those rules.
 - The time spent in `shared` is not part of the rules' own durations; the report shows it on the `Shared:` line, see [Reading the report](#reading-the-report).
 
+## Checking only the files a pull request changed
+
+On a pull request, a rule that calls an external service can check only the files the pull request touched, which saves requests. The convention is one optional variable, `archgate.changedFiles`: the path to a UTF-8 file with one repository-relative path per line. The engine never reads this file. It reaches a rule through `context.environment().optional("archgate.changedFiles")`, available since the release that added external-service support; see [Rules that call external services](#rules-that-call-external-services). A rule opts in; a rule that does not look at the variable always checks the whole project.
+
+| `archgate.changedFiles` | What a rule that supports it does |
+|---|---|
+| Unset or blank | Checks the whole project. |
+| Names a file | Checks only the classes whose source file is listed. Makes no request and passes when none of its files changed. |
+| Names a file that cannot be read | Fails. The caller asked for a partial check that cannot be done, so passing would hide that. |
+
+A rule that shares its load can show the mode in the shared-value name, for example `Shared: issue index (changed files) 1583 ms`.
+
+### Who sets it
+
+The CI pipeline of the consuming project sets it. A generic recipe for a pull request pipeline:
+
+```
+git diff --name-only <base>...HEAD -- '*.java' > changed.txt
+mvn verify -Darchgate.changedFiles=changed.txt      # Maven
+./gradlew check -Darchgate.changedFiles=changed.txt # Gradle
+```
+
+Leave it unset, so that the whole project is checked, when:
+
+- the pipeline is not a pull request pipeline;
+- build files change (`pom.xml`, `.mvn/`, Gradle build files, CI configuration), because such a change can affect every class;
+- the diff cannot be computed.
+
+Nothing sets it locally, so a local build runs the full check.
+
 ## Reading the report
 
 ```
