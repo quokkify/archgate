@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import archfixtures.bridgedcases.BridgedOverrideTest;
+import archfixtures.bridgedcases.GenericCheck;
 import archfixtures.caserules.ExistingCasesTest;
 import archfixtures.caserules.ForeignTest;
 import archfixtures.caserules.MissingCasesTest;
@@ -38,6 +40,20 @@ public class CaseExistsRuleTest {
                 .satisfiesExactly(
                         line -> assertThat(line).matches("C9   MissingCasesTest\\.java:\\d+"),
                         line -> assertThat(line).matches("C10  MissingCasesTest\\.java:\\d+ \\(\\+1 more\\)"));
+    }
+
+    @Test(description = "Regression guard: a compiler-generated bridge does not count as a second linking method")
+    public void bridgeMethodDoesNotDuplicateItsOverride() {
+        LinkedCases linked =
+                LinkedCases.from(new ClassFileImporter().importClasses(BridgedOverrideTest.class, GenericCheck.class));
+        CaseIndex index = new CaseIndex(Map.of(), Set.of(130), Set.of(), Map.of());
+
+        List<ViolationGroup> groups = CaseExistsRule.violations("Tracker", linked, index);
+
+        assertThat(groups.get(0).violations())
+                .singleElement()
+                .asString()
+                .matches("C130  BridgedOverrideTest\\.java:\\d+");
     }
 
     @Test(description = "Ids found in the service pass")
