@@ -47,6 +47,21 @@ class ArchitectureRuleTest {
     }
 
     @Test
+    void checkViolationGroupsPassesWhenAllEmpty() {
+        assertThatCode(() -> RULE.checkViolationGroups(
+                        "C", List.of(new ViolationGroup("a", List.of()), new ViolationGroup("b", List.of()))))
+                .doesNotThrowAnyException();
+    }
+
+    @Test
+    void checkViolationGroupsThrowsWhenAGroupHasViolations() {
+        assertThatThrownBy(() -> RULE.checkViolationGroups(
+                        "C", List.of(new ViolationGroup("a", List.of()), new ViolationGroup("b", List.of("x")))))
+                .isInstanceOf(ArchitectureViolation.class)
+                .hasMessageContaining("Violations (1) \"b\":");
+    }
+
+    @Test
     void checkViolationsWithEmptyListPasses() {
         assertThatCode(() -> RULE.checkViolations("C", List.of())).doesNotThrowAnyException();
     }

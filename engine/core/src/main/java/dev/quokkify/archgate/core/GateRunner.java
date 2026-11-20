@@ -8,6 +8,7 @@ import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.UnableToVerifyError;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -59,7 +60,7 @@ public final class GateRunner {
             throw unable;
         }
         outcomes.sort(Comparator.comparing(outcome -> outcome.rule().name()));
-        return new GateResult(List.copyOf(outcomes), contexts.buildTimes(), elapsedMillis);
+        return new GateResult(List.copyOf(outcomes), contexts.buildTimes(), contexts.sharedBuildTimes(), elapsedMillis);
     }
 
     private static List<Evaluation> evaluateAll(
@@ -93,6 +94,7 @@ public final class GateRunner {
 
     private static <C extends AnalysisContext> Evaluation evaluate(
             ArchitectureRule<C> rule, ContextResolver contexts, ExternalPolicy policy) {
+        GateRunServices.takeTimeInShared();
         long startedAt = System.nanoTime();
         try {
             C context = contexts.get(rule.contextType());
@@ -140,8 +142,13 @@ public final class GateRunner {
         return Set.copyOf(skipped);
     }
 
+    /**
+     * Measures the rule's own time: everything since {@code startedAt} on this thread except the time spent
+     * building or waiting for shared values, which the report shows on its own line.
+     */
     private static Duration since(long startedAt) {
-        return Duration.ofNanos(System.nanoTime() - startedAt);
+        long elapsed = System.nanoTime() - startedAt;
+        return Duration.ofNanos(Math.max(0, elapsed - GateRunServices.takeTimeInShared()));
     }
 
     private static UnableToVerifyError unableToVerify(ArchitectureRule<?> rule, Throwable cause) {
@@ -157,7 +164,7 @@ public final class GateRunner {
         if (Objects.isNull(first)) {
             return next;
         }
-        if (first != next) {
+        if (first != next && !Arrays.asList(first.getSuppressed()).contains(next)) {
             first.addSuppressed(next);
         }
         return first;

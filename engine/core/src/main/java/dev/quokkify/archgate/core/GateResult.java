@@ -7,7 +7,39 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-public record GateResult(List<RuleOutcome> outcomes, Map<String, Duration> modelBuildTimes, long elapsedMillis) {
+/**
+ * The outcome of one gate run.
+ *
+ * @param outcomes the outcome of every rule, sorted by rule name
+ * @param modelBuildTimes how long each analysis model took to build
+ * @param sharedBuildTimes how long each shared value took to build, sorted by name
+ * @param elapsedMillis how long the rules took altogether
+ */
+public record GateResult(
+        List<RuleOutcome> outcomes,
+        Map<String, Duration> modelBuildTimes,
+        Map<String, Duration> sharedBuildTimes,
+        long elapsedMillis) {
+
+    /**
+     * Creates a result.
+     *
+     * @throws NullPointerException if {@code sharedBuildTimes} is null
+     */
+    public GateResult {
+        Objects.requireNonNull(sharedBuildTimes, "sharedBuildTimes");
+    }
+
+    /**
+     * Creates a result of a run that shared no values.
+     *
+     * @param outcomes the outcome of every rule, sorted by rule name
+     * @param modelBuildTimes how long each analysis model took to build
+     * @param elapsedMillis how long the rules took altogether
+     */
+    public GateResult(List<RuleOutcome> outcomes, Map<String, Duration> modelBuildTimes, long elapsedMillis) {
+        this(outcomes, modelBuildTimes, Map.of(), elapsedMillis);
+    }
 
     public int count(Severity severity) {
         return (int) outcomes.stream()

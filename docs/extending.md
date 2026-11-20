@@ -18,7 +18,7 @@ This page is the contract between ArchGate and code that plugs into it: rules (`
 ## Rules
 
 - `verify` must be safe to call on a shared context from several threads at once. Keep per-run state in local variables, not in fields of the rule.
-- To report findings, throw `ArchitectureViolation`, usually through `checkViolations(expectedContract, violations)`. An `AssertionError` is reported as a finding too. The rule's `severity()` decides whether a finding fails the build under the configured `failOn`.
+- To report findings, throw `ArchitectureViolation`, usually through `checkViolations(expectedContract, violations)`. An `AssertionError` is reported as a finding too. To list findings by reason, call `checkViolationGroups(expectedContract, groups)` with `ViolationGroup(title, violations)` entries: each non-empty group is printed as `Violations (N) "<title>":` and empty groups are omitted. The rule's `severity()` decides whether a finding fails the build under the configured `failOn`.
 - Throw `UnableToVerifyError` when the rule cannot give a trustworthy answer, for example because the classes it needs are missing. It fails the build whatever `failOn` says, and no report is written. Any other exception or error from `verify` is turned into an unable-to-verify error as well.
 - Never pass silently because there was nothing to look at: a rule that checked nothing must throw `UnableToVerifyError` rather than return.
 - A rule whose `scopes()` holds more than one scope reads them through its own `scopesToCheck(context)`. By default it returns the scopes whose view has something to analyse, so a module without test classes is still checked in main, and it throws `UnableToVerifyError` when every scope is empty or `scopes()` is empty. A rule that reads one scope reads its view directly, which fails closed when the view is empty.
@@ -61,6 +61,25 @@ public void verify(ArchUnitContext context) {
 - `unavailable(service, cause)` creates the signal for a service that does not answer. `throw` it; it is not thrown for you.
 - `ExternalDependencyUnavailable` is the only signal that makes a rule `[SKIP]`. Outside CI the rule is skipped; in CI the build fails, except that `archgate.ci.serviceUnavailable=skip` skips a service failure. A finding is still an `ArchitectureViolation`. See [Rules that call external services](configuration.md#rules-that-call-external-services).
 - A third-party `AnalysisContext` or `ProjectLayout` gets an actionable `UnableToVerifyError` when a rule calls `environment()` or `services()` until it implements them. A context should delegate `environment()` to `ProjectLayout.services()` on each call, not when it is created: on Gradle, obtaining the environment means the next run cannot be `UP-TO-DATE`.
+
+## Rules that share a load
+
+Several rules sometimes need the same expensive input, for example the answer of an outside service. Ask for it through `context.shared(name, build)`, available on every built-in context:
+
+```java
+@Override
+public void verify(ArchUnitContext context) {
+  Set<String> index = context.shared("issue index", () -> loadIssueIndex(context.environment()));
+  checkViolations("Cases refer to existing issues", unknownIssues(index));
+}
+```
+
+- The value is built once per gate execution. A gate aggregates every selected module, so a multi-module build with one gate module loads it once, not once per module. The first caller builds the value; concurrent callers wait and get the same object, so treat it as read-only.
+- If `build` throws, every caller gets the same throwable and `build` is not called again, so a service that is down is asked once. An `unavailable(...)` signal thrown inside `build` therefore skips every rule that uses the value. An `AssertionError` or `ArchitectureViolation` thrown by `build` is cached too and becomes a finding in every rule that uses the name.
+- One name is one value: rules that use the same name must pass equivalent inputs, because only the first `build` runs.
+- `build` must not ask for its own name. The same thread asking again fails with `UnableToVerifyError`: `Shared value '<name>' is requested again while it is being built, so it can never be built.` Asking for another shared value inside `build` is fine, unless shared values depend on each other in a cycle across rules that run in parallel. That is not detected and the run hangs.
+- Time spent inside `shared` is not counted in the durations of the rules. The report prints the build time once per name on a `Shared: <name> <ms> ms, ...` line after `Model build:`, failed builds included.
+- A third-party `AnalysisContext` must implement `shared`; the default throws `UnableToVerifyError`. Delegate it to `ProjectLayout.services().shared(name, build)`.
 
 ## Backends
 

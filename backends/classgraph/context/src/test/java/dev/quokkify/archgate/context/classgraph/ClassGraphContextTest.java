@@ -205,4 +205,17 @@ class ClassGraphContextTest {
 
         assertThat(seen).isSameAs(environment);
     }
+
+    @Test
+    void sharedDelegatesToLayout() {
+        GateRunServices services = new GateRunServices(new VariableEnvironment(name -> null, false));
+        SimpleProjectLayout layout = new SimpleProjectLayout(
+                ROOT, List.of(), List.of(), List.of(), List.of(), getClass().getClassLoader(), services);
+        Object value = new Object();
+
+        Object seen = new ClassGraphContextProvider().create(layout).shared("load", () -> value);
+
+        assertThat(seen).isSameAs(value);
+        assertThat(services.shared("load", Object::new)).isSameAs(value);
+    }
 }

@@ -18,6 +18,26 @@ class RunServicesFallbackTest {
     }
 
     @Test
+    void contextWithoutSharedValuesFailsActionably() {
+        AnalysisContext context = new AnalysisContext() {};
+
+        assertThatThrownBy(() -> context.shared("load", () -> "v"))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("provides no shared values")
+                .hasMessageContaining("ProjectLayout.services()");
+    }
+
+    @Test
+    void servicesWithoutSharedValuesFailActionably() {
+        RunServices services = () -> null;
+
+        assertThatThrownBy(() -> services.shared("load", () -> "v"))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessageContaining("cannot share values")
+                .hasMessageContaining("RunServices.shared");
+    }
+
+    @Test
     void layoutWithoutServicesFailsActionably() {
         ProjectLayout layout = new ProjectLayout() {
             @Override

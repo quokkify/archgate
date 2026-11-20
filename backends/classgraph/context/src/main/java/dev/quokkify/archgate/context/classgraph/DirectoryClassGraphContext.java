@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 final class DirectoryClassGraphContext implements ClassGraphContext {
 
@@ -50,6 +51,11 @@ final class DirectoryClassGraphContext implements ClassGraphContext {
     @Override
     public Environment environment() {
         return layout.services().environment();
+    }
+
+    @Override
+    public <T> T shared(String name, Supplier<T> build) {
+        return layout.services().shared(name, build);
     }
 
     @Override

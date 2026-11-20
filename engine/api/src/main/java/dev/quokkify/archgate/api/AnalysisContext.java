@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -86,6 +87,24 @@ public interface AnalysisContext {
     default Environment environment() {
         throw new UnableToVerifyError(
                 "%s provides no environment. Update it to delegate environment() to ProjectLayout.services()."
+                        .formatted(getClass().getName()));
+    }
+
+    /**
+     * Returns the value shared under {@code name} by every rule of the run, building it on first use.
+     *
+     * <p>Implementations should delegate to {@link ProjectLayout#services()}. See
+     * {@link RunServices#shared(String, Supplier)} for the contract.
+     *
+     * @param name the name of the value, unique within the run
+     * @param build builds the value; called at most once per name and run
+     * @param <T> the type of the value
+     * @return the shared value
+     * @throws UnableToVerifyError by default, because the context provides no shared values
+     */
+    default <T> T shared(String name, Supplier<T> build) {
+        throw new UnableToVerifyError(
+                "%s provides no shared values. Update it to delegate shared(String, Supplier) to ProjectLayout.services()."
                         .formatted(getClass().getName()));
     }
 }
