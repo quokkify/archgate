@@ -1,5 +1,54 @@
 # Changelog
 
+## [0.3.0](https://github.com/quokkify/archgate/compare/v0.2.1...v0.3.0) (2026-11-20)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 2 new · 10 internal
+
+### ✨ New
+
+- **rules:** let rules call external services and skip outside CI — **Rules can call external services.** Read credentials with `context.environment().require("TOKEN")`; outside CI a missing variable or an unreachable service shows `[SKIP]`, in CI it fails the build. Set `archgate.ci=true` on CI systems that do not set `CI`. ([#59](https://github.com/quokkify/archgate/pull/59))
+  ```java
+  @Override
+  public void verify(ArchUnitContext context) {
+      Map<String, String> vars = context.environment().require("TRACKER_URL", "TRACKER_TOKEN");
+      try {
+          checkViolations("Every case exists", findMissing(new TrackerClient(vars), context.test()));
+      } catch (IOException e) {
+          throw context.environment().unavailable("Tracker", e);
+      }
+  }
+  ```
+
+  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+- **rules:** share one load between rules and group violations — **Rules can share one load and group findings.** Wrap an expensive load in `context.shared("issue index", () -> load())` to build it once per run; report findings by reason with `checkViolationGroups`. ([#60](https://github.com/quokkify/archgate/pull/60))
+  ```java
+  IssueIndex index = context.shared("issue index", () -> IssueIndex.load(client));
+  checkViolationGroups("Every case id identifies a live case", List.of(
+          new ViolationGroup("case does not exist", missing(index)),
+          new ViolationGroup("case is deleted", deleted(index))));
+  ```
+
+  🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+<details><summary>Internal changes (10 PRs)</summary>
+
+**Dependencies**
+
+- actions/setup-java v6.1.0 → v6.2.0 ([#52](https://github.com/quokkify/archgate/pull/52))
+- dev.quokkify:testng 0.12.2 → 0.15.0 ([#54](https://github.com/quokkify/archgate/pull/54), [#56](https://github.com/quokkify/archgate/pull/56))
+- gradle 9.8.2 → 9.9.1 ([#53](https://github.com/quokkify/archgate/pull/53), [#57](https://github.com/quokkify/archgate/pull/57))
+- org.apache.maven:apache-maven 3.10.0 → 3.10.1 ([#58](https://github.com/quokkify/archgate/pull/58))
+
+**Maintenance**
+
+- **config:** describe checking only the files a pull request changed ([#63](https://github.com/quokkify/archgate/pull/63))
+- **deps:** move Querydsl test fixtures to the OpenFeign fork ([#50](https://github.com/quokkify/archgate/pull/50))
+- **rules:** assert actionable naming-rule messages ([#62](https://github.com/quokkify/archgate/pull/62))
+- **template:** update shared project template ([#55](https://github.com/quokkify/archgate/pull/55))
+
+</details>
+
 ## [0.2.1](https://github.com/quokkify/archgate/compare/v0.2.0...v0.2.1) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
