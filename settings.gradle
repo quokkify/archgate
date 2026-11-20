@@ -10,6 +10,7 @@ def modules = [
     'context-archunit'   : 'backends/archunit/context',
     'rules-archunit'     : 'backends/archunit/rules',
     'rules-archunit-tms' : 'backends/archunit/rules-tms',
+    'rules-archunit-api' : 'backends/archunit/rules-api',
     'context-javaparser' : 'backends/javaparser/context',
     'rules-javaparser'   : 'backends/javaparser/rules',
     'context-classgraph' : 'backends/classgraph/context',

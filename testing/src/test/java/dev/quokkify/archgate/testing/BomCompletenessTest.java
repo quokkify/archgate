@@ -24,6 +24,7 @@ class BomCompletenessTest {
             "archgate-context-classgraph",
             "archgate-rules-archunit",
             "archgate-rules-archunit-tms",
+            "archgate-rules-archunit-api",
             "archgate-rules-javaparser",
             "archgate-rules-classgraph",
             "archgate-maven-plugin",

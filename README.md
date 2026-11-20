@@ -35,6 +35,7 @@ ArchGate runs architecture rules as a step of the Maven or Gradle build. It stop
 | `TmsLinkRequiredRule` | ArchUnit | WARNING | test | [TmsLink required](docs/rules/tms-link-required.md) |
 | `TmsLinkUniqueRule` | ArchUnit | WARNING | test | [TmsLink unique](docs/rules/tms-link-unique.md) |
 | `TmsLinkFormatRule` | ArchUnit | WARNING | test | [TmsLink format](docs/rules/tms-link-format.md) |
+| `JsonTreeUsageRule` | ArchUnit | WARNING | test | [No Jackson tree API](docs/rules/json-tree-usage.md) |
 | `NoWildcardImportsRule` | JavaParser | WARNING | main + test | [No wildcard imports](docs/rules/no-wildcard-imports.md) |
 | `ServiceFileConsistencyRule` | ClassGraph | ERROR | main + test | [Service file consistency](docs/rules/service-file-consistency.md) |
 
@@ -46,6 +47,7 @@ Each backend ships as a pair of artifacts in group `dev.quokkify.archgate`:
 | JavaParser | `archgate-rules-javaparser` (`dev.quokkify.archgate.rules.javaparser`) | `archgate-context-javaparser` |
 | ClassGraph | `archgate-rules-classgraph` (`dev.quokkify.archgate.rules.classgraph`) | `archgate-context-classgraph` |
 | ArchUnit, TmsLink | `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`) | `archgate-context-archunit` |
+| ArchUnit, API-test hygiene | `archgate-rules-archunit-api` (`dev.quokkify.archgate.rules.archunit.api`) | `archgate-context-archunit` |
 
 The TmsLink rules live in a separate ArchUnit rules artifact, `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`), because they target TestNG with Allure `@TmsLink`. It depends on `archgate-context-archunit`, needs neither Allure nor TestNG on its classpath, and is added next to `archgate-rules-archunit`:
 
@@ -57,6 +59,12 @@ List the rules to run in `src/test/resources/META-INF/services/dev.quokkify.arch
 
 ```
 dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRule
+```
+
+The API-test hygiene rules live in `archgate-rules-archunit-api` (`dev.quokkify.archgate.rules.archunit.api`), also next to `archgate-rules-archunit`. It holds [No Jackson tree API](docs/rules/json-tree-usage.md) and the abstract [Layer boundary](docs/rules/layer-boundary.md), which you extend with your own layer packages. Jackson is matched by name, so the artifact adds no Jackson dependency:
+
+```groovy
+testImplementation 'dev.quokkify.archgate:archgate-rules-archunit-api'
 ```
 
 A rules artifact depends on its context artifact, so adding the rules is enough to run them. Add the context on its own to write your own rules for that backend. If no context provider for a rule's backend is on the classpath, the build fails with `No ContextProvider for … is registered on the classpath. Add dev.quokkify.archgate:archgate-context-<backend> as a test dependency.`
