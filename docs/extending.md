@@ -35,7 +35,32 @@ This page is the contract between ArchGate and code that plugs into it: rules (`
 
   A rule that does not read views overrides `requireAllScopes()` the same way but has to honour it itself, as `ServiceRegistrationRule` does.
 - After `verify` has returned or reported a finding, core calls `skippedScopes(context)` and adds the result to the rule's report line, for example `No Thread.sleep (TEST not checked: empty)`. The default lists the rule's scopes for which `context.isEmpty(scope)` is true, which is right for a rule that uses `scopesToCheck(context)`. It must return a subset of `scopes()` and never `null`; anything else fails the run as unable to verify, naming the rule. Each rule with a skipped scope is also counted in the verdict line, for example `Gate PASSED: 7 rules (2 partially checked), no findings`. Override it only when the rule decides what to read in another way, for example from the class directories in `layout()`.
+- A rule that needs variables or a service reads them from `context.environment()`; see [Rules that need variables or a service](#rules-that-need-variables-or-a-service).
 - A rule needs a public no-arg constructor and must be listed in the services file. A rule class in the gate module that is not listed fails the run with a registration error (see [Registration](configuration.md#registration)).
+
+## Rules that need variables or a service
+
+Every built-in context has `environment()`. Use it instead of `System.getenv`, so the build tool's `-DNAME=value` is honoured and the gate can skip the rule where that is allowed:
+
+```java
+@Override
+public void verify(ArchUnitContext context) {
+  Environment env = context.environment();
+  Map<String, String> secrets = env.require("TRACKER_URL", "TRACKER_TOKEN");
+  Optional<String> changed = env.optional("archgate.changedFiles");
+  try {
+    check(secrets.get("TRACKER_URL"), secrets.get("TRACKER_TOKEN"), changed);
+  } catch (IOException e) {
+    throw env.unavailable("Tracker", e);
+  }
+}
+```
+
+- `require(names...)` returns the values. If any is unset or blank it throws `ExternalDependencyUnavailable` naming all of them. It throws the same signal, without looking at the names, when `archgate.offline=true` switches external rules off outside CI.
+- `optional(name)` returns an empty value for an unset or blank variable. It never skips the rule, and `archgate.offline` does not apply to it.
+- `unavailable(service, cause)` creates the signal for a service that does not answer. `throw` it; it is not thrown for you.
+- `ExternalDependencyUnavailable` is the only signal that makes a rule `[SKIP]`. Outside CI the rule is skipped; in CI the build fails, except that `archgate.ci.serviceUnavailable=skip` skips a service failure. A finding is still an `ArchitectureViolation`. See [Rules that call external services](configuration.md#rules-that-call-external-services).
+- A third-party `AnalysisContext` or `ProjectLayout` gets an actionable `UnableToVerifyError` when a rule calls `environment()` or `services()` until it implements them. A context should delegate `environment()` to `ProjectLayout.services()`.
 
 ## Backends
 
