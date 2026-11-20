@@ -67,6 +67,20 @@ class ExternalPolicyTest {
     }
 
     @Test
+    void explicitFalseOfflineIsNotOffline() {
+        ExternalPolicy policy = detect("archgate.offline", " False ", "CI", "true");
+        assertThat(policy.offline()).isFalse();
+        assertThat(policy.offlineIgnored()).isFalse();
+    }
+
+    @Test
+    void invalidOfflineValueFails() {
+        assertThatThrownBy(() -> detect("archgate.offline", "yes"))
+                .isInstanceOf(UnableToVerifyError.class)
+                .hasMessage("Unknown archgate.offline value 'yes'. Use true or false.");
+    }
+
+    @Test
     void offlineIgnoredInCi() {
         ExternalPolicy policy = detect("archgate.offline", "true", "CI", "true");
         assertThat(policy.offline()).isFalse();

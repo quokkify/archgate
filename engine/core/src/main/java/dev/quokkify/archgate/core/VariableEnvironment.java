@@ -16,7 +16,7 @@ import java.util.function.Function;
  *
  * <p>Rules run on parallel threads, so {@link #wasRead()} is thread-safe.
  */
-final class VariableEnvironment implements Environment {
+public final class VariableEnvironment implements Environment {
 
     private static final String BAD_NAME = "Variable names must not be null or blank";
 
@@ -30,7 +30,7 @@ final class VariableEnvironment implements Environment {
      * @param lookup returns the value of a name, or null when unset
      * @param offline whether {@link #require} must refuse to run
      */
-    VariableEnvironment(Function<String, String> lookup, boolean offline) {
+    public VariableEnvironment(Function<String, String> lookup, boolean offline) {
         this.lookup = Objects.requireNonNull(lookup, "lookup");
         this.offline = offline;
     }
@@ -40,7 +40,7 @@ final class VariableEnvironment implements Environment {
      *
      * @return true once {@code require} or {@code optional} was called, even if the call then threw
      */
-    boolean wasRead() {
+    public boolean wasRead() {
         return read.get();
     }
 

@@ -45,7 +45,8 @@ public record ExternalPolicy(
      *
      * @param lookup returns the value of a name, or null when unset
      * @return the policy
-     * @throws UnableToVerifyError if {@code archgate.ci} or {@code archgate.ci.serviceUnavailable} has an unknown value
+     * @throws UnableToVerifyError if {@code archgate.ci}, {@code archgate.offline} or
+     *     {@code archgate.ci.serviceUnavailable} has an unknown value
      */
     public static ExternalPolicy detect(Function<String, String> lookup) {
         String override = trimmed(lookup.apply(CI_PROPERTY));
@@ -59,7 +60,7 @@ public record ExternalPolicy(
             ci = !variable.isEmpty() && !"false".equalsIgnoreCase(variable);
             source = ci ? CI_FROM_VARIABLE : NO_CI;
         }
-        boolean offlineRequested = "true".equalsIgnoreCase(trimmed(lookup.apply(OFFLINE_PROPERTY)));
+        boolean offlineRequested = parseOffline(trimmed(lookup.apply(OFFLINE_PROPERTY)));
         return new ExternalPolicy(
                 ci,
                 source,
@@ -90,6 +91,16 @@ public record ExternalPolicy(
             return Optional.empty();
         }
         return Optional.of("%s=true is ignored in CI (%s); external rules run.".formatted(OFFLINE_PROPERTY, ciSource));
+    }
+
+    private static boolean parseOffline(String value) {
+        if (value.isEmpty() || "false".equalsIgnoreCase(value)) {
+            return false;
+        }
+        if ("true".equalsIgnoreCase(value)) {
+            return true;
+        }
+        throw new UnableToVerifyError("Unknown %s value '%s'. Use true or false.".formatted(OFFLINE_PROPERTY, value));
     }
 
     private static boolean parseCi(String value) {
