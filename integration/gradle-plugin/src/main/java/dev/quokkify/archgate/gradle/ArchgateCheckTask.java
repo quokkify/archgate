@@ -14,7 +14,6 @@ import org.gradle.api.artifacts.result.ResolvedComponentResult;
 import org.gradle.api.file.ConfigurableFileCollection;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
-import org.gradle.api.tasks.CacheableTask;
 import org.gradle.api.tasks.Classpath;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -24,10 +23,11 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.PathSensitive;
 import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.gradle.workers.WorkQueue;
 import org.gradle.workers.WorkerExecutor;
 
-@CacheableTask
+@DisableCachingByDefault(because = "rules may read external services")
 public abstract class ArchgateCheckTask extends DefaultTask {
 
     private static final List<Class<?>> WORKER_CLASSES =
@@ -74,6 +74,14 @@ public abstract class ArchgateCheckTask extends DefaultTask {
     @OutputFile
     public abstract RegularFileProperty getReportFile();
 
+    /**
+     * Returns the file that records whether a rule read the environment in the last run.
+     *
+     * @return the state file
+     */
+    @OutputFile
+    public abstract RegularFileProperty getStateFile();
+
     @Inject
     protected abstract WorkerExecutor getWorkerExecutor();
 
@@ -97,6 +105,7 @@ public abstract class ArchgateCheckTask extends DefaultTask {
             parameters.getOwnDirs().from(getOwnDirs());
             parameters.getRuleClasspath().from(getRuleClasspath());
             parameters.getReportFile().set(getReportFile());
+            parameters.getStateFile().set(getStateFile());
         });
     }
 

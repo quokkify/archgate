@@ -34,8 +34,8 @@ archgate {
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
-- The task is cacheable and safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, and a build-cache hit is `FROM-CACHE`.
-- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE` or `FROM-CACHE`, so read the report file in those cases.
+- The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule read a variable through `Environment` in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
+- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case.
 - A failing gate throws a `GradleException` whose message is the counts line, for example `Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING`; the report itself goes to the console and the report file. When a rule cannot be verified, the message is the reason, and no report is written.
 
 ### Precedence

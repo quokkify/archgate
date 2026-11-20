@@ -29,6 +29,41 @@ class CachingFunctionalTest {
     private static final String PASSED = "Gate PASSED: 2 rules, no findings";
     private static final String OLDER_ARCHUNIT = "com.tngtech.archunit:archunit:1.4.1";
     private static final String FORCED_RESOLUTION = "1.5.1 -> 1.4.1";
+    private static final String RULE_SERVICES =
+            "src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule";
+    private static final String TRACKER_TOKEN_FINDING = "tracker token: %s";
+    private static final String TRACKER_TOKEN_RULE = """
+            package com.example;
+
+            import dev.quokkify.archgate.api.ArchitectureRule;
+            import dev.quokkify.archgate.api.Severity;
+            import dev.quokkify.archgate.context.archunit.ArchUnitContext;
+            import java.util.List;
+
+            public class TrackerTokenRule implements ArchitectureRule<ArchUnitContext> {
+
+                @Override
+                public String name() {
+                    return "Tracker token";
+                }
+
+                @Override
+                public Severity severity() {
+                    return Severity.INFO;
+                }
+
+                @Override
+                public Class<ArchUnitContext> contextType() {
+                    return ArchUnitContext.class;
+                }
+
+                @Override
+                public void verify(ArchUnitContext context) {
+                    String token = context.environment().optional("TRACKER_TOKEN").orElse("unset");
+                    checkViolations("Reports the tracker token.", List.of("tracker token: " + token));
+                }
+            }
+            """;
 
     @DataProvider
     static Object[][] scenarios() {
@@ -82,7 +117,7 @@ class CachingFunctionalTest {
     // shares the TestKit build and configuration caches
     @SingleThread
     @Test
-    void buildCacheHit() throws IOException {
+    void buildCacheIsNotUsed() throws IOException {
         try (TempDir tempDir = TempDir.create()) {
             Path project = materialize(tempDir);
             appendTo(
@@ -99,7 +134,41 @@ class CachingFunctionalTest {
 
             BuildResult second = runner(project, List.of(BUILD_CACHE)).build();
 
-            assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.FROM_CACHE);
+            assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+        }
+    }
+
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test
+    void runThatReadsEnvironmentIsNotUpToDate() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            addTrackerTokenRule(project);
+            runner(project, List.of()).build();
+
+            BuildResult second = runner(project, List.of()).build();
+
+            assertThat(second.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SUCCESS);
+            assertThat(second.getOutput()).contains(TRACKER_TOKEN_FINDING.formatted("unset"));
+        }
+    }
+
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test
+    void configurationCacheIsReusedWithVariable() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            addTrackerTokenRule(project);
+            BuildResult first = runner(project, List.of(CONFIGURATION_CACHE, "-DTRACKER_TOKEN=a"))
+                    .build();
+
+            BuildResult second = runner(project, List.of(CONFIGURATION_CACHE, "-DTRACKER_TOKEN=b"))
+                    .build();
+
+            assertThat(first.getOutput()).contains(TRACKER_TOKEN_FINDING.formatted("a"));
+            assertThat(second.getOutput()).contains(REUSED).contains(TRACKER_TOKEN_FINDING.formatted("b"));
         }
     }
 
@@ -153,6 +222,13 @@ class CachingFunctionalTest {
 
     private static Path materialize(TempDir temp) {
         return Fixture.materialize(SCENARIO, BuildTool.GRADLE, temp.resolve("project"));
+    }
+
+    private static void addTrackerTokenRule(Path project) throws IOException {
+        Path rule = project.resolve("src/test/java/com/example/TrackerTokenRule.java");
+        Files.createDirectories(rule.getParent());
+        Files.writeString(rule, TRACKER_TOKEN_RULE, StandardCharsets.UTF_8);
+        appendTo(project, RULE_SERVICES, "com.example.TrackerTokenRule\n");
     }
 
     private static void appendTo(Path project, String file, String text) throws IOException {

@@ -24,4 +24,6 @@ public interface GateWorkParameters extends WorkParameters {
     ConfigurableFileCollection getRuleClasspath();
 
     RegularFileProperty getReportFile();
+
+    RegularFileProperty getStateFile();
 }

@@ -127,7 +127,7 @@ dependencies {
 
 **2. List the rules to run** in `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`, the same file as for Maven.
 
-**3. Run** `./gradlew check`. The task `archgateCheck` (group `verification`) depends on `testClasses`, is wired into `check` and prints the same report as the Maven plugin. The report is also written to `build/reports/archgate/report.txt`. The task is cacheable and compatible with the configuration cache.
+**3. Run** `./gradlew check`. The task `archgateCheck` (group `verification`) depends on `testClasses`, is wired into `check` and prints the same report as the Maven plugin. The report is also written to `build/reports/archgate/report.txt`. The task is incremental, not build-cached, and compatible with the configuration cache.
 
 `rootPackage` is required. Modules in `modules(...)` must apply the plugin themselves, and modules that only expose classes to a gate set `archgate { skip = true }`. See [Configuration](docs/configuration.md#gradle).
 

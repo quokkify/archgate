@@ -15,7 +15,7 @@ Gradle has no equivalent that is both cheap and correct. Reading the class direc
 - Every project named in `modules(...)` must apply the plugin itself. Otherwise the task fails with a message that contains `does not apply dev.quokkify.archgate`.
 - A project that only exposes classes to a gate in another module sets `archgate { skip = true }`. On a project that is not skipped, an unset `rootPackage` fails the build.
 - `rootPackage`, `failOn` and `skip` are conventions: an explicit value in the build script wins over `-Parchgate.rootPackage`, `-Parchgate.failOn` and `-Parchgate.skip`, which only supply a default. This is the Maven rule too, where POM `<configuration>` wins over `-D` properties, so both tools resolve a parameter the same way.
-- The task `archgateCheck` declares its inputs (`testRuntimeClasspath`, class and source directories of the selected modules, `rootPackage`, `failOn`) and its output (`build/reports/archgate/report.txt`), so it is cacheable and safe for the configuration cache. The console report is not replayed when the task is `UP-TO-DATE` or `FROM-CACHE`.
+- The task `archgateCheck` declares its inputs (`testRuntimeClasspath`, class and source directories of the selected modules, `rootPackage`, `failOn`) and its output (`build/reports/archgate/report.txt`), so it is cacheable and safe for the configuration cache. The console report is not replayed when the task is `UP-TO-DATE` or `FROM-CACHE`. [ADR 0009](0009-archgate-check-not-build-cached.md) later took the task out of the build cache.
 - Known limitation: the source directories of sibling projects are captured at configuration time.
 - The supported consumer Gradle version is 9.7.1 and newer.
 
