@@ -1,6 +1,7 @@
 package dev.quokkify.archgate.core;
 
 import dev.quokkify.archgate.api.Severity;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,7 +22,29 @@ public final class ReportFormatter {
 
     private ReportFormatter() {}
 
+    /**
+     * Formats a gate run as report blocks. A rule row and its detail lines form one block, joined by the platform
+     * line separator; the header, footer, policy and timing lines are blocks of their own.
+     *
+     * @param result the outcome of the run
+     * @param failOn the failure threshold, empty when the build never fails
+     * @return the report blocks, in order
+     */
     public static List<String> format(GateResult result, Optional<Severity> failOn) {
+        return format(result, failOn, System.lineSeparator());
+    }
+
+    /**
+     * Joins report blocks into the content of the report file, which uses LF only on every platform.
+     *
+     * @param blocks the blocks returned by {@link #format(GateResult, Optional)}
+     * @return the file content
+     */
+    public static String fileContent(List<String> blocks) {
+        return blocks.stream().map(block -> block.replace("\r\n", "\n")).collect(Collectors.joining("\n"));
+    }
+
+    static List<String> format(GateResult result, Optional<Severity> failOn, String lineSeparator) {
         List<String> lines = new ArrayList<>();
         lines.add(SEPARATOR);
         lines.add("Architecture verification (%s, %s total)"
@@ -31,31 +54,45 @@ public final class ReportFormatter {
                 .filter(outcome -> Objects.isNull(outcome.finding()) && !outcome.externallySkipped())
                 .forEach(outcome -> lines.add(row("[PASS]", outcome)));
         result.outcomes().stream().filter(RuleOutcome::externallySkipped).forEach(outcome -> {
-            lines.add(row("[SKIP]", outcome));
-            lines.add(CONTINUATION_INDENT + outcome.externalSkip().message());
-            lines.add(CONTINUATION_INDENT + outcome.externalSkip().reason());
+            lines.add(block(
+                    lineSeparator,
+                    row("[SKIP]", outcome),
+                    CONTINUATION_INDENT + outcome.externalSkip().message(),
+                    CONTINUATION_INDENT + outcome.externalSkip().reason()));
         });
         result.outcomes().stream()
                 .filter(outcome -> Objects.nonNull(outcome.finding()))
                 .forEach(outcome -> {
-                    lines.add(row("[%s]".formatted(outcome.rule().severity().name()), outcome));
+                    List<String> parts = new ArrayList<>();
+                    parts.add(row("[%s]".formatted(outcome.rule().severity().name()), outcome));
                     describe(outcome.finding())
                             .lines()
                             .map(CONTINUATION_INDENT::concat)
-                            .forEach(lines::add);
+                            .forEach(parts::add);
+                    lines.add(String.join(lineSeparator, parts));
                 });
-        if (!result.modelBuildTimes().isEmpty()) {
-            lines.add("Model build: "
-                    + result.modelBuildTimes().entrySet().stream()
-                            .sorted(Map.Entry.comparingByKey())
-                            .map(time -> "%s %d ms"
-                                    .formatted(time.getKey(), time.getValue().toMillis()))
-                            .collect(Collectors.joining(", ")));
-        }
+        addTimes(lines, "Model build: ", result.modelBuildTimes());
+        addTimes(lines, "Shared: ", result.sharedBuildTimes());
         lines.add(SEPARATOR);
         lines.add("Gate %s: %s".formatted(result.failsOn(failOn) ? "FAILED" : "PASSED", counts(result)));
         addFailPolicy(lines, failOn);
         return List.copyOf(lines);
+    }
+
+    private static String block(String lineSeparator, String... parts) {
+        return String.join(lineSeparator, parts);
+    }
+
+    private static void addTimes(List<String> lines, String prefix, Map<String, Duration> times) {
+        if (times.isEmpty()) {
+            return;
+        }
+        lines.add(prefix
+                + times.entrySet().stream()
+                        .sorted(Map.Entry.comparingByKey())
+                        .map(time -> "%s %d ms"
+                                .formatted(time.getKey(), time.getValue().toMillis()))
+                        .collect(Collectors.joining(", ")));
     }
 
     public static String counts(GateResult result) {

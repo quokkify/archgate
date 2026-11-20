@@ -6,6 +6,7 @@ import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
+import dev.quokkify.archgate.api.ViolationGroup;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import org.testng.annotations.Test;
 
 class ReportFormatterTest {
 
+    private static final String NL = System.lineSeparator();
     private static final ArchitectureViolation BOOM = new ArchitectureViolation("contract", List.of("SomeClass"));
 
     @Test
@@ -35,10 +37,12 @@ class ReportFormatterTest {
 
         List<String> lines = ReportFormatter.format(result, Optional.empty());
 
-        assertThat(lines).anyMatch(line -> line.startsWith("[ERROR] MAIN+TEST") && line.endsWith("  e"));
-        assertThat(lines).anyMatch(line -> line.startsWith("[WARNING] MAIN+TEST") && line.endsWith("  w"));
-        assertThat(lines).anyMatch(line -> line.startsWith("[INFO]") && line.endsWith("  i"));
-        assertThat(lines).contains("    contract", "    Violations (1):", "        - SomeClass");
+        assertThat(lines).anyMatch(line -> line.startsWith("[ERROR] MAIN+TEST") && line.contains("  e" + NL));
+        assertThat(lines).anyMatch(line -> line.startsWith("[WARNING] MAIN+TEST") && line.contains("  w" + NL));
+        assertThat(lines).anyMatch(line -> line.startsWith("[INFO]") && line.contains("  i" + NL));
+        assertThat(lines)
+                .anyMatch(line ->
+                        line.contains(NL + "    contract" + NL + "    Violations (1):" + NL + "        - SomeClass"));
     }
 
     @Test
@@ -48,10 +52,9 @@ class ReportFormatterTest {
 
         List<String> lines = ReportFormatter.format(result(pass, failure), Optional.of(Severity.WARNING));
 
-        assertThat(lines)
-                .containsSubsequence(
-                        String.format("%-7s %-9s %6d ms  %s", "[PASS]", "MAIN+TEST", 0, "a pass"),
-                        String.format("%-7s %-9s %6d ms  %s", "[WARNING]", "MAIN+TEST", 0, "z fail"));
+        assertThat(lines.get(3)).isEqualTo(String.format("%-7s %-9s %6d ms  %s", "[PASS]", "MAIN+TEST", 0, "a pass"));
+        assertThat(lines.get(4))
+                .startsWith(String.format("%-7s %-9s %6d ms  %s", "[WARNING]", "MAIN+TEST", 0, "z fail"));
     }
 
     @Test
@@ -152,7 +155,7 @@ class ReportFormatterTest {
         RuleOutcome full = new RuleOutcome(TestRules.satisfied("full", Severity.ERROR), null, Duration.ZERO);
 
         assertThat(ReportFormatter.format(result(partial, full), Optional.empty()))
-                .anyMatch(line -> line.startsWith("[ERROR]") && line.endsWith("partial (TEST not checked: empty)"))
+                .anyMatch(line -> line.startsWith("[ERROR]") && line.contains("partial (TEST not checked: empty)"))
                 .anyMatch(line -> line.startsWith("[PASS]") && line.endsWith("full"))
                 .contains("Gate PASSED: 2 rules (1 partially checked), 1 error");
         assertThat(ReportFormatter.counts(result(partial, full))).isEqualTo("2 rules (1 partially checked), 1 error");
@@ -177,10 +180,10 @@ class ReportFormatterTest {
         assertThat(lines)
                 .containsSubsequence(
                         String.format("%-7s %-9s %6d ms  %s", "[PASS]", "MAIN+TEST", 0, "a pass"),
-                        String.format("%-7s %-9s %6d ms  %s", "[SKIP]", "MAIN+TEST", 5, "m skip"),
-                        "    Missing T. Pass them as -DNAME=value or as environment variables.",
-                        "    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.",
-                        String.format("%-7s %-9s %6d ms  %s", "[INFO]", "MAIN+TEST", 0, "z fail"));
+                        String.format("%-7s %-9s %6d ms  %s", "[SKIP]", "MAIN+TEST", 5, "m skip") + NL
+                                + "    Missing T. Pass them as -DNAME=value or as environment variables." + NL
+                                + "    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.");
+        assertThat(lines).anyMatch(line -> line.startsWith("[INFO]") && line.contains("z fail"));
     }
 
     @Test
@@ -206,5 +209,71 @@ class ReportFormatterTest {
 
     private static GateResult result(RuleOutcome... outcomes) {
         return new GateResult(List.of(outcomes), Map.of(), 7);
+    }
+
+    @Test
+    void findingRowAndDetailsAreOneBlock() {
+        GateResult result = result(new RuleOutcome(TestRules.satisfied("e", Severity.ERROR), BOOM, Duration.ZERO));
+
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .contains(String.format("%-7s %-9s %6d ms  %s", "[ERROR]", "MAIN+TEST", 0, "e") + NL
+                        + "    contract" + NL
+                        + "    Violations (1):" + NL
+                        + "        - SomeClass");
+    }
+
+    @Test
+    void sharedLineAfterModelBuild() {
+        GateResult result = new GateResult(
+                List.of(), Map.of("main", Duration.ofMillis(5)), Map.of("issue index", Duration.ofMillis(2150)), 5);
+
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .containsSubsequence("Model build: main 5 ms", "Shared: issue index 2150 ms");
+    }
+
+    @Test
+    void sharedLinesAreSortedByName() {
+        GateResult result =
+                new GateResult(List.of(), Map.of(), Map.of("b", Duration.ofMillis(2), "a", Duration.ofMillis(1)), 5);
+
+        assertThat(ReportFormatter.format(result, Optional.empty())).contains("Shared: a 1 ms, b 2 ms");
+    }
+
+    @Test
+    void noSharedLineWhenNothingShared() {
+        assertThat(ReportFormatter.format(result(), Optional.empty())).noneMatch(line -> line.startsWith("Shared:"));
+    }
+
+    @Test
+    void groupedViolationsRender() {
+        ArchitectureViolation grouped = ArchitectureViolation.grouped(
+                "Every case id on a test method must identify an existing case.",
+                List.of(
+                        new ViolationGroup("case does not exist", List.of("C101      FirstTest.java:12")),
+                        new ViolationGroup("empty group", List.of()),
+                        new ViolationGroup(
+                                "case is deleted",
+                                List.of("C102      SecondTest.java:26", "C103      ThirdTest.java:51"))));
+        GateResult result = result(new RuleOutcome(
+                TestRules.satisfied("Tracker case kept", Severity.INFO), grouped, Duration.ofMillis(800)));
+
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .contains(String.format("%-7s %-9s %6d ms  %s", "[INFO]", "MAIN+TEST", 800, "Tracker case kept") + NL
+                        + "    Every case id on a test method must identify an existing case." + NL
+                        + "    Violations (1) \"case does not exist\":" + NL
+                        + "        - C101      FirstTest.java:12" + NL
+                        + "    Violations (2) \"case is deleted\":" + NL
+                        + "        - C102      SecondTest.java:26" + NL
+                        + "        - C103      ThirdTest.java:51");
+    }
+
+    @Test
+    void reportFileUsesLfOnly() {
+        GateResult result = result(new RuleOutcome(TestRules.satisfied("e", Severity.ERROR), BOOM, Duration.ZERO));
+
+        List<String> blocks = ReportFormatter.format(result, Optional.empty(), "\r\n");
+
+        assertThat(blocks).anyMatch(block -> block.contains("\r\n"));
+        assertThat(ReportFormatter.fileContent(blocks)).doesNotContain("\r").contains("\n    Violations (1):\n");
     }
 }

@@ -101,7 +101,7 @@ public final class GateLauncher {
     }
 
     private static void write(Path file, List<String> lines) {
-        write(file, String.join("\n", lines), "report file");
+        write(file, ReportFormatter.fileContent(lines), "report file");
     }
 
     private static void write(Path file, String content, String what) {
