@@ -1,0 +1,1 @@
+{"id":"0a06dccdc3456afc7d125012bafbf687.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.unknownAnnotationReportsEveryTest","name":"Annotation name that no test carries reports every test","status":"passed","testResultsByEnv":{"default":"df2d6dfd7768df2f270e793b9a1e9dd5"}}

@@ -1,0 +1,1 @@
+{"id":"e78c7351c95668f7d8bdb0f1517da9d0.835ca98044b4c3556ffd238e8a6d8192","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.malformedIdIsReported","name":"Malformed id is reported with class, method and value","status":"passed","testResultsByEnv":{"default":"00e85a4ff90e88dd8a05be5a88a7255e"}}

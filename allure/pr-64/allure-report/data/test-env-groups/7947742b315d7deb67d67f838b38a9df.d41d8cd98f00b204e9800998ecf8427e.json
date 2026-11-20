@@ -1,0 +1,1 @@
+{"id":"7947742b315d7deb67d67f838b38a9df.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.annotationOnOtherMethodDoesNotCompensate","name":"TmsLinks on another method do not compensate for a test without TmsLink","status":"passed","testResultsByEnv":{"default":"0ee3b02030166f761d657664ac900017"}}
