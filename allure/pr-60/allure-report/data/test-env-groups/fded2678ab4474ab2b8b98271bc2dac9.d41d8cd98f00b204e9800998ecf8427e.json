@@ -1,0 +1,1 @@
+{"id":"fded2678ab4474ab2b8b98271bc2dac9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoDisabledTestsRuleTest.sameClassCanReportBothEnabledAndDisabledMethods","name":"sameClassCanReportBothEnabledAndDisabledMethods","status":"passed","testResultsByEnv":{"default":"880fb7c2621c0d6cb63a63d69052cf83"}}
