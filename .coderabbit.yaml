@@ -1,0 +1,6 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+reviews:
+  # Classes under archfixtures/ are compiled test inputs for the rule tests.
+  # Reviewing them is noise, and they push rule PRs over the file limit.
+  path_filters:
+    - "!**/archfixtures/**"

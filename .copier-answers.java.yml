@@ -3,9 +3,9 @@ _src_path: https://github.com/quokkify/ci-kit.git
 module: java
 java_components:
   - id: archgate-java
+    java_version: "21"
     name: ArchGate Java
     path: .
-    java_version: "21"
     test_modules:
       - id: api
         module: ":api"
@@ -23,6 +23,10 @@ java_components:
         module: ":rules-archunit"
         results: backends/archunit/rules/build/allure-results
         test_command: "./gradlew :rules-archunit:check --console=plain"
+      - id: rules-archunit-tms
+        module: ":rules-archunit-tms"
+        results: backends/archunit/rules-tms/build/allure-results
+        test_command: "./gradlew :rules-archunit-tms:check --console=plain"
       - id: context-javaparser
         module: ":context-javaparser"
         results: backends/javaparser/context/build/allure-results

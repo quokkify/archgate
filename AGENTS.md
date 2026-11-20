@@ -24,6 +24,7 @@ Gradle project names and artifact ids stay flat (`:core`, `:rules-archunit`, `ar
 | `context-javaparser` | `backends/javaparser/context` | `dev.quokkify.archgate.context.javaparser` | `JavaParserContext` (`compilationUnits(Scope)`, `relativePath`), `DirectoryJavaParserContext`, `JavaParserContextProvider` | Depends on `api` and JavaParser; built from source directories |
 | `context-classgraph` | `backends/classgraph/context` | `dev.quokkify.archgate.context.classgraph` | `ClassGraphContext` (`scan(Scope)`, `layout()`; `AutoCloseable`), `DirectoryClassGraphContext`, `ClassGraphContextProvider` | Depends on `api` and ClassGraph |
 | `rules-archunit` | `backends/archunit/rules` | `dev.quokkify.archgate.rules.archunit` | The 14 ArchUnit rules | Ships **no** `META-INF/services` rule file. Every rule has a public no-arg constructor with defaults; parameterised ones add a `protected` constructor |
+| `rules-archunit-tms` | `backends/archunit/rules-tms` | `dev.quokkify.archgate.rules.archunit.tms` | `TmsLinkRequiredRule`, `TmsLinkUniqueRule`, `TmsLinkFormatRule`, abstract `RequiredTestAnnotationRule` (+ `RequiredAnnotation`) for TestNG with Allure `@TmsLink`; package-private helpers `TestMethods`, `TmsLinks`, `TestExclusions` | Same as `rules-archunit`. TestNG and Allure annotations are matched by name only: no compile dependency on them |
 | `rules-javaparser` | `backends/javaparser/rules` | `dev.quokkify.archgate.rules.javaparser` | `NoWildcardImportsRule` | Same |
 | `rules-classgraph` | `backends/classgraph/rules` | `dev.quokkify.archgate.rules.classgraph` | `ServiceFileConsistencyRule` | Same |
 | `maven-plugin` | `integration/maven-plugin` | `dev.quokkify.archgate.maven` | Goal `check` in `verify` (`CheckMojo`), `ModuleSelection`, `MainDir` | Thin adapter over core. Built with `org.gradlex.maven-plugin-development` |
@@ -60,7 +61,7 @@ Dependency direction: `rules-X → api, context-X`; `context-X → api, library 
 
 | Change | Touch |
 |---|---|
-| New built-in rule | `backends/<backend>/rules/src/main/java/.../XRule.java` + fixtures under `backends/<backend>/rules/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` + a row in the README rule table |
+| New built-in rule | `backends/<backend>/rules[-<group>]/src/main/java/.../XRule.java` + fixtures under `backends/<backend>/rules[-<group>]/src/test/java/archfixtures/<area>/` + `XRuleTest` + `docs/rules/x-rule.md` + a row in the README rule table |
 | New analysis backend | `backends/<name>/context` and `backends/<name>/rules` modules (projects `:context-<name>`, `:rules-<name>`), a `ContextProvider` services file in the context module, `settings.gradle`, the `bom`, README tables, an ADR if the contract changes |
 | New plugin parameter | `CheckMojo` `@Parameter` and `ArchgateExtension`/`ArchgatePlugin`, a row in `docs/configuration.md`, a fixture for the behaviour, `PluginDescriptorTest` if the minimum Maven or descriptor changes |
 | Behaviour of the API or helpers | `api` or `context-*`; grep all callers (`rules-*`, plugin tests, README snippets) before changing signatures |

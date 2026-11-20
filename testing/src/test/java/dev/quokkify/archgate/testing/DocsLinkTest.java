@@ -21,6 +21,7 @@ class DocsLinkTest {
     private static final Pattern RULE_ROW = Pattern.compile("^\\|\\s*`([A-Za-z0-9]+Rule)`");
     private static final Pattern EXTERNAL = Pattern.compile("^[a-zA-Z][a-zA-Z0-9+.-]*:.*");
     private static final String FENCE = "```";
+    private static final Pattern ABSTRACT_RULE_CLASS = Pattern.compile("(?m)^public\\s+abstract\\s+class\\s");
 
     @Test
     void everyRelativeLinkResolves() throws IOException {
@@ -98,18 +99,32 @@ class DocsLinkTest {
         Set<String> rules = new TreeSet<>();
         try (Stream<Path> backends = Files.list(ROOT.resolve("backends"))) {
             for (Path backend : backends.toList()) {
-                Path sources = backend.resolve("rules/src/main/java");
-                if (Files.isDirectory(sources)) {
+                for (Path sources : ruleSources(backend)) {
                     try (Stream<Path> files = Files.walk(sources)) {
-                        files.map(path -> path.getFileName().toString())
-                                .filter(name -> name.endsWith("Rule.java"))
-                                .map(name -> name.substring(0, name.length() - ".java".length()))
-                                .forEach(rules::add);
+                        for (Path file : files.filter(
+                                        path -> path.getFileName().toString().endsWith("Rule.java"))
+                                .toList()) {
+                            if (!ABSTRACT_RULE_CLASS
+                                    .matcher(Files.readString(file))
+                                    .find()) {
+                                String name = file.getFileName().toString();
+                                rules.add(name.substring(0, name.length() - ".java".length()));
+                            }
+                        }
                     }
                 }
             }
         }
         assertThat(rules).isNotEmpty();
         return rules;
+    }
+
+    private static List<Path> ruleSources(Path backend) throws IOException {
+        try (Stream<Path> modules = Files.list(backend)) {
+            return modules.filter(path -> path.getFileName().toString().matches("rules(-.+)?"))
+                    .map(path -> path.resolve("src/main/java"))
+                    .filter(Files::isDirectory)
+                    .toList();
+        }
     }
 }
