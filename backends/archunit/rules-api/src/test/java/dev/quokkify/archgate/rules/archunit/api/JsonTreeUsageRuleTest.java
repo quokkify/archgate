@@ -115,6 +115,13 @@ public class JsonTreeUsageRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("JsonNodeClassLiteral.parse", "ObjectNode"));
     }
 
+    @Test(description = "Regression guard: an array class literal of a Jackson tree type is reported")
+    public void arrayClassLiteralIsReported() {
+        assertThat(usageViolations())
+                .anySatisfy(detail -> assertThat(detail).contains("JsonNodeArrayLiteral.count(", "JsonNode[].class"))
+                .noneSatisfy(detail -> assertThat(detail).contains("JsonNodeArrayLiteral.countTexts"));
+    }
+
     @Test(description = "Mutating the tree a wrapper hands out is reported")
     public void wrapperTreeMutationIsReported() {
         assertThat(usageViolations())

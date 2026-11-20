@@ -98,13 +98,13 @@ final class JacksonTreeUsageCondition extends ArchCondition<JavaClass> {
                 .filter(JacksonTreeUsageCondition::buildsOrMutatesTree)
                 .forEach(access -> violated(events, access, "%s", access.getDescription()));
         codeUnit.getReferencedClassObjects().stream()
-                .filter(reference -> isTreeType(reference.getRawType()))
+                .filter(reference -> isTreeType(reference.getRawType().getBaseComponentType()))
                 .forEach(reference -> violated(
                         events,
                         reference,
                         "<%s> references %s.class in %s",
                         codeUnit.getFullName(),
-                        reference.getRawType().getName(),
+                        sourceName(reference.getRawType()),
                         reference.getSourceCodeLocation()));
     }
 
@@ -132,6 +132,12 @@ final class JacksonTreeUsageCondition extends ArchCondition<JavaClass> {
         return treeTypeIn(supertype).stream()
                 .filter(type -> !type.equals(supertype.toErasure()))
                 .toList();
+    }
+
+    private static String sourceName(JavaClass type) {
+        return type.tryGetComponentType()
+                .map(component -> sourceName(component) + "[]")
+                .orElseGet(type::getName);
     }
 
     private static boolean isTreeType(JavaClass type) {
