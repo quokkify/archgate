@@ -1,0 +1,1 @@
+{"id":"28a754332c14a12cf9f75551ee072c90.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.fieldOfForbiddenTypeIsReported","name":"A field whose type lives in a forbidden package is reported","status":"passed","testResultsByEnv":{"default":"332d8c964c98356fc52d330bd24f5e0f"}}

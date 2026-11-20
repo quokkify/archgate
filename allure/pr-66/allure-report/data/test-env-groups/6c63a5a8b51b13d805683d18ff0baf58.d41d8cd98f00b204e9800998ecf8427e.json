@@ -1,0 +1,1 @@
+{"id":"6c63a5a8b51b13d805683d18ff0baf58.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredAnnotationTest.optionsReturnNewInstance","name":"options return a new instance and leave the original unchanged","status":"passed","testResultsByEnv":{"default":"b1a8f8bb73e449a2ec0219d746d0e5e8"}}

@@ -1,0 +1,1 @@
+{"id":"8b2975e6f12aeb5996844c383ce1c212.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.allBlankTmsLinksIsReported","name":"TmsLinks with only blank values is reported","status":"passed","testResultsByEnv":{"default":"c41dd11925f8f9000b208e7447a6ac84"}}

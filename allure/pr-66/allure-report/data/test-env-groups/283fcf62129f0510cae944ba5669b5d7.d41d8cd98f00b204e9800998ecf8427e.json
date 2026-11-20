@@ -1,0 +1,1 @@
+{"id":"283fcf62129f0510cae944ba5669b5d7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.misspelledAnnotationKeyIsRejected","name":"Annotation key that no test class or method carries is rejected","status":"passed","testResultsByEnv":{"default":"2c50115d7e945e68eddd88f4c153f4e7"}}

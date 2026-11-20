@@ -1,0 +1,17 @@
+============================================================
+Architecture verification (2 rules, 2.1 s total)
+============================================================
+[SKIP]  MAIN+TEST     16 ms  Tracker token
+    Missing TRACKER_TOKEN. Pass them as -DNAME=value or as environment variables.
+    Skipped because this is not a CI run (archgate.ci=false); in CI this fails the build.
+[INFO]  MAIN+TEST   2111 ms  Changed files
+    Reports the changed files this run saw.
+    Violations (1):
+        - changed files: changed.txt
+Model build: ArchUnitContext 4 ms, main 1264 ms, test 815 ms
+============================================================
+Gate PASSED: 2 rules, 1 info, 1 skipped
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

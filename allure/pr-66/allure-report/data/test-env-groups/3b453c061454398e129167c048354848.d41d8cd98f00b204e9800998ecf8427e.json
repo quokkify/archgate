@@ -1,0 +1,1 @@
+{"id":"3b453c061454398e129167c048354848.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.whitespaceIsStrippedAndBlankIdsAreIgnored","name":"Padded id is stripped and collides with its canonical form, blank ids are ignored","status":"passed","testResultsByEnv":{"default":"496215ea90663d090c85ab4dba587e7c"}}

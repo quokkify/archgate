@@ -1,0 +1,1 @@
+{"id":"d4ff25771b5df3a0dcc2dcd751471cec.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.nonPublicTestMethodsAreChecked","name":"Test methods are checked whatever their visibility","status":"passed","testResultsByEnv":{"default":"1d08e7a341870afdd69634bc9be072bd"}}

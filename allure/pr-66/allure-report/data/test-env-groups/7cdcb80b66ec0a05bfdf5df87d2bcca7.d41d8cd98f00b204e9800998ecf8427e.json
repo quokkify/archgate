@@ -1,0 +1,1 @@
+{"id":"7cdcb80b66ec0a05bfdf5df87d2bcca7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.sameClassDuplicateIsReportedByDefault","name":"Id shared within one class is reported by default","status":"passed","testResultsByEnv":{"default":"8f40036807e9507584103dca8a8fa880"}}
