@@ -122,6 +122,16 @@ public class JsonTreeUsageRuleTest {
                 .noneSatisfy(detail -> assertThat(detail).contains("JsonNodeArrayLiteral.countTexts"));
     }
 
+    @Test(description = "Regression guard: creating nodes through an existing node is reported")
+    public void nodeInstanceFactoriesAreReported() {
+        assertThat(usageViolations())
+                .anySatisfy(detail -> assertThat(detail).contains("NodeInstanceFactories.freshObject", "objectNode"))
+                .anySatisfy(detail -> assertThat(detail).contains("NodeInstanceFactories.freshArray", "arrayNode"))
+                .anySatisfy(detail -> assertThat(detail).contains("NodeInstanceFactories.freshText", "textNode"))
+                .anySatisfy(detail -> assertThat(detail).contains("NodeInstanceFactories.copy", "deepCopy"))
+                .noneSatisfy(detail -> assertThat(detail).contains("NodeInstanceFactories", "asText"));
+    }
+
     @Test(description = "Mutating the tree a wrapper hands out is reported")
     public void wrapperTreeMutationIsReported() {
         assertThat(usageViolations())

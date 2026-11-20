@@ -32,7 +32,21 @@ final class JacksonTreeUsageCondition extends ArchCondition<JavaClass> {
             Set.of("readTree", "valueToTree", "createObjectNode", "createArrayNode", "readValueAsTree");
     private static final List<String> MUTATOR_PREFIXES =
             List.of("put", "set", "add", "insert", "remove", "replace", "retain", "with");
-    private static final Set<String> NODE_CREATORS = Set.of("<init>", "valueOf", "getInstance");
+    private static final Set<String> NODE_CREATORS = Set.of(
+            "<init>",
+            "valueOf",
+            "getInstance",
+            "deepCopy",
+            "objectNode",
+            "arrayNode",
+            "nullNode",
+            "missingNode",
+            "booleanNode",
+            "numberNode",
+            "textNode",
+            "binaryNode",
+            "pojoNode",
+            "rawValueNode");
 
     JacksonTreeUsageCondition() {
         super("not use the Jackson tree API");
