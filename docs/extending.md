@@ -113,3 +113,66 @@ public class OwnerRequiredRule extends RequiredTestAnnotationRule {
 - The rule is named `<AnnotationSimpleName> on test methods`, has severity **WARNING**, and reads the test classes only. Override `expectedContract()` to change the text shown with the violations.
 
 Annotations are matched by name, so neither the annotation nor TestNG has to be on the rule's compile classpath. A project annotation such as `com.example.Smoke` works the same way.
+
+## Adding a test-management backend
+
+The rules that check `@TmsLink` case ids against a test-management system are split in two. `archgate-cases-archunit` (`dev.quokkify.archgate.cases.archunit`) holds everything that does not depend on the system: finding the linked ids in the test classes, the changed-files mode, the shared load, the grouping and wording of the findings, and the mapping of failures to `[SKIP]` or unable to verify. A backend module adds only the part that talks to its system: one `CaseService` and two small rule classes. [TestRail](rules/testrail-case-exists.md) (`archgate-rules-archunit-testrail`) and [TestPlanIt](rules/testplanit-case-exists.md) (`archgate-rules-archunit-testplanit`) are built this way and are the examples to copy.
+
+**1. Implement `CaseService`.** It must be thread-safe and must not log.
+
+```java
+final class TrackerCaseService implements CaseService {
+
+  @Override
+  public String displayName() {
+    return "Tracker";                      // rule names, findings, "Tracker index", skip messages
+  }
+
+  @Override
+  public List<String> requiredVariables() {
+    return List.of("TRACKER_URL", "TRACKER_TOKEN", "TRACKER_PROJECT_ID");
+  }
+
+  @Override
+  public CaseIndex load(CaseQuery query, Map<String, String> variables) throws CaseServiceUnavailableException {
+    // look up query.ids() and place every one of them in exactly one category
+    return new CaseIndex(existing, missing, deleted, foreign);
+  }
+}
+```
+
+- `requiredVariables()` are read only when some test links a case, through `require`, so missing ones skip the rules outside CI and fail them in CI; see [Rules that call external services](configuration.md#rules-that-call-external-services). `load` receives their values.
+- `load` is called at most once per run and mode, with the sorted, positive linked ids in `query.ids()`. `query.changedFilesOnly()` tells that only changed test classes were scanned, so the ids are usually few.
+- The returned `CaseIndex` must place every queried id in one category: `existing` (with its `AutomationType`), `missing`, `deleted`, or `foreign` (with a label of the other project, such as its id). An unclassified id or an id in two categories fails the run as unable to verify.
+- `AutomationType.named(name)` for a type the system names, `notSet()` for a case without one, `unknown(raw)` for a raw value without a name, and `unavailable(reason)` when the system's automation types cannot be read at all, such as a missing field: the exists rule ignores it and the automated rule fails as unable to verify with the reason. A system with a plain automated flag maps it to two fixed names, as TestPlanIt does with `Automated` and `Manual`.
+- Throw `CaseServiceUnavailableException` when the system does not answer, answers with an error or answers with something unreadable; the rules are then skipped outside CI and fail in CI unless `archgate.ci.serviceUnavailable=skip`. Throw `UnableToVerifyError` with an actionable message for refused credentials and for settings that cannot work: those fail the run everywhere. Any other exception, and an `AssertionError`, also becomes unable to verify, never a finding.
+- Never echo a variable's value in a message: a secret may sit in the wrong variable. Name the variable instead.
+- Do not trust an empty answer on its own. If the system answers a request it does not authenticate with no data instead of an error, check access first; the TestPlanIt backend reads the configured project before any case for this reason.
+
+**2. Override `shareKey()` when the service has settings of its own.** Both rules of a run share one load, named `<displayName> index` (`<displayName> index (changed files)` in changed-files mode). They reuse it only when the service class, the share key, the variable values and the query are equal; otherwise the run fails as unable to verify. The default share key is the service class, which suits a service without settings, like both built-in backends. A service that takes settings, for example through a subclass constructor, returns a value with `equals` and `hashCode` (a record works well) holding every setting that affects `load`. The variables need not be part of it, and it is never printed.
+
+**3. Extend the two rule base classes** with public no-arg constructors, so they can be registered:
+
+```java
+public class TrackerCaseExistsRule extends CaseExistsRule {
+  public TrackerCaseExistsRule() {
+    super(new TrackerCaseService());
+  }
+}
+
+public class TrackerCaseAutomatedRule extends CaseAutomatedRule {
+  public TrackerCaseAutomatedRule() {
+    this(Set.of("Automated"), Set.of("Manual"));
+  }
+
+  protected TrackerCaseAutomatedRule(Set<String> automated, Set<String> manual) {
+    super(new TrackerCaseService(), automated, manual);
+  }
+}
+```
+
+- `CaseExistsRule` reports missing, deleted and foreign ids in fixed groups; it is named `<displayName> case exists`.
+- `CaseAutomatedRule` reports existing cases whose type is neither in the automated nor in the manual set; it is named `<displayName> case automated`. Cases of a manual type are never reported, so leave the manual set empty when every non-automated case should be reported, as the TestPlanIt rule does by default. A protected constructor with both sets lets users name their own types.
+- Both rules have severity INFO and read the test classes only.
+
+**4. Package it** as a `rules-archunit-<system>` module on `cases-archunit` with no services file, and add it to `settings.gradle`, the BOM, rule pages and README rows; see the module map in `AGENTS.md`.

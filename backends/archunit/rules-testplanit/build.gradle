@@ -1,0 +1,34 @@
+plugins {
+    id 'archgate.java-conventions'
+    id 'archgate.publish-conventions'
+}
+
+dependencies {
+    api project(':cases-archunit')
+
+    testImplementation project(':core')
+    testImplementation libs.testng
+}
+
+// The live test starts TestPlanIt in Docker, so it never runs with `test` or `build`.
+def liveTest = '**/*LiveIT.class'
+
+tasks.named('test') {
+    exclude 'archfixtures/**'
+    exclude liveTest
+}
+
+def liveEnabled = providers.gradleProperty('archgate.testplanitIt').map { it.toBoolean() }.orElse(false)
+
+tasks.register('testplanitIntegrationTest', Test) {
+    description = 'Runs the TestPlanIt rules against a TestPlanIt started with Docker Compose. ' +
+            'Enable with -Parchgate.testplanitIt=true.'
+    group = 'verification'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    include liveTest
+    def enabled = liveEnabled
+    onlyIf('-Parchgate.testplanitIt=true is set') { enabled.get() }
+    outputs.upToDateWhen { false }
+    systemProperty 'archgate.testplanit.workDir', layout.buildDirectory.dir('testplanit-it').get().asFile.absolutePath
+}

@@ -36,6 +36,10 @@ ArchGate runs architecture rules as a step of the Maven or Gradle build. It stop
 | `TmsLinkUniqueRule` | ArchUnit | WARNING | test | [TmsLink unique](docs/rules/tms-link-unique.md) |
 | `TmsLinkFormatRule` | ArchUnit | WARNING | test | [TmsLink format](docs/rules/tms-link-format.md) |
 | `JsonTreeUsageRule` | ArchUnit | WARNING | test | [No Jackson tree API](docs/rules/json-tree-usage.md) |
+| `TestRailCaseExistsRule` | ArchUnit | INFO | test | [TestRail case exists](docs/rules/testrail-case-exists.md) |
+| `TestRailCaseAutomatedRule` | ArchUnit | INFO | test | [TestRail case automated](docs/rules/testrail-case-automated.md) |
+| `TestPlanItCaseExistsRule` | ArchUnit | INFO | test | [TestPlanIt case exists](docs/rules/testplanit-case-exists.md) |
+| `TestPlanItCaseAutomatedRule` | ArchUnit | INFO | test | [TestPlanIt case automated](docs/rules/testplanit-case-automated.md) |
 | `NoWildcardImportsRule` | JavaParser | WARNING | main + test | [No wildcard imports](docs/rules/no-wildcard-imports.md) |
 | `ServiceFileConsistencyRule` | ClassGraph | ERROR | main + test | [Service file consistency](docs/rules/service-file-consistency.md) |
 
@@ -48,6 +52,8 @@ Each backend ships as a pair of artifacts in group `dev.quokkify.archgate`:
 | ClassGraph | `archgate-rules-classgraph` (`dev.quokkify.archgate.rules.classgraph`) | `archgate-context-classgraph` |
 | ArchUnit, TmsLink | `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`) | `archgate-context-archunit` |
 | ArchUnit, API-test hygiene | `archgate-rules-archunit-api` (`dev.quokkify.archgate.rules.archunit.api`) | `archgate-context-archunit` |
+| ArchUnit, TestRail cases | `archgate-rules-archunit-testrail` (`dev.quokkify.archgate.rules.archunit.testrail`) | `archgate-context-archunit`, with `archgate-cases-archunit` |
+| ArchUnit, TestPlanIt cases | `archgate-rules-archunit-testplanit` (`dev.quokkify.archgate.rules.archunit.testplanit`) | `archgate-context-archunit`, with `archgate-cases-archunit` |
 
 The TmsLink rules live in a separate ArchUnit rules artifact, `archgate-rules-archunit-tms` (`dev.quokkify.archgate.rules.archunit.tms`), because they target TestNG with Allure `@TmsLink`. It depends on `archgate-context-archunit`, needs neither Allure nor TestNG on its classpath, and is added next to `archgate-rules-archunit`:
 
@@ -65,6 +71,18 @@ The API-test hygiene rules live in `archgate-rules-archunit-api` (`dev.quokkify.
 
 ```groovy
 testImplementation 'dev.quokkify.archgate:archgate-rules-archunit-api'
+```
+
+The TestRail rules live in `archgate-rules-archunit-testrail` (`dev.quokkify.archgate.rules.archunit.testrail`): [TestRail case exists](docs/rules/testrail-case-exists.md) and [TestRail case automated](docs/rules/testrail-case-automated.md). They read TestRail through its REST API with the JDK HTTP client and need the variables `TESTRAIL_URL`, `TESTRAIL_USER`, `TESTRAIL_PASSWORD` and `TESTRAIL_PROJECT_ID` only when some test links a case. The artifact brings `archgate-cases-archunit`, the shared core of such rules, with it:
+
+```groovy
+testImplementation 'dev.quokkify.archgate:archgate-rules-archunit-testrail'
+```
+
+The TestPlanIt rules live in `archgate-rules-archunit-testplanit` (`dev.quokkify.archgate.rules.archunit.testplanit`): [TestPlanIt case exists](docs/rules/testplanit-case-exists.md) and [TestPlanIt case automated](docs/rules/testplanit-case-automated.md). They read TestPlanIt through its model API with the JDK HTTP client and need the variables `TESTPLANIT_URL`, `TESTPLANIT_TOKEN` and `TESTPLANIT_PROJECT_ID` only when some test links a case. Like the TestRail artifact, it brings `archgate-cases-archunit` with it:
+
+```groovy
+testImplementation 'dev.quokkify.archgate:archgate-rules-archunit-testplanit'
 ```
 
 A rules artifact depends on its context artifact, so adding the rules is enough to run them. Add the context on its own to write your own rules for that backend. If no context provider for a rule's backend is on the classpath, the build fails with `No ContextProvider for … is registered on the classpath. Add dev.quokkify.archgate:archgate-context-<backend> as a test dependency.`
@@ -244,7 +262,7 @@ A rule reports violations by throwing `ArchitectureViolation`, which `checkViola
 ## More
 
 - [Configuration](docs/configuration.md): plugin parameters for Maven and Gradle, `failOn`, multi-module projects, how to read the report.
-- [Writing a backend or rule](docs/extending.md): the contract for rules and backends: concurrency, shared contexts, errors, what is public.
+- [Writing a backend or rule](docs/extending.md): the contract for rules and backends: concurrency, shared contexts, errors, what is public, and [adding a test-management backend](docs/extending.md#adding-a-test-management-backend).
 - [Development](docs/development.md): building locally, tests, the pre-push hook.
 - [Releasing](docs/releasing.md): how a release is cut and published.
 - [FAQ](docs/faq.md): answers to common questions.
