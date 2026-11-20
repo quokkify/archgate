@@ -40,7 +40,6 @@ class CachingFunctionalTest {
             import dev.quokkify.archgate.api.Severity;
             import dev.quokkify.archgate.context.archunit.ArchUnitContext;
             import java.util.List;
-import java.util.Objects;
 
             public class TrackerTokenRule implements ArchitectureRule<ArchUnitContext> {
 
