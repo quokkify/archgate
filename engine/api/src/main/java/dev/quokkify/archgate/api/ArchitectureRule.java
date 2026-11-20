@@ -124,4 +124,19 @@ public interface ArchitectureRule<C extends AnalysisContext> {
             throw new ArchitectureViolation(expectedContract, violations);
         }
     }
+
+    /**
+     * Throws {@link ArchitectureViolation} listing the non-empty groups if any group has violations; does
+     * nothing if every group is empty.
+     *
+     * @param expectedContract description of what the code is expected to satisfy, used as the message
+     *     header
+     * @param groups the violations, grouped by reason; empty groups are left out of the message
+     * @throws ArchitectureViolation if some group has violations
+     */
+    default void checkViolationGroups(String expectedContract, List<ViolationGroup> groups) {
+        if (groups.stream().anyMatch(group -> !group.violations().isEmpty())) {
+            throw ArchitectureViolation.grouped(expectedContract, groups);
+        }
+    }
 }

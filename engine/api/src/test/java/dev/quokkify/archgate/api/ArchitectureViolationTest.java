@@ -39,6 +39,14 @@ class ArchitectureViolationTest {
     }
 
     @Test
+    void groupedMessageSkipsEmptyGroups() {
+        ArchitectureViolation violation = ArchitectureViolation.grouped(
+                "Contract", List.of(new ViolationGroup("a", List.of("x")), new ViolationGroup("b", List.of())));
+
+        assertThat(violation).hasMessage("Contract" + NL + "Violations (1) \"a\":" + NL + "    - x");
+    }
+
+    @Test
     void checkViolationsIsNoOpWhenEmpty() {
         assertThatCode(() -> RULE.checkViolations("C", List.of())).doesNotThrowAnyException();
     }
