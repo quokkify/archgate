@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
@@ -20,6 +22,7 @@ final class StubCaseSource implements CaseSource {
 
     static final int PROJECT_ID = 7;
     static final int AUTOMATED = 2;
+    static final Duration START_WAIT = Duration.ofSeconds(1);
     static final String AUTOMATION_TYPES = "0, None\n1, Scripted\n2, Automated\n3, To automate\n4, Manual";
 
     private final Map<Integer, List<CaseRecord>> suites = new HashMap<>();
@@ -33,6 +36,8 @@ final class StubCaseSource implements CaseSource {
     private final List<PageRequest> pageRequests = new CopyOnWriteArrayList<>();
     private final Map<Integer, AtomicInteger> activePagesBySuite = new ConcurrentHashMap<>();
     private final Set<Integer> endlessSuites = ConcurrentHashMap.newKeySet();
+    private final Map<Integer, CountDownLatch> suiteStarts = new ConcurrentHashMap<>();
+    private final Map<PageRequest, CountDownLatch> failureGates = new ConcurrentHashMap<>();
     private final AtomicBoolean pagesOfSuitesOverlapped = new AtomicBoolean();
     private final List<Integer> findCaseIds = new CopyOnWriteArrayList<>();
     private final AtomicInteger active = new AtomicInteger();
@@ -133,6 +138,16 @@ final class StubCaseSource implements CaseSource {
         return this;
     }
 
+    /**
+     * Fails a suite page like {@link #failSuitePage}, but only once a page request of another suite has started, waiting
+     * at most {@link #START_WAIT} for it.
+     */
+    StubCaseSource failSuitePageOnceStarted(int suiteId, int offset, RuntimeException failure, int startedSuiteId) {
+        CountDownLatch started = suiteStarts.computeIfAbsent(startedSuiteId, key -> new CountDownLatch(1));
+        failureGates.put(new PageRequest(suiteId, offset), started);
+        return failSuitePage(suiteId, offset, failure);
+    }
+
     StubCaseSource withCaseFields(List<FieldRecord> fields) {
         this.caseFields = fields;
         return this;
@@ -167,6 +182,8 @@ final class StubCaseSource implements CaseSource {
     public List<CaseRecord> suitePage(int suiteId, int offset) {
         PageRequest request = new PageRequest(suiteId, offset);
         pageRequests.add(request);
+        Optional.ofNullable(suiteStarts.get(suiteId)).ifPresent(CountDownLatch::countDown);
+        awaitGate(failureGates.get(request));
         AtomicInteger own = activePagesBySuite.computeIfAbsent(suiteId, key -> new AtomicInteger());
         own.incrementAndGet();
         if (activePagesBySuite.entrySet().stream()
@@ -290,6 +307,20 @@ final class StubCaseSource implements CaseSource {
 
     int maxActive() {
         return maxActive.get();
+    }
+
+    private static void awaitGate(CountDownLatch gate) {
+        if (Objects.isNull(gate)) {
+            return;
+        }
+        try {
+            if (!gate.await(START_WAIT.toMillis(), TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("the awaited page request did not start");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("interrupted", e);
+        }
     }
 
     private <T> T call(Duration delay, RuntimeException failure, Supplier<T> body) {

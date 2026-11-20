@@ -444,8 +444,9 @@ class IndexLoaderTest {
     @Test(timeOut = TIMEOUT_MS, description = "The first failure cancels outstanding requests without waiting for them")
     void firstFailureCancelsOutstandingRequests() throws InterruptedException {
         TestRailApiException failure = new TestRailApiException("get_cases/7", 500);
-        StubCaseSource source =
-                new StubCaseSource().delays(Duration.ZERO, Duration.ZERO, SLOW).failSuitePage(2, 0, failure);
+        StubCaseSource source = new StubCaseSource()
+                .delays(Duration.ZERO, Duration.ZERO, SLOW)
+                .failSuitePageOnceStarted(2, 0, failure, 1);
         Set<Integer> ids = interleavedSuites(source, 2, 30);
         long started = System.nanoTime();
 
