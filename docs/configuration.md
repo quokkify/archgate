@@ -260,6 +260,14 @@ A skipped rule never fails the gate. A rule that cannot run in CI fails it alway
 
 `archgateCheck` is not stored in the build cache, because a rule may read an external service. It is `UP-TO-DATE` on a second run with unchanged inputs only when the rules of the previous run did not touch the environment. A run in which a rule obtained `context.environment()`, for `require`, `optional` or `unavailable`, or in which any rule was skipped, always runs again. A rule that calls a service should therefore obtain the environment before the call, not only when the call fails. See [ADR 0009](adr/0009-archgate-check-not-build-cached.md).
 
+## Sharing a load between rules
+
+Rules that need the same expensive input, such as the answer of an outside service, can load it once through `context.shared(name, build)`; see [Rules that share a load](extending.md#rules-that-share-a-load) for the API. "Once" means once per gate execution: the gate aggregates every selected module, so a multi-module build with one gate module loads the value once for all of them.
+
+- Concurrent rules wait for the first caller and get the same object.
+- A failed build is kept. Every rule that uses the name gets the same failure, and the build is not repeated, so a service that is down is asked once. If the failure is an `unavailable(...)` signal, every rule that uses the value is skipped under the rules in [CI, offline and service failures](#ci-offline-and-service-failures). If it is an `AssertionError` or `ArchitectureViolation`, it becomes a finding in each of those rules.
+- The time spent in `shared` is not part of the rules' own durations; the report shows it on the `Shared:` line, see [Reading the report](#reading-the-report).
+
 ## Reading the report
 
 ```
@@ -272,6 +280,7 @@ Architecture verification (2 rules, 8.1 s total)
     Violations (1):
         - Method <com.acme.tests.LoginTest.login()> calls method <io.restassured.RestAssured.given()> in (LoginTest.java:21)
 Model build: ArchUnitContext 0 ms, main 380 ms, test 210 ms
+Shared: issue index 120 ms
 ============================================================
 Gate FAILED: 2 rules, 1 error
 Failure policy (failOn=WARNING):
@@ -280,7 +289,7 @@ Failure policy (failOn=WARNING):
   INFO     reported only
 ```
 
-Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. The verdict line then counts such rules, for example `Gate PASSED: 7 rules (2 partially checked), no findings`; see [Partial checks](#partial-checks). Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. The `Model build:` line shows how long each analysis model took to build. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
+Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. The verdict line then counts such rules, for example `Gate PASSED: 7 rules (2 partially checked), no findings`; see [Partial checks](#partial-checks). Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. A rule row and its detail lines form one block. In the Maven log only the row carries the `[INFO]`, `[WARNING]` or `[ERROR]` prefix, so the details stay attached to it; the report file always uses LF line endings. The `Model build:` line shows how long each analysis model took to build. The `Shared:` line follows it when rules used `context.shared`, and shows how long each shared value took to build, once per name, including builds that failed. A rule that reports its findings in groups prints each non-empty group as `Violations (N) "<title>":` followed by its entries; empty groups are left out. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
 
 A rule that could not reach what it needs outside the build is shown as `[SKIP]` with two detail lines: what the rule reported, and why the run treats it as a skip.
 
