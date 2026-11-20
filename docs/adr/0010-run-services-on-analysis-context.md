@@ -8,9 +8,9 @@ Rules need two things that belong to the whole gate run, not to one class view: 
 
 ## Decision
 
-- `AnalysisContext` has default methods `environment()` and `shared(name, build)`. The defaults give a context with no services: an empty environment and a value built on every call.
+- `AnalysisContext` has default methods `environment()` and `shared(name, build)`. The defaults throw an actionable `UnableToVerifyError` that names the context class, so a context without services fails visibly instead of misbehaving. `ProjectLayout.services()` has the same default.
 - The directory-based contexts of each backend override them and delegate to `ProjectLayout.services()`, so the gate supplies one `RunServices` object per run and every rule of the run sees the same one.
-- Rules call `context.environment()` and `context.shared(...)`. Existing rules and third-party contexts compile and behave as before.
+- Rules call `context.environment()` and `context.shared(...)`. Existing rules and contexts compile and behave as before, as long as the rules do not call the new methods.
 
 ## Alternatives rejected
 
@@ -19,5 +19,5 @@ Rules need two things that belong to the whole gate run, not to one class view: 
 
 ## Consequences
 
-- A new backend with its own context must override both methods to offer services; without that, its rules run as if outside any gate.
+- A new backend context must override both methods; otherwise rules that read the environment or share values fail the build with `UnableToVerifyError`.
 - Adding another run-wide service later means one more default method on `AnalysisContext`, which does not break existing rules.
