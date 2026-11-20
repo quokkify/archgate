@@ -31,7 +31,12 @@ final class TestMethods {
     private TestMethods() {}
 
     static boolean isTestMethod(JavaMethod method) {
-        return isAnnotatedAsTest(method) || isClassLevelTestMethod(method);
+        return !isCompilerGenerated(method) && (isAnnotatedAsTest(method) || isClassLevelTestMethod(method));
+    }
+
+    private static boolean isCompilerGenerated(JavaMethod method) {
+        Set<JavaModifier> modifiers = method.getModifiers();
+        return modifiers.contains(JavaModifier.SYNTHETIC) || modifiers.contains(JavaModifier.BRIDGE);
     }
 
     private static boolean isClassLevelTestMethod(JavaMethod method) {
@@ -39,8 +44,6 @@ final class TestMethods {
         return hasClassLevelTest(method.getOwner())
                 && modifiers.contains(JavaModifier.PUBLIC)
                 && !modifiers.contains(JavaModifier.STATIC)
-                && !modifiers.contains(JavaModifier.SYNTHETIC)
-                && !modifiers.contains(JavaModifier.BRIDGE)
                 && method.getRawReturnType().isEquivalentTo(void.class)
                 && NON_TEST_ANNOTATIONS.stream().noneMatch(method::isAnnotatedWith);
     }

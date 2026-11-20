@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import archfixtures.uniquetmslink.AbstractBaseTest;
+import archfixtures.uniquetmslink.BridgedOverrideTest;
 import archfixtures.uniquetmslink.ConcreteChildTest;
+import archfixtures.uniquetmslink.GenericCheck;
 import archfixtures.uniquetmslink.HelperMethods;
 import archfixtures.uniquetmslink.MultipleIdsTest;
 import archfixtures.uniquetmslink.SameClassDuplicateTest;
@@ -71,6 +73,13 @@ public class TmsLinkUniqueRuleTest {
                                 "2 test methods",
                                 "WhitespaceAndBlankIdsTest.padded()",
                                 "WhitespaceAndBlankIdsTest.canonical()"));
+    }
+
+    @Test(description = "Regression guard: a compiler-generated bridge does not count as a second test method")
+    public void bridgeMethodDoesNotDuplicateItsOverride() {
+        JavaClasses bridged = new ClassFileImporter().importClasses(BridgedOverrideTest.class, GenericCheck.class);
+
+        assertThat(TmsLinkUniqueRule.violations(bridged, Map.of(), false)).isEmpty();
     }
 
     @Test(description = "Id shared by test methods of different classes is reported with every method")
