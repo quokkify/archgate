@@ -1,0 +1,1 @@
+{"id":"2c3169fa9763cd1cf36dcf45ee43267c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.bothRulesShareOneLoad","name":"Both rules of one run share a single load of the index","status":"passed","testResultsByEnv":{"default":"929b5549546310f5d585c1de92d17921"}}

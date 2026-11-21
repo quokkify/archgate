@@ -1,0 +1,1 @@
+{"id":"c264574447461720fca52cb0449a4eb3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.differentAutomationFieldsDoNotShareALoad","name":"Rules naming different automation fields cannot share a load","status":"passed","testResultsByEnv":{"default":"a35fd8bf66b368a60dddeb2e1fc40dca"}}

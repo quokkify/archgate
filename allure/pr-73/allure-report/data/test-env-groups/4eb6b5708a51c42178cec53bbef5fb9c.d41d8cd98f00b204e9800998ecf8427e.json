@@ -1,0 +1,1 @@
+{"id":"4eb6b5708a51c42178cec53bbef5fb9c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.serviceGetsLinkedIdsAndVariables","name":"The service gets the linked ids, sorted, and the values of its variables","status":"passed","testResultsByEnv":{"default":"bf40c96b4823d9e8a60a7aada7644b44"}}

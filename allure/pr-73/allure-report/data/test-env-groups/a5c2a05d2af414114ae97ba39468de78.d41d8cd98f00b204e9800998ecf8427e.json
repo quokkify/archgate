@@ -1,0 +1,1 @@
+{"id":"a5c2a05d2af414114ae97ba39468de78.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.excludedByMethodAnnotationInClassLevelTest","name":"Excluded method of a class-level Test class is skipped, its sibling public method is checked","status":"passed","testResultsByEnv":{"default":"c98fa5a10768a05b6293882ccd874388"}}

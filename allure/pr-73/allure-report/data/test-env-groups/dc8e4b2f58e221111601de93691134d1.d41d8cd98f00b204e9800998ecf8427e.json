@@ -1,0 +1,1 @@
+{"id":"dc8e4b2f58e221111601de93691134d1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.unsetVariableKeepsFullCheck","name":"Without the variable every linked test class is checked","status":"passed","testResultsByEnv":{"default":"55b2665a9697491b88cc7d0207245485"}}

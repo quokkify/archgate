@@ -1,0 +1,1 @@
+{"id":"d82bebc609e99f02222904dfffe398a0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.existsRuleReportsEveryKindOfBrokenLink","name":"The exists rule reports missing, deleted and foreign cases in fixed groups","status":"passed","testResultsByEnv":{"default":"48188eb6c88d49e9bea6f3b6572abe71"}}

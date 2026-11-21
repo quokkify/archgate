@@ -1,0 +1,1 @@
+{"id":"d13677919470cc2452ea5b0d1b0ff545.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.ruleDescriptionIsDeterministic","name":"Rule description names only the exclusions in use, sorted by key","status":"passed","testResultsByEnv":{"default":"e2b1ff708e9d6a38bdfe0e1969636576"}}

@@ -1,0 +1,1 @@
+{"id":"60963171021fe2666e6dff3c242339f0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.budgetExhaustedDuringCaseFields","name":"Regression guard: the budget also bounds the case fields request","status":"passed","testResultsByEnv":{"default":"656bd70df29a6017296946412bc69605"}}

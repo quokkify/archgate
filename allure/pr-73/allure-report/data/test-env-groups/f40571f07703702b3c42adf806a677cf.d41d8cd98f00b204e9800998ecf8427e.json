@@ -1,0 +1,1 @@
+{"id":"f40571f07703702b3c42adf806a677cf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.sameInputsShareOneLoad","name":"Two rules on one context load the index once and get the same object","status":"passed","testResultsByEnv":{"default":"db229415ebfbaa5431bf96b1d97c52ce"}}

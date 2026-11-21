@@ -1,0 +1,1 @@
+{"id":"5fbd5db0bb530a2d4f9ad49477c2dc5b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.blankValuesAreNotReported","name":"Blank values are left to TmsLinkRequiredRule","status":"passed","testResultsByEnv":{"default":"3ab52159d4821ce1f9790135e567b25d"}}

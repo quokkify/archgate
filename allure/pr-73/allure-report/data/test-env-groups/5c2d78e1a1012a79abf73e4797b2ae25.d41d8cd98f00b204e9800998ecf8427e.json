@@ -1,0 +1,1 @@
+{"id":"5c2d78e1a1012a79abf73e4797b2ae25.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.probedIdResolvesEvenIfAbsentFromPages","name":"Regression guard: a probed id resolves when its suite pages omit it","status":"passed","testResultsByEnv":{"default":"0eb7aafc54e43e43dcbb5934efd4466e"}}

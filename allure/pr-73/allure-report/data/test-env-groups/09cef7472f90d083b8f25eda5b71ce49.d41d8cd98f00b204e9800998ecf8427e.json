@@ -1,0 +1,1 @@
+{"id":"09cef7472f90d083b8f25eda5b71ce49.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.unavailableServiceIsCachedSkipSignal","name":"An unavailable service becomes the skip signal, is cached and keeps its cause","status":"passed","testResultsByEnv":{"default":"425d2c323d3df233d857b24deaab8be7"}}

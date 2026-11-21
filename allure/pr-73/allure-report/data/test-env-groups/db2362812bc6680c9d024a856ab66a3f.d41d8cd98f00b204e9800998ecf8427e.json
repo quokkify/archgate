@@ -1,0 +1,1 @@
+{"id":"db2362812bc6680c9d024a856ab66a3f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.classKeyFallsBackToTopLevelName","name":"The class key uses the source file name, falling back to the top-level class name","status":"passed","testResultsByEnv":{"default":"770d6bfc6ac1abe834cf2cf45fea5b94"}}

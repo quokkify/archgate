@@ -1,0 +1,1 @@
+{"id":"71c3673c956e209ae1051396d229f365.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.urlProblemsNameTheVariable","name":"Each URL problem is named for TESTRAIL_URL without repeating the URL","status":"passed","testResultsByEnv":{"default":"3244f0e61d09f717f8230b1b664e9a62"}}

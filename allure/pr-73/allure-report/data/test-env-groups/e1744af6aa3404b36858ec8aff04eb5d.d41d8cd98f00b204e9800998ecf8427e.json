@@ -1,0 +1,1 @@
+{"id":"e1744af6aa3404b36858ec8aff04eb5d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.sleepMethodReferencesAreReported","name":"sleepMethodReferencesAreReported","status":"passed","testResultsByEnv":{"default":"83b4ec5c83184d5cbf984a448cba8232"}}

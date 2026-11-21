@@ -1,0 +1,1 @@
+{"id":"400bd9289db001669af3193ae963bbf7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.matchesNestedClassThroughSourceFile","name":"A nested class is changed when its source file is listed","status":"passed","testResultsByEnv":{"default":"5186791b068d8a981c7773dc595cdc0f"}}
