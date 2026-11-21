@@ -1,0 +1,1 @@
+{"id":"acb8a5fd7afcf5f7e63a11450f6ea40e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.TestPlanItRulesTest.bothRulesShareOneLoad","name":"Both rules of one run share one load: the project check and one cases query","status":"passed","testResultsByEnv":{"default":"41e1a0209461a9eae4fb25ed10f10930"}}

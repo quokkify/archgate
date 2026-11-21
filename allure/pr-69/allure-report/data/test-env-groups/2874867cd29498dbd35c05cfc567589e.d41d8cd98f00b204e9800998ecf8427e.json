@@ -1,0 +1,1 @@
+{"id":"2874867cd29498dbd35c05cfc567589e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.cyrillicAnywhereGetsHint","name":"Cyrillic letter inside the value also gets the hint","status":"passed","testResultsByEnv":{"default":"fa75ac8a6eeb3f0495a8f5df6f2b0c6e"}}

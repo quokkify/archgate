@@ -1,0 +1,1 @@
+{"id":"05f6390b5c613cf972f15dbce2828a7b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLinesTest.alignsIdsWithinGroup","name":"Ids are aligned to the longest id of the group plus two spaces","status":"passed","testResultsByEnv":{"default":"b150d4c19a09b10dde29b1e482adab9e"}}

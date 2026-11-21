@@ -1,0 +1,1 @@
+{"id":"ba0dadf52477aad568359d6bfaf234f3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.budgetExhaustedDuringForeignSuiteLookup","name":"Regression guard: the budget also bounds foreign suite lookups","status":"passed","testResultsByEnv":{"default":"4c248b502bd40dd73ff0c129d7c272d4"}}

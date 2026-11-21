@@ -1,0 +1,1 @@
+{"id":"19e2918a8f644b6ce48e1a1fd166907f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.foreignIdInProbeIsForeign","name":"Regression guard: a probed case of another project is foreign","status":"passed","testResultsByEnv":{"default":"3786e6cfd8153cd4c0612f632fb81792"}}

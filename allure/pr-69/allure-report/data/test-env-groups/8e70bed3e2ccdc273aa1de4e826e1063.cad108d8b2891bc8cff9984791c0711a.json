@@ -1,0 +1,1 @@
+{"id":"8e70bed3e2ccdc273aa1de4e826e1063.cad108d8b2891bc8cff9984791c0711a","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.cyrillicPrefixGetsHint","name":"Cyrillic C is reported with a hint to use the Latin C","status":"passed","testResultsByEnv":{"default":"e4e0022b53d448825ed2e0b6d8d80c61"}}

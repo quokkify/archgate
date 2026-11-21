@@ -1,0 +1,1 @@
+{"id":"07240e6b0b95ed4e9ffc1bab578c0b70.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.missingTmsLinkIsReported","name":"Test method without TmsLink is reported","status":"passed","testResultsByEnv":{"default":"1c11aaa3a1b6dfa94dbd8a60654b0f92"}}

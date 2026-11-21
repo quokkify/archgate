@@ -1,0 +1,1 @@
+{"id":"9ce64021ee2ab31d9ca80a97db2640ef.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.missingAnnotationIsReported","name":"Test method without the annotation is reported","status":"passed","testResultsByEnv":{"default":"4c0fd248ec0280afee3ae1972a8c7d52"}}

@@ -1,0 +1,1 @@
+{"id":"6502652e408260fc96cdf7a3dfac12d6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.startRequestsRunTogether","name":"Case fields and the project suite list are requested concurrently","status":"passed","testResultsByEnv":{"default":"d2fa9b1efb01d31bae07a7c8bfac98f8"}}

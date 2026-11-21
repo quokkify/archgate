@@ -1,0 +1,1 @@
+{"id":"a5f8db62834ec2670677e169f1b033ca.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.wildcardKeyIsPackagePattern","name":"Key with '*' and without '..' is a package pattern","status":"passed","testResultsByEnv":{"default":"6a9559b2e66bb2c7f85cc8faed900a82"}}

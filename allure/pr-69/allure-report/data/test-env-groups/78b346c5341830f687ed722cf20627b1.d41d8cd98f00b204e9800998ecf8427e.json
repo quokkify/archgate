@@ -1,0 +1,1 @@
+{"id":"78b346c5341830f687ed722cf20627b1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.invalidUrlIsUnableToVerify","name":"An unusable URL fails as unable to verify, naming the variable but not its value","status":"passed","testResultsByEnv":{"default":"5ae1f1b9edf4cbcfb9212fcb366980ab"}}

@@ -1,0 +1,1 @@
+{"id":"d1fe96c5c6f438813c51b5a46811d9ae.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseIndexTest.classifiesIds","name":"Every id is found in exactly one category, and an unknown id in none","status":"passed","testResultsByEnv":{"default":"403628ce5ae47a335b4a7f5ff6b13c18"}}

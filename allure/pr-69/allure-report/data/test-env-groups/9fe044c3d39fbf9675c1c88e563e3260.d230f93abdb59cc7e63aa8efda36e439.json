@@ -1,0 +1,1 @@
+{"id":"9fe044c3d39fbf9675c1c88e563e3260.d230f93abdb59cc7e63aa8efda36e439","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.TestPlanItRulesTest.refusedTokenIsUnableToVerify","name":"A refused token fails as unable to verify, without the token in any message","status":"passed","testResultsByEnv":{"default":"fb6e2b9359ea2f342a125819b0dee41e"}}
