@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -32,6 +33,16 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
     private static final String SKIP_PROPERTY = "archgate.skip";
     private static final String REPORT_PATH = "reports/archgate/report.txt";
     private static final String STATE_PATH = "reports/archgate/state.properties";
+    private static final String JAVA_PLUGIN = "java";
+    private static final String NO_JAVA_PLUGIN = """
+            archgate: project '%s' applies dev.quokkify.archgate but not the java plugin, so it has no classes to \
+            check and no test runtime classpath to load rules from.
+              Apply 'java' (or a plugin that applies it, such as java-library, groovy, scala or \
+            org.jetbrains.kotlin.jvm) in the project whose src/test/resources lists the rules.
+              To check other projects, make that java project the gate and list them in archgate { modules(...) }; \
+            a project without the java plugin cannot aggregate modules.
+              If this project only configures the plugin for others, set archgate { skip = true }.
+              Android projects are not supported.""";
 
     @Override
     public void apply(Project project) {
@@ -47,7 +58,19 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                         .gradleProperty(SKIP_PROPERTY)
                         .map(value -> value.isEmpty() || Boolean.parseBoolean(value))
                         .orElse(false));
-        project.getPluginManager().withPlugin("java", plugin -> register(project, extension));
+        project.getPluginManager().withPlugin(JAVA_PLUGIN, plugin -> register(project, extension));
+        if (project.getState().getExecuted()) {
+            requireJavaPlugin(project, extension);
+        } else {
+            project.afterEvaluate(evaluated -> requireJavaPlugin(evaluated, extension));
+        }
+    }
+
+    private static void requireJavaPlugin(Project project, ArchgateExtension extension) {
+        if (!project.getPluginManager().hasPlugin(JAVA_PLUGIN)
+                && !extension.getSkip().get()) {
+            throw new GradleException(NO_JAVA_PLUGIN.formatted(project.getPath()));
+        }
     }
 
     private static void register(Project project, ArchgateExtension extension) {

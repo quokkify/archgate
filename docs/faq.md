@@ -98,6 +98,10 @@ When the inputs of `archgateCheck` are unchanged and no rule obtained `Environme
 
 A project named in `archgate { modules(...) }` has not applied the plugin. Apply `dev.quokkify.archgate` there too. If the project only exposes its classes to the gate, set `archgate { skip = true }` in it.
 
+### The build fails with "applies dev.quokkify.archgate but not the java plugin".
+
+The plugin needs the `java` plugin in the project that applies it: the classes to check and the rules to run come from its source sets. Apply `java`, or a plugin that applies it (`java-library`, `groovy`, `scala`, `org.jetbrains.kotlin.jvm`). A root project without sources cannot aggregate other projects: make a java project the gate and list the others in `archgate { modules(...) }`. A project that only configures the plugin for others sets `archgate { skip = true }`. Android projects are not supported.
+
 ### The build fails because `rootPackage` is not set.
 
 `rootPackage` is required on every project that applies the plugin and is not skipped. Set it in the `archgate { }` block, or pass `-Parchgate.rootPackage=…`. Projects that only expose classes to a gate set `archgate { skip = true }` instead.

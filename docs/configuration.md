@@ -33,6 +33,7 @@ archgate {
 
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
+- The project that applies the plugin must apply `java`, or a plugin that applies it (`java-library`, `groovy`, `scala`, `org.jetbrains.kotlin.jvm`). Without it, configuration fails with `applies dev.quokkify.archgate but not the java plugin`, unless the project sets `skip = true`. A root project without sources cannot aggregate other projects; make a java project the gate and list them in `modules(...)`. Android projects are not supported.
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
 - The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule obtained `Environment` or was skipped in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
 - The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case.
