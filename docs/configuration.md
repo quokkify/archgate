@@ -235,11 +235,29 @@ A required variable is read with `require(names...)`, which lists every missing 
 
 ### CI, offline and service failures
 
-The gate treats a run as CI when the `CI` variable is set to anything other than `false`. Set `archgate.ci=true` or `archgate.ci=false` to override that. Any other value fails the build. A CI system that does not set `CI` must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
+The gate treats a run as CI when any variable in the table below is set to a value that is neither blank nor `false`. The report names the first one found in table order, for example `(JENKINS_URL is set)`. `CI=false` does not hide another variable from the table. Set `archgate.ci=true` or `archgate.ci=false` to override detection in either direction; any other value fails the build. A CI system that sets none of these variables must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
+
+#### How CI is detected
+
+| Variable | Set by | Documented value |
+|---|---|---|
+| `CI` | Most CI systems, including GitHub Actions, GitLab CI/CD, Buildkite, CircleCI, Travis CI and Bitbucket Pipelines | `true` |
+| `GITHUB_ACTIONS` | [GitHub Actions](https://docs.github.com/en/actions/reference/workflows-and-actions/variables) | `true` |
+| `GITLAB_CI` | [GitLab CI/CD](https://docs.gitlab.com/ci/variables/predefined_variables/) | `true` |
+| `JENKINS_URL` | [Jenkins](https://www.jenkins.io/doc/book/pipeline/jenkinsfile/#using-environment-variables) | The server URL. Jenkins sets it only when the Jenkins URL is configured in the system configuration; pass `archgate.ci=true` otherwise |
+| `TEAMCITY_VERSION` | [TeamCity](https://www.jetbrains.com/help/teamcity/predefined-build-parameters.html) | The server version |
+| `TF_BUILD` | [Azure Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/build/variables) | `True` |
+| `BUILDKITE` | [Buildkite](https://buildkite.com/docs/pipelines/configure/environment-variables) | `true` |
+| `CIRCLECI` | [CircleCI](https://circleci.com/docs/reference/variables/) | `true` |
+| `TRAVIS` | [Travis CI](https://docs.travis-ci.com/user/environment-variables/#default-environment-variables) | `true` |
+| `BITBUCKET_BUILD_NUMBER` | [Bitbucket Pipelines](https://support.atlassian.com/bitbucket-cloud/docs/variables-and-secrets/) | The build number |
+| `CODEBUILD_BUILD_ID` | [AWS CodeBuild](https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-env-vars.html) | The build id |
+
+Gradle reads these variables in the worker when the task runs, like rule variables; they are not task inputs and do not affect the configuration cache. A run whose rules read the environment is never `UP-TO-DATE` ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
 
 | Property | Values | Effect |
 |---|---|---|
-| `archgate.ci` | `true`, `false` | Overrides the `CI` variable. |
+| `archgate.ci` | `true`, `false` | Overrides CI detection in both directions. |
 | `archgate.offline` | `true`, `false` | `true` skips every external rule outside CI. In CI it is ignored and the build logs `archgate.offline=true is ignored in CI (<source>); external rules run.` |
 | `archgate.ci.serviceUnavailable` | `fail` (default), `skip` | In CI, `skip` reports a rule as skipped when its service does not answer. It applies only to that case, never to missing variables, and has no effect outside CI. |
 

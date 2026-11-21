@@ -21,7 +21,7 @@ import org.testng.annotations.Test;
 /**
  * Runs an external rule whose variable is missing under Gradle and checks where the CI decision comes from.
  *
- * <p>Each build gets an environment copied from the test process without {@code CI}, the variable and any
+ * <p>Each build gets an environment copied from the test process without the CI marker variables, the variable and any
  * {@code archgate.ci} project property, so the result does not depend on the machine that runs the suite.
  */
 class CiSwitchesFunctionalTest {
@@ -29,8 +29,21 @@ class CiSwitchesFunctionalTest {
     private static final String SCENARIO = "pass";
     private static final String CI_VARIABLE = "CI";
     private static final String TOKEN = "TRACKER_TOKEN";
-    private static final List<String> UNPINNED =
-            List.of(CI_VARIABLE, TOKEN, "archgate.ci", "ORG_GRADLE_PROJECT_archgate.ci");
+    private static final List<String> UNPINNED = List.of(
+            CI_VARIABLE,
+            "GITHUB_ACTIONS",
+            "GITLAB_CI",
+            "JENKINS_URL",
+            "TEAMCITY_VERSION",
+            "TF_BUILD",
+            "BUILDKITE",
+            "CIRCLECI",
+            "TRAVIS",
+            "BITBUCKET_BUILD_NUMBER",
+            "CODEBUILD_BUILD_ID",
+            TOKEN,
+            "archgate.ci",
+            "ORG_GRADLE_PROJECT_archgate.ci");
     private static final String RULE_SERVICES =
             "src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule";
     private static final String REQUIRING_RULE = """
@@ -108,6 +121,22 @@ class CiSwitchesFunctionalTest {
                     .buildAndFail();
 
             assertThat(result.getOutput()).contains("Rule 'Tracker token' cannot run in CI (CI is set)");
+        }
+    }
+
+    /** Regression guard: Jenkins does not set CI, so a Jenkins build skipped the rule and passed. */
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test
+    void jenkinsVariableMakesACiRun() throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = projectWithRequiringRule(tempDir);
+
+            BuildResult result = runner(project, List.of())
+                    .withEnvironment(environment(Map.of("JENKINS_URL", "https://jenkins.example.org/")))
+                    .buildAndFail();
+
+            assertThat(result.getOutput()).contains("Rule 'Tracker token' cannot run in CI (JENKINS_URL is set)");
         }
     }
 

@@ -46,7 +46,7 @@ In `META-INF/services`. The file `src/test/resources/META-INF/services/dev.quokk
 
 ### Why is a rule marked `[SKIP]`?
 
-The rule needs something from outside the build (variables, or a service that answers) and did not get it, in a run that is not CI. The verdict line counts it as `N skipped` and the build log shows the report as a warning. A skipped rule checked nothing. In CI the same situation fails the build. See [Configuration → Rules that call external services](configuration.md#rules-that-call-external-services).
+The rule needs something from outside the build (variables, or a service that answers) and did not get it, in a run that is not CI. The verdict line counts it as `N skipped` and the build log shows the report as a warning. A skipped rule checked nothing. In CI the same situation fails the build. The gate recognises CI from `CI` and the variables of the common CI systems, Jenkins and TeamCity included; see [How CI is detected](configuration.md#how-ci-is-detected). Pass `archgate.ci=true` on a CI system that is not listed. See [Configuration → Rules that call external services](configuration.md#rules-that-call-external-services).
 
 ### Why does a rule say `(TEST not checked: empty)`?
 

@@ -2,6 +2,7 @@ package dev.quokkify.archgate.core;
 
 import dev.quokkify.archgate.api.ExternalDependencyUnavailable;
 import dev.quokkify.archgate.api.UnableToVerifyError;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,8 +37,19 @@ public record ExternalPolicy(
     /** Property that chooses what CI does when a service does not answer. */
     public static final String SERVICE_UNAVAILABLE_PROPERTY = "archgate.ci.serviceUnavailable";
 
-    private static final String CI_VARIABLE = "CI";
-    private static final String CI_FROM_VARIABLE = "CI is set";
+    // Set in every build by the named system; values per docs/configuration.md#how-ci-is-detected.
+    private static final List<String> CI_VARIABLES = List.of(
+            "CI",
+            "GITHUB_ACTIONS",
+            "GITLAB_CI",
+            "JENKINS_URL",
+            "TEAMCITY_VERSION",
+            "TF_BUILD",
+            "BUILDKITE",
+            "CIRCLECI",
+            "TRAVIS",
+            "BITBUCKET_BUILD_NUMBER",
+            "CODEBUILD_BUILD_ID");
     private static final String NO_CI = "no CI variable set";
 
     /**
@@ -56,9 +68,14 @@ public record ExternalPolicy(
             ci = parseCi(override);
             source = CI_PROPERTY + "=" + override;
         } else {
-            String variable = trimmed(lookup.apply(CI_VARIABLE));
-            ci = !variable.isEmpty() && !"false".equalsIgnoreCase(variable);
-            source = ci ? CI_FROM_VARIABLE : NO_CI;
+            Optional<String> marker = CI_VARIABLES.stream()
+                    .filter(name -> {
+                        String value = trimmed(lookup.apply(name));
+                        return !value.isEmpty() && !"false".equalsIgnoreCase(value);
+                    })
+                    .findFirst();
+            ci = marker.isPresent();
+            source = marker.map(name -> name + " is set").orElse(NO_CI);
         }
         boolean offlineRequested = parseOffline(trimmed(lookup.apply(OFFLINE_PROPERTY)));
         return new ExternalPolicy(
