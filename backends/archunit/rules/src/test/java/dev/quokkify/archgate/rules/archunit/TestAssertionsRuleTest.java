@@ -40,6 +40,14 @@ class TestAssertionsRuleTest {
                         assertThat(detail).contains("EmptyTest.runsCodeButChecksNothing()", "does not assert"));
     }
 
+    // Regression guard: JUnit 5 runs a method annotated with a composed annotation that carries @Test.
+    @Test
+    void composedTestAnnotationWithoutAssertionsIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("ComposedEmptyTest.runsCodeButChecksNothing()", "does not assert"));
+    }
+
     @Test
     void assertThatApiIsRecognized() {
         assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("AssertJTest"));

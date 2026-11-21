@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.NoDisabledTestsRule` · **ERROR** · test
 
-Tests must not be disabled: neither `@Ignore` (TestNG) / `@Disabled` (JUnit 5) on a class or method, nor `@Test(enabled = false)` (TestNG). A disabled test guards nothing while it still looks like coverage — remove it if it is obsolete, or fix and re-enable it.
+Tests must not be disabled: neither `@Ignore` (TestNG) / `@Disabled` (JUnit 5) on a class or method, nor `@Test(enabled = false)` (TestNG). A composed annotation that carries `@Disabled` or `@Ignore` counts too; the rule reports where it is used, not its declaration. A disabled test guards nothing while it still looks like coverage — remove it if it is obsolete, or fix and re-enable it.
 
 **Why.** A disabled test is invisible in the reports, but it still pretends to cover the behavior it checks. Coverage numbers stay green while the checked path can silently break.
 
