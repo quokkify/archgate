@@ -72,7 +72,7 @@ archgate {
 ```
 
 - Every project named in `modules(...)` must apply `dev.quokkify.archgate` itself, usually with `skip = true`. Otherwise the task fails with a message that contains `does not apply dev.quokkify.archgate`.
-- Each such project exposes its main and test class directories, their processed-resources directories (the service-file rules read `META-INF/services` from them) and source directories through a consumable configuration, and the gate project reads them.
+- Each such project exposes its main and test class directories (every directory of the source set's output, so classes compiled by the Groovy, Scala or Kotlin plugins are included), their processed-resources directories (the service-file rules read `META-INF/services` from them) and source directories through a consumable configuration, and the gate project reads them.
 - Known limitation: the source directories of sibling projects are captured at configuration time. A source directory added to a sibling project after its configuration has finished is not seen by the gate.
 
 ### Class loading
