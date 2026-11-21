@@ -82,6 +82,10 @@ Subclass the rule, pass the parameters to its `protected` constructor or overrid
 
 A dedicated last module named `<project>-archgate-rules` (for example `platform-archgate-rules` for the `platform` project) depends on the modules it checks and holds the plugin, the services file and your rules. That module can contain only `src/test`. See [Configuration → Multi-module projects](configuration.md#multi-module-projects).
 
+### Why does `mvn -pl <gate>` fail with "part of the reactor but not of this build"?
+
+The gate checks its sibling modules, and `-pl` without `-am`, `-rf` or a resume left them out of the run. The plugin reads classes and sources from the modules of the run only, so it fails instead of checking the gate module alone. Run `mvn -pl <gate> -am verify` or the full reactor, or skip the gate in that run with `-Darchgate.skip`. See [Configuration → Maven](configuration.md#maven).
+
 ### Does `NoWildcardImportsRule` or `ServiceFileConsistencyRule` need extra setup?
 
 Only the matching rules artifact: `archgate-rules-javaparser` or `archgate-rules-classgraph`. Each brings its own context. See the rule pages: [No wildcard imports](rules/no-wildcard-imports.md) and [Service file consistency](rules/service-file-consistency.md).
