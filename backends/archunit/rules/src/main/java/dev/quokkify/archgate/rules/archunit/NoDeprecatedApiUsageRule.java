@@ -2,6 +2,7 @@ package dev.quokkify.archgate.rules.archunit;
 
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 
+import com.tngtech.archunit.core.domain.AccessTarget.CodeUnitAccessTarget;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaConstructor;
 import com.tngtech.archunit.core.domain.JavaConstructorCall;
@@ -84,10 +85,7 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
                 });
                 javaClass.getMethodCallsFromSelf().forEach(call -> {
                     String target = call.getTarget().getFullName();
-                    if (call.getTarget().isAnnotatedWith(Deprecated.class)
-                            || call.getTarget().getRawReturnType().isAnnotatedWith(Deprecated.class)
-                            || call.getTarget().getRawParameterTypes().stream()
-                                    .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure)) {
+                    if (deprecatedTarget(call.getTarget())) {
                         events.add(violation(call.getOrigin().getFullName(), "calls deprecated %s".formatted(target)));
                     } else if (deprecatedForeign(javaClass, call.getTargetOwner())) {
                         events.add(violation(
@@ -98,9 +96,7 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
                 });
                 javaClass.getConstructorCallsFromSelf().forEach(call -> {
                     String target = call.getTarget().getFullName();
-                    if (call.getTarget().isAnnotatedWith(Deprecated.class)
-                            || call.getTarget().getRawParameterTypes().stream()
-                                    .anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure)) {
+                    if (deprecatedTarget(call.getTarget())) {
                         events.add(violation(
                                 call.getOrigin().getFullName(), "calls deprecated constructor %s".formatted(target)));
                     } else if (deprecatedForeign(javaClass, call.getTargetOwner())
@@ -113,7 +109,7 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
                 });
                 javaClass.getCodeUnitReferencesFromSelf().forEach(reference -> {
                     String target = reference.getTarget().getFullName();
-                    if (reference.getTarget().isAnnotatedWith(Deprecated.class)) {
+                    if (deprecatedTarget(reference.getTarget())) {
                         events.add(violation(
                                 reference.getOrigin().getFullName(), "references deprecated %s".formatted(target)));
                     } else if (deprecatedForeign(javaClass, reference.getTargetOwner())) {
@@ -164,6 +160,13 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
                 return SimpleConditionEvent.violated(origin, "%s %s".formatted(origin, detail));
             }
         };
+    }
+
+    // Shared by calls and references, so a method reference gets the same signature checks as a call.
+    private static boolean deprecatedTarget(CodeUnitAccessTarget target) {
+        return target.isAnnotatedWith(Deprecated.class)
+                || target.getRawReturnType().isAnnotatedWith(Deprecated.class)
+                || target.getRawParameterTypes().stream().anyMatch(NoDeprecatedApiUsageRule::deprecatedErasure);
     }
 
     private static boolean deprecatedErasure(JavaType type) {

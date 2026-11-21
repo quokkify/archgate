@@ -235,7 +235,7 @@ A required variable is read with `require(names...)`, which lists every missing 
 
 ### CI, offline and service failures
 
-The gate treats a run as CI when any variable in the table below is set to a value that is neither blank nor `false`. The report names the first one found in table order, for example `(JENKINS_URL is set)`. `CI=false` does not hide another variable from the table. Set `archgate.ci=true` or `archgate.ci=false` to override detection in either direction; any other value fails the build. A CI system that sets none of these variables must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
+The gate treats a run as CI when any variable in the table below is set to a value that is neither blank nor `false`. The report names the first one found in table order, for example `(JENKINS_URL is set)`. `CI=false` does not hide another variable from the table. Set `archgate.ci=true` or `archgate.ci=false` to override detection in either direction; any other value fails the build. To force local behaviour, pass `archgate.ci=false`; `CI=false` is not enough, because any other variable from the table, such as `JENKINS_URL` in a Jenkins agent image, still marks the run as CI. A CI system that sets none of these variables must pass `archgate.ci=true`; otherwise the run counts as local and an external rule that cannot run is skipped instead of failing the build.
 
 #### How CI is detected
 

@@ -50,6 +50,15 @@ class NoConsoleOutputRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("ConsoleMethodReferences.printLine()", "System.out"));
     }
 
+    // Regression guard: overloads a Thread or Throwable subclass declares itself are not console output.
+    @Test
+    void ownOverloadsOfThreadAndThrowableSubclassesPass() {
+        JavaClasses console = new ClassFileImporter().importPackages("archfixtures.console");
+
+        assertThat(ArchRuleChecks.violations(NoConsoleOutputRule.definition(), console))
+                .noneSatisfy(detail -> assertThat(detail).contains("OwnDumpThread"));
+    }
+
     @Test
     void loggerAndExplicitStreamTraceAreAllowed() {
         JavaClasses logging = new ClassFileImporter().importClasses(archfixtures.console.LoggingWriter.class);

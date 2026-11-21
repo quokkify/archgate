@@ -79,6 +79,12 @@ class NoThreadSleepRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("SleepStaticImport.pause()", "Thread.sleep(long)"));
     }
 
+    // Regression guard: matching the owner by assignability must not catch methods a Thread subclass declares.
+    @Test
+    void ownSleepMethodsOfThreadSubclassPass() {
+        assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("OwnSleepThread"));
+    }
+
     @Test
     void awaitilityPasses() {
         assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("AwaitilityWait"));

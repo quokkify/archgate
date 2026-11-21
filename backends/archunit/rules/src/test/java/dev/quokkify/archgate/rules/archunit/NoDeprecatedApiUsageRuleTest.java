@@ -168,6 +168,16 @@ class NoDeprecatedApiUsageRuleTest {
                         .contains("CallsInheritedDeprecatedMethod.callsThroughSubclass()", "oldMethod()"));
     }
 
+    // Regression guard: a reference must get the same parameter and return-type checks as a call.
+    @Test
+    void referenceToMethodWithDeprecatedSignatureIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("DeprecatedSignatureReference.referencesParameter()", "takesLegacy"))
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("DeprecatedSignatureReference.referencesReturn()", "givesLegacy"));
+    }
+
     @Test
     void modernUsagePasses() {
         assertThat(violations())

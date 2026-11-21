@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.TestClassNamingRule` · **ERROR** · test
 
-A class with `@Test` methods, its own or inherited, must have a name ending in `Test`. Both TestNG and JUnit Jupiter `@Test` (JUnit 5 and 6) are recognised, also through a composed annotation that carries `@Test`.
+A class with `@Test` methods, its own or inherited, must have a name ending in `Test`. Both TestNG and JUnit Jupiter `@Test` (JUnit 5 and 6) are recognised, also through a composed annotation that carries `@Test`. A composed annotation declared in a dependency jar is recognised only when that jar is on the classpath of the gate.
 
 **Why.** Suite generation and surefire find test classes by name. A class named `LoginChecks` with `@Test` methods silently never runs.
 

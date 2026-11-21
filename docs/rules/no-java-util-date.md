@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.NoJavaUtilDateRule` · **WARNING** · main + test
 
-Code must not depend on `java.util.Date`. Use `java.time` types instead: `Instant`, `LocalDateTime` or `ZonedDateTime`.
+Code must not depend on `java.util.Date`. Use `java.time` types instead: `Instant`, `LocalDateTime` or `ZonedDateTime`. The rule matches `java.util.Date` itself only: its JDBC subclasses `java.sql.Date`, `java.sql.Time` and `java.sql.Timestamp`, and members inherited through them such as `timestamp.getTime()`, are not reported.
 
 **Why.** `Date` is mutable and has no time zone.
 
