@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.4.0](https://github.com/quokkify/archgate/compare/v0.3.0...v0.4.0) (2026-11-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* **gradle:** a project that applies dev.quokkify.archgate without the java plugin and without skip = true now fails at configuration time instead of silently checking nothing.
+* **core:** builds on Jenkins, TeamCity, Azure Pipelines, AWS CodeBuild or another listed system that does not set CI now fail when an external rule cannot run, where they used to pass with the rule skipped. Provide the rule's variables, set archgate.ci.serviceUnavailable=skip for an unreachable service, or pass archgate.ci=false to keep the old behaviour.
+
+### ✨ Features
+
+* **rules:** add API-test hygiene rules ([#66](https://github.com/quokkify/archgate/issues/66)) ([652a1dd](https://github.com/quokkify/archgate/commit/652a1dd153ec8a1d7fe4b1caea70910e50763e06))
+* **rules:** add TmsLink rules for test-management links ([#64](https://github.com/quokkify/archgate/issues/64)) ([296c06d](https://github.com/quokkify/archgate/commit/296c06db9e14e4350e4752f5efd8d17c6a020f51))
+* **rules:** check TmsLink ids against TestRail and TestPlanIt ([#67](https://github.com/quokkify/archgate/issues/67)) ([2cff8e2](https://github.com/quokkify/archgate/commit/2cff8e25ca8ef9c0f634f5097c81f0a5913301a9))
+
+
+### 🐛 Bug Fixes
+
+* **core:** detect CI on Jenkins and TeamCity; catch more rule bypasses ([#69](https://github.com/quokkify/archgate/issues/69)) ([ed23f36](https://github.com/quokkify/archgate/commit/ed23f3645527e89c4057999d63b6e071a256462e))
+* **gradle:** gate no longer passes without checking anything ([#71](https://github.com/quokkify/archgate/issues/71)) ([5eeb856](https://github.com/quokkify/archgate/commit/5eeb856500e5cc060b90c1645d7f6388826eeec4))
+* **maven:** fail when -pl or -rf leaves checked modules out of the run ([#68](https://github.com/quokkify/archgate/issues/68)) ([88ce469](https://github.com/quokkify/archgate/commit/88ce469394e5eae39130dcc2b7221ccbe47a5d21))
+
+
+### 🧹 Chores
+
+* **template:** update shared project template ([#73](https://github.com/quokkify/archgate/issues/73)) ([d836e8f](https://github.com/quokkify/archgate/commit/d836e8f343e9c71d23ecb4b87fbc31002ee5b15b))
+
 ## [0.3.0](https://github.com/quokkify/archgate/compare/v0.2.1...v0.3.0) (2026-11-20)
 
 <!-- project-toolkit:release-notes v2 -->
