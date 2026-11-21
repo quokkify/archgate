@@ -33,6 +33,15 @@ class TestClassNamingRuleTest {
                 .hasMessageContaining("archfixtures.naming.Foo");
     }
 
+    // Regression guard: JUnit 5 runs a method annotated with a composed annotation that carries @Test.
+    @Test
+    void composedTestAnnotationMustBeNamedTest() {
+        assertThatThrownBy(() -> new TestClassNamingRule().verify(FixtureContexts.of(FIXTURE_PACKAGE)))
+                .isInstanceOf(ArchitectureViolation.class)
+                .hasMessageContaining("archfixtures.naming.ComposedFoo ")
+                .hasMessageNotContaining("archfixtures.naming.UnitCase");
+    }
+
     @Test
     void customAnnotationAndSuffixAreHonoured() {
         TestClassNamingRule rule = new TestClassNamingRule(Set.of("org.testng.annotations.Test"), "Tests") {};

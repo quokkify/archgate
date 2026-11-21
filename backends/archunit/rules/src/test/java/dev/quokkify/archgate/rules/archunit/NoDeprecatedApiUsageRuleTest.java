@@ -151,6 +151,33 @@ class NoDeprecatedApiUsageRuleTest {
                 .contains("extends deprecated");
     }
 
+    // Regression guard: a method or constructor reference is not a call in ArchUnit.
+    @Test
+    void deprecatedMethodAndConstructorReferencesAreReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("DeprecatedMethodReference.referencesMethod()", "LegacyApi.oldMethod()"))
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("DeprecatedMethodReference.referencesConstructor()", "LegacyApi.<init>()"));
+    }
+
+    @Test
+    void deprecatedStaticMethodCalledThroughSubclassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("CallsInheritedDeprecatedMethod.callsThroughSubclass()", "oldMethod()"));
+    }
+
+    // Regression guard: a reference must get the same parameter and return-type checks as a call.
+    @Test
+    void referenceToMethodWithDeprecatedSignatureIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail)
+                        .contains("DeprecatedSignatureReference.referencesParameter()", "takesLegacy"))
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("DeprecatedSignatureReference.referencesReturn()", "givesLegacy"));
+    }
+
     @Test
     void modernUsagePasses() {
         assertThat(violations())

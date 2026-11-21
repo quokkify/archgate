@@ -97,8 +97,8 @@ public class TestClassNamingRule implements ArchitectureRule<ArchUnitContext> {
     }
 
     private boolean declaresOwnTest(JavaClass javaClass) {
-        return testAnnotations.stream().anyMatch(javaClass::isAnnotatedWith)
+        return testAnnotations.stream().anyMatch(javaClass::isMetaAnnotatedWith)
                 || javaClass.getMethods().stream()
-                        .anyMatch(method -> testAnnotations.stream().anyMatch(method::isAnnotatedWith));
+                        .anyMatch(method -> testAnnotations.stream().anyMatch(method::isMetaAnnotatedWith));
     }
 }

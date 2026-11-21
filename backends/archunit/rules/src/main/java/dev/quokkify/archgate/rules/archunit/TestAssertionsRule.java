@@ -91,7 +91,7 @@ public class TestAssertionsRule implements ArchitectureRule<ArchUnitContext> {
             @Override
             public void check(JavaClass javaClass, ConditionEvents events) {
                 javaClass.getMethods().stream()
-                        .filter(method -> testAnnotations.stream().anyMatch(method::isAnnotatedWith))
+                        .filter(method -> testAnnotations.stream().anyMatch(method::isMetaAnnotatedWith))
                         .filter(method -> method.getMethodCallsFromSelf().stream()
                                 .noneMatch(call -> assertsSomething(call, assertionOwners)))
                         .forEach(method -> events.add(SimpleConditionEvent.violated(

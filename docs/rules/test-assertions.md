@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.TestAssertionsRule` · **WARNING** · test
 
-Every test method must assert or verify something through one of the assertion APIs. A test without an assertion runs the code but checks nothing.
+Every test method must assert or verify something through one of the assertion APIs. A test without an assertion runs the code but checks nothing. A method is a test when it carries a test annotation directly or through a composed annotation, as JUnit Jupiter allows. A composed annotation declared in a dependency jar is recognised only when that jar is on the classpath of the gate.
 
 **Why.** A test that only calls the production code is green even when the behavior is broken. It inflates the coverage numbers while guarding nothing.
 

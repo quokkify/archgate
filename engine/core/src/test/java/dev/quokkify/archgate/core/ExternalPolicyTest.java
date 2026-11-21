@@ -39,6 +39,57 @@ class ExternalPolicyTest {
         assertThat(detect().ci()).isFalse();
     }
 
+    @DataProvider
+    Object[][] ciMarkers() {
+        return new Object[][] {
+            {"GITHUB_ACTIONS", "true"},
+            {"GITLAB_CI", "true"},
+            {"JENKINS_URL", "https://jenkins.example.org/"},
+            {"TEAMCITY_VERSION", "2025.07 (build 197242)"},
+            {"TF_BUILD", "True"},
+            {"BUILDKITE", "true"},
+            {"CIRCLECI", "true"},
+            {"TRAVIS", "true"},
+            {"BITBUCKET_BUILD_NUMBER", "42"},
+            {"CODEBUILD_BUILD_ID", "project:b1e6661e-e4f2-4156-9ab9-82a19EXAMPLE"},
+        };
+    }
+
+    /** Regression guard: Jenkins and TeamCity do not set CI, so their builds were treated as local runs. */
+    @Test(dataProvider = "ciMarkers")
+    void ciFromVendorVariable(String variable, String value) {
+        ExternalPolicy policy = detect(variable, value);
+
+        assertThat(policy.ci()).isTrue();
+        assertThat(policy.ciSource()).isEqualTo(variable + " is set");
+    }
+
+    @Test(dataProvider = "ciMarkers")
+    void blankOrFalseVendorVariableIsNotCi(String variable, String value) {
+        assertThat(detect(variable, " ").ci()).isFalse();
+        assertThat(detect(variable, "false").ci()).isFalse();
+    }
+
+    @Test
+    void vendorVariableWinsOverCiFalse() {
+        ExternalPolicy policy = detect("CI", "false", "JENKINS_URL", "https://jenkins.example.org/");
+
+        assertThat(policy.ci()).isTrue();
+        assertThat(policy.ciSource()).isEqualTo("JENKINS_URL is set");
+    }
+
+    @Test
+    void ciVariableIsNamedFirst() {
+        assertThat(detect("CI", "true", "GITHUB_ACTIONS", "true").ciSource()).isEqualTo("CI is set");
+    }
+
+    @Test
+    void overrideWinsOverVendorVariable() {
+        ExternalPolicy off = detect("archgate.ci", "false", "TEAMCITY_VERSION", "2025.07");
+        assertThat(off.ci()).isFalse();
+        assertThat(off.ciSource()).isEqualTo("archgate.ci=false");
+    }
+
     @Test
     void ciOverride() {
         ExternalPolicy off = detect("archgate.ci", "FALSE ", "CI", "true");

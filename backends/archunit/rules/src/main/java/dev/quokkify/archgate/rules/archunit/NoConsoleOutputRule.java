@@ -3,10 +3,13 @@ package dev.quokkify.archgate.rules.archunit;
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
 import static com.tngtech.archunit.lang.conditions.ArchConditions.accessFieldWhere;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.callMethodWhere;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.accessTargetWhere;
 
+import com.tngtech.archunit.core.domain.JavaAccess;
+import com.tngtech.archunit.core.domain.JavaCodeUnitAccess;
 import com.tngtech.archunit.core.domain.JavaFieldAccess;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.domain.JavaMethodReference;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import dev.quokkify.archgate.api.ArchitectureRule;
@@ -61,16 +64,24 @@ public class NoConsoleOutputRule implements ArchitectureRule<ArchUnitContext> {
                                 access.getTarget().getOwner().isEquivalentTo(System.class)
                                         && CONSOLE_STREAMS.contains(
                                                 access.getTarget().getName()))))
-                .orShould(callMethodWhere(describe(
-                        "call Throwable.printStackTrace()",
-                        (JavaMethodCall call) -> call.getTarget().getName().equals("printStackTrace")
-                                && call.getTarget().getRawParameterTypes().isEmpty()
-                                && call.getTarget().getOwner().isAssignableTo(Throwable.class))))
-                .orShould(callMethodWhere(describe(
-                        "call Thread.dumpStack()",
-                        (JavaMethodCall call) -> call.getTarget().getName().equals("dumpStack")
-                                && call.getTarget().getOwner().isEquivalentTo(Thread.class))))
+                .orShould(accessTargetWhere(describe(
+                        "call or reference Throwable.printStackTrace()",
+                        (JavaAccess<?> access) -> noArgumentMethod(access, "printStackTrace", Throwable.class))))
+                .orShould(accessTargetWhere(describe(
+                        "call or reference Thread.dumpStack()",
+                        (JavaAccess<?> access) -> noArgumentMethod(access, "dumpStack", Thread.class))))
                 .allowEmptyShould(true)
                 .because("console output bypasses the log configuration");
+    }
+
+    // Owners are matched by assignability: javac names the subclass as owner of an inherited method.
+    private static boolean noArgumentMethod(JavaAccess<?> access, String name, Class<?> owner) {
+        return (access instanceof JavaMethodCall || access instanceof JavaMethodReference)
+                && access.getName().equals(name)
+                && ((JavaCodeUnitAccess<?>) access)
+                        .getTarget()
+                        .getRawParameterTypes()
+                        .isEmpty()
+                && access.getTargetOwner().isAssignableTo(owner);
     }
 }

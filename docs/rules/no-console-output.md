@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule` · **ERROR** · main
 
-Production code must not write to the console. The rule forbids:
+Production code must not write to the console. Method references such as `Throwable::printStackTrace` and calls through a subclass, including an unqualified `dumpStack()` inside a `Thread` subclass, count as calls. The rule forbids:
 - `System.out`
 - `System.err`
 - `Throwable.printStackTrace()`

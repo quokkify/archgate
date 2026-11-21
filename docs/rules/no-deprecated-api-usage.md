@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule` · **WARNING** · main + test
 
-Code must not use anything annotated `@Deprecated` — fields, methods, constructors, superclasses, interfaces or the deprecated classes themselves. The next dependency upgrade can remove them; replace the usage with the supported alternative from the `@Deprecated` documentation.
+Code must not use anything annotated `@Deprecated` — fields, methods, constructors, superclasses, interfaces or the deprecated classes themselves. Method and constructor references such as `Legacy::old` count as uses. The next dependency upgrade can remove them; replace the usage with the supported alternative from the `@Deprecated` documentation.
 
 **Why.** Deprecated APIs work today and break on the next upgrade. Finding every usage now, as a warning in the build, is cheaper than a broken build the night before a release.
 

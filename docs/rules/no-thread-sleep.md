@@ -2,7 +2,7 @@
 
 `dev.quokkify.archgate.rules.archunit.NoThreadSleepRule` · **ERROR** · main + test
 
-Code must not call `Thread.sleep` or `TimeUnit.sleep`. Wait for the condition you need instead.
+Code must not call `Thread.sleep` or `TimeUnit.sleep`. Wait for the condition you need instead. Method references such as `Thread::sleep` and calls through a `Thread` subclass, including an unqualified `sleep(..)` inside one, count as calls.
 
 **Why.** A fixed delay is either too short, which makes tests flaky, or too long, which makes them slow.
 

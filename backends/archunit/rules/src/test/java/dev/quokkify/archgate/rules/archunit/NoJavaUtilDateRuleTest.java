@@ -41,6 +41,11 @@ class NoJavaUtilDateRuleTest {
     }
 
     @Test
+    void dateConstructorReferenceIsReported() {
+        assertThat(violations()).anySatisfy(detail -> assertThat(detail).contains("ReferencedDate.now()", "Date"));
+    }
+
+    @Test
     void localDateTimePasses() {
         assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("ModernDate"));
     }

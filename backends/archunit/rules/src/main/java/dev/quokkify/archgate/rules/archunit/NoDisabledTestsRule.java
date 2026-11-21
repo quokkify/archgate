@@ -89,8 +89,12 @@ public class NoDisabledTestsRule implements ArchitectureRule<ArchUnitContext> {
         return new ArchCondition<>("not contain disabled tests") {
             @Override
             public void check(JavaClass javaClass, ConditionEvents events) {
+                // A composed annotation that carries a disabling one is reported where it is used.
+                if (javaClass.isAnnotation()) {
+                    return;
+                }
                 disablingAnnotations.stream()
-                        .filter(javaClass::isAnnotatedWith)
+                        .filter(javaClass::isMetaAnnotatedWith)
                         .forEach(annotation -> events.add(SimpleConditionEvent.violated(
                                 javaClass,
                                 "%s disables the tests of %s".formatted(annotation, javaClass.getDescription()))));
@@ -106,7 +110,7 @@ public class NoDisabledTestsRule implements ArchitectureRule<ArchUnitContext> {
                                                 test.getRawType().getName()))));
                 javaClass.getMembers().forEach(member -> {
                     disablingAnnotations.stream()
-                            .filter(member::isAnnotatedWith)
+                            .filter(member::isMetaAnnotatedWith)
                             .forEach(annotation -> events.add(SimpleConditionEvent.violated(
                                     member, "%s is annotated with %s".formatted(member.getDescription(), annotation))));
                     testAnnotations.stream()

@@ -50,6 +50,24 @@ class NoDisabledTestsRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("JupiterDisabledCase.neverRuns()", "Disabled"));
     }
 
+    // Regression guard: JUnit 5 honours @Disabled as a meta-annotation, so a composed annotation disables the test.
+    @Test
+    void composedDisablingAnnotationOnMethodIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail).contains("QuarantinedMethod.neverRuns()", "Disabled"));
+    }
+
+    // Regression guard: the same composed annotation on a class disables every test in it.
+    @Test
+    void composedDisablingAnnotationOnClassIsReported() {
+        assertThat(violations()).anySatisfy(detail -> assertThat(detail).contains("QuarantinedClass", "Disabled"));
+    }
+
+    @Test
+    void disablingAnnotationDeclarationItselfIsNotReported() {
+        assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("Quarantined>"));
+    }
+
     @Test
     void enabledTestsPass() {
         assertThat(violations())

@@ -47,6 +47,44 @@ class NoThreadSleepRuleTest {
                 .anySatisfy(detail -> assertThat(detail).contains("TimeUnitSleep.pause()", "TimeUnit.sleep(long)"));
     }
 
+    // Regression guard: javac encodes an unqualified sleep(..) inside a Thread subclass with the subclass as owner.
+    @Test
+    void unqualifiedSleepInThreadSubclassIsReported() {
+        assertThat(violations())
+                .anySatisfy(
+                        detail -> assertThat(detail).contains("SleepingThread.run()", "SleepingThread.sleep(long)"));
+    }
+
+    // Regression guard: a static sleep called through a Thread subclass has the subclass as owner.
+    @Test
+    void sleepThroughThreadSubclassIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail).contains("SleepThroughSubclass.pause()", "sleep(long)"));
+    }
+
+    // Regression guard: a method reference is not a method call in ArchUnit.
+    @Test
+    void sleepMethodReferencesAreReported() {
+        assertThat(violations())
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("SleepMethodReference.threadSleep()", "Thread.sleep(long)"))
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("SleepMethodReference.timeUnitSleep()", "TimeUnit.sleep(long)"));
+    }
+
+    @Test
+    void sleepInLambdaAndThroughStaticImportIsReported() {
+        assertThat(violations())
+                .anySatisfy(detail -> assertThat(detail).contains("SleepInLambda", "Thread.sleep(long)"))
+                .anySatisfy(detail -> assertThat(detail).contains("SleepStaticImport.pause()", "Thread.sleep(long)"));
+    }
+
+    // Regression guard: matching the owner by assignability must not catch methods a Thread subclass declares.
+    @Test
+    void ownSleepMethodsOfThreadSubclassPass() {
+        assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("OwnSleepThread"));
+    }
+
     @Test
     void awaitilityPasses() {
         assertThat(violations()).noneSatisfy(detail -> assertThat(detail).contains("AwaitilityWait"));
