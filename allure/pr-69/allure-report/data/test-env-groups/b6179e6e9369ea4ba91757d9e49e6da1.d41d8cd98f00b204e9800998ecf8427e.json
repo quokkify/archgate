@@ -1,1 +1,1 @@
-{"id":"b6179e6e9369ea4ba91757d9e49e6da1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.context.archunit.ArchUnitContextTest.constructorDoesNotImport","name":"constructorDoesNotImport","status":"passed","testResultsByEnv":{"default":"566ef778bbc9f3d647e2e13b5e3ee445"}}
+{"id":"b6179e6e9369ea4ba91757d9e49e6da1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.context.archunit.ArchUnitContextTest.constructorDoesNotImport","name":"constructorDoesNotImport","status":"passed","testResultsByEnv":{"default":"236b5902f61601efdf8b165fb0a77d65"}}
