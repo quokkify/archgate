@@ -37,18 +37,22 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
     private static final String NO_JAVA_PLUGIN = """
             archgate: project '%s' applies dev.quokkify.archgate but not the java plugin, so it has no classes to \
             check and no test runtime classpath to load rules from.
-              Apply 'java' (or a plugin that applies it, such as java-library, groovy, scala or \
+              Apply 'java' (or a plugin that applies it, such as java-library, application, groovy, scala or \
             org.jetbrains.kotlin.jvm) in the project whose src/test/resources lists the rules.
               To check other projects, make that java project the gate and list them in archgate { modules(...) }; \
             a project without the java plugin cannot aggregate modules.
-              If this project only configures the plugin for others, set archgate { skip = true }.
+              To apply the plugin to every JVM subproject, use subprojects { plugins.withId('java') { apply plugin: \
+            'dev.quokkify.archgate' } }.
+              If this project only configures the plugin for others, set archgate { skip = true } in it; \
+            -Parchgate.skip=true skips the gate in every project.
               Android projects are not supported.""";
+    private static final String UNCONFIGURED =
+            "archgate: {} has no JVM plugin and no archgate configuration;" + " nothing to check.";
 
     @Override
     public void apply(Project project) {
         ArchgateExtension extension = project.getExtensions().create(EXTENSION_NAME, ArchgateExtension.class);
         ProviderFactory providers = project.getProviders();
-        extension.getRootPackage().convention(providers.gradleProperty(ROOT_PACKAGE_PROPERTY));
         extension
                 .getFailOn()
                 .convention(providers.gradleProperty(FAIL_ON_PROPERTY).orElse(FailOn.DEFAULT.name()));
@@ -59,18 +63,27 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                         .map(value -> value.isEmpty() || Boolean.parseBoolean(value))
                         .orElse(false));
         project.getPluginManager().withPlugin(JAVA_PLUGIN, plugin -> register(project, extension));
-        if (project.getState().getExecuted()) {
-            requireJavaPlugin(project, extension);
-        } else {
-            project.afterEvaluate(evaluated -> requireJavaPlugin(evaluated, extension));
-        }
+        // After every project is evaluated, so a convention plugin may still apply java in a late afterEvaluate.
+        project.getGradle().projectsEvaluated(gradle -> requireJavaPlugin(project, extension));
     }
 
+    /**
+     * Fails a project that asked for a gate without the java plugin. A project whose archgate block sets neither
+     * rootPackage nor modules got the plugin from a blanket apply, such as a java-platform subproject, and has
+     * nothing to check.
+     */
     private static void requireJavaPlugin(Project project, ArchgateExtension extension) {
-        if (!project.getPluginManager().hasPlugin(JAVA_PLUGIN)
-                && !extension.getSkip().get()) {
-            throw new GradleException(NO_JAVA_PLUGIN.formatted(project.getPath()));
+        if (project.getPluginManager().hasPlugin(JAVA_PLUGIN)
+                || extension.getSkip().get()) {
+            return;
         }
+        boolean configured = extension.getRootPackage().isPresent()
+                || !extension.getModules().get().isEmpty();
+        if (!configured) {
+            project.getLogger().lifecycle(UNCONFIGURED, project.getPath());
+            return;
+        }
+        throw new GradleException(NO_JAVA_PLUGIN.formatted(project.getPath()));
     }
 
     private static void register(Project project, ArchgateExtension extension) {
@@ -86,7 +99,8 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                     task.setGroup(JavaBasePlugin.VERIFICATION_GROUP);
                     task.setDescription("Runs the ArchGate architecture rules.");
                     task.dependsOn(test.getClassesTaskName());
-                    task.getRootPackage().set(extension.getRootPackage());
+                    task.getRootPackage()
+                            .set(extension.getRootPackage().orElse(providers.gradleProperty(ROOT_PACKAGE_PROPERTY)));
                     task.getProjectPath().set(project.getPath());
                     task.getFailOn().set(extension.getFailOn());
                     task.getCi().set(providers.gradleProperty(ExternalPolicy.CI_PROPERTY));

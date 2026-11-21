@@ -33,10 +33,20 @@ archgate {
 
 Supported consumer Gradle version: 9.7.1 and newer. Older versions are not tested.
 
-- The project that applies the plugin must apply `java`, or a plugin that applies it (`java-library`, `groovy`, `scala`, `org.jetbrains.kotlin.jvm`). Without it, configuration fails with `applies dev.quokkify.archgate but not the java plugin`, unless the project sets `skip = true`. A root project without sources cannot aggregate other projects; make a java project the gate and list them in `modules(...)`. Android projects are not supported.
+- The project that applies the plugin must apply `java`, or a plugin that applies it (`java-library`, `application`, `groovy`, `scala`, `org.jetbrains.kotlin.jvm`). Android projects are not supported. A project without the `java` plugin whose `archgate { }` block sets `rootPackage` or `modules(...)` fails at configuration with `applies dev.quokkify.archgate but not the java plugin`, unless it sets `skip = true`. A root project without sources cannot aggregate other projects: make a java project the gate and list them in `modules(...)`. A project without the `java` plugin and without such settings, for example a `java-platform` subproject that got the plugin from a blanket `subprojects { }` apply, is left alone with the line `archgate: <path> has no JVM plugin and no archgate configuration; nothing to check.` To apply the plugin to every JVM subproject only, use:
+
+  ```groovy
+  subprojects {
+      plugins.withId('java') {
+          apply plugin: 'dev.quokkify.archgate'
+      }
+  }
+  ```
+
+  `-Parchgate.skip=true` skips the gate in every project; to skip one project, set `archgate { skip = true }` in it.
 - `archgateCheck` (group `verification`) depends on `testClasses` and is wired into `check`.
 - The task is safe for the configuration cache. On a second run with unchanged inputs it is `UP-TO-DATE`, unless a rule obtained `Environment` or was skipped in the previous run; then it runs again. The task is not stored in the build cache, because rules may read external services ([ADR 0009](adr/0009-archgate-check-not-build-cached.md)).
-- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case. A skipped run (`skip`) deletes the report of the previous run, so an old verdict is never left behind.
+- The report is written to `build/reports/archgate/report.txt`. The console report is printed only when the task executes; it is not replayed on `UP-TO-DATE`, so read the report file in that case. A run skipped by `skip` deletes the report of the previous run, so an old verdict is not left behind. A run excluded with `-x archgateCheck`, or stopped by another `onlyIf` of the task that is checked first, leaves the previous report in place.
 - A failing gate throws a `GradleException` whose message is the counts line, for example `Architecture gate failed: 2 rules, 1 error; failure policy: failOn=WARNING`; the report itself goes to the console and the report file. When a rule cannot be verified, the message is the reason, and no report is written.
 
 ### Precedence
@@ -74,7 +84,7 @@ archgate {
 
 - Every project named in `modules(...)` must apply `dev.quokkify.archgate` itself, usually with `skip = true`. Otherwise the task fails with a message that contains `does not apply dev.quokkify.archgate`.
 - Each such project exposes its main and test class directories (every directory of the source set's output, so classes compiled by the Groovy, Scala or Kotlin plugins are included), their processed-resources directories (the service-file rules read `META-INF/services` from them) and source directories through a consumable configuration, and the gate project reads them.
-- Known limitation: the source directories of sibling projects are captured at configuration time. A source directory added to a sibling project after its configuration has finished is not seen by the gate.
+- Known limitation: the class and source directories of sibling projects are captured when the sibling's configuration has finished. A language plugin applied, or a source directory added, to a sibling project after that, for example in a later `afterEvaluate`, is not seen by the gate.
 
 ### Class loading
 
