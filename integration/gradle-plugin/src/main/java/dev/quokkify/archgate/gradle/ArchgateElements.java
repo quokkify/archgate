@@ -41,13 +41,17 @@ final class ArchgateElements {
         project.getConfigurations().consumable(ELEMENTS, elements -> {
             elements.setDescription("Class and source dirs that other projects check through archgate.modules(...).");
             elements.attributes(attributes -> usage(project, attributes));
-            elements.getOutgoing().getVariants().create(MAIN_CLASSES, variant -> classes(variant, main, MAIN_CLASSES));
-            elements.getOutgoing().getVariants().create(TEST_CLASSES, variant -> classes(variant, test, TEST_CLASSES));
+            ConfigurationVariant mainClasses =
+                    elements.getOutgoing().getVariants().create(MAIN_CLASSES, variant -> kind(variant, MAIN_CLASSES));
+            ConfigurationVariant testClasses =
+                    elements.getOutgoing().getVariants().create(TEST_CLASSES, variant -> kind(variant, TEST_CLASSES));
             ConfigurationVariant mainSources =
                     elements.getOutgoing().getVariants().create(MAIN_SOURCES, variant -> kind(variant, MAIN_SOURCES));
             ConfigurationVariant testSources =
                     elements.getOutgoing().getVariants().create(TEST_SOURCES, variant -> kind(variant, TEST_SOURCES));
             afterEvaluation(project, () -> {
+                classes(mainClasses, main);
+                classes(testClasses, test);
                 sources(mainSources, main);
                 sources(testSources, test);
             });
@@ -102,12 +106,14 @@ final class ArchgateElements {
         variant.attributes(attributes -> attributes.attribute(KIND, kind));
     }
 
-    private static void classes(ConfigurationVariant variant, SourceSet sourceSet, String kind) {
-        kind(variant, kind);
-        variant.artifact(sourceSet.getJava().getClassesDirectory(), artifact -> {
-            artifact.setType(ArtifactTypeDefinition.JVM_CLASS_DIRECTORY);
-            artifact.builtBy(sourceSet.getCompileJavaTaskName());
-        });
+    // Every language plugin (java, groovy, scala, kotlin) adds its output to classesDirs, not only java.
+    private static void classes(ConfigurationVariant variant, SourceSet sourceSet) {
+        for (File dir : sourceSet.getOutput().getClassesDirs().getFiles()) {
+            variant.artifact(dir, artifact -> {
+                artifact.setType(ArtifactTypeDefinition.JVM_CLASS_DIRECTORY);
+                artifact.builtBy(sourceSet.getClassesTaskName());
+            });
+        }
         variant.artifact(sourceSet.getOutput().getResourcesDir(), artifact -> {
             artifact.setType(ArtifactTypeDefinition.JVM_RESOURCES_DIRECTORY);
             artifact.builtBy(sourceSet.getProcessResourcesTaskName());

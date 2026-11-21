@@ -143,6 +143,40 @@ class ArchgateElementsFunctionalTest {
         }
     }
 
+    /** Regression guard: classes of a sibling compiled by a plugin other than java were never scanned. */
+    @Test(dataProvider = "cacheModes")
+    void groovySiblingClassesAreChecked(List<String> extraArgs) throws IOException {
+        try (TempDir tempDir = TempDir.create()) {
+            Path temp = tempDir.path();
+            Path project = Fixture.materialize("multi-module", BuildTool.GRADLE, temp.resolve("project"));
+            edit(
+                    project.resolve("api/build.gradle"),
+                    text -> text.replace(PLUGIN_LINE, PLUGIN_LINE + "    id 'groovy'\n")
+                            + "\ndependencies {\n    implementation localGroovy()\n}\n");
+            write(
+                    project.resolve("api/src/main/groovy/com/example/api/LegacyGroovyAccount.groovy"),
+                    "package com.example.api\n\nclass LegacyGroovyAccount {}\n");
+            write(project.resolve("api/src/test/groovy/com/example/api/GroovyWait.groovy"), """
+                    package com.example.api
+
+                    import groovy.transform.CompileStatic
+
+                    @CompileStatic
+                    class GroovyWait {
+                        void await() {
+                            Thread.sleep(1)
+                        }
+                    }
+                    """);
+
+            BuildResult result = runner(project, GATE_TASK, extraArgs).buildAndFail();
+
+            assertThat(result.getOutput())
+                    .contains("com.example.api.LegacyGroovyAccount")
+                    .contains("com.example.api.GroovyWait");
+        }
+    }
+
     @DataProvider
     static Object[][] cacheModes() {
         return new Object[][] {{List.of()}, {List.of("--configuration-cache")}};
