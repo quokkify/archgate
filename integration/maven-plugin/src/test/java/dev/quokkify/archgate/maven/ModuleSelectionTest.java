@@ -20,7 +20,7 @@ class ModuleSelectionTest {
         MavenProject other = project("other", "jar");
         MavenProject tests = project("tests", "jar", "api");
 
-        assertThat(ModuleSelection.select(tests, List.of(api, other, tests), List.of()))
+        assertThat(ModuleSelection.select(tests, List.of(api, other, tests), List.of(api, other, tests), List.of()))
                 .containsExactlyInAnyOrder(tests, api);
     }
 
@@ -29,7 +29,7 @@ class ModuleSelectionTest {
         MavenProject bom = project("bom", "pom");
         MavenProject tests = project("tests", "jar", "bom");
 
-        assertThat(ModuleSelection.select(tests, List.of(bom, tests), List.of()))
+        assertThat(ModuleSelection.select(tests, List.of(bom, tests), List.of(bom, tests), List.of()))
                 .containsExactly(tests);
     }
 
@@ -39,7 +39,8 @@ class ModuleSelectionTest {
         MavenProject other = project("other", "jar");
         MavenProject tests = project("tests", "jar", "api");
 
-        assertThat(ModuleSelection.select(tests, List.of(api, other, tests), List.of("other")))
+        assertThat(ModuleSelection.select(
+                        tests, List.of(api, other, tests), List.of(api, other, tests), List.of("other")))
                 .containsExactly(other);
     }
 
@@ -47,9 +48,67 @@ class ModuleSelectionTest {
     void unknownIncludeFails() {
         MavenProject tests = project("tests", "jar");
 
-        assertThatThrownBy(() -> ModuleSelection.select(tests, List.of(tests), List.of("ghost")))
+        assertThatThrownBy(() -> ModuleSelection.select(tests, List.of(tests), List.of(tests), List.of("ghost")))
                 .isInstanceOf(MojoExecutionException.class)
                 .hasMessageContaining("ghost");
+    }
+
+    /** Regression guard: {@code -pl gate} dropped the gate's reactor dependencies and the gate passed unchecked. */
+    @Test
+    void defaultDependencyOutsideThisRunFails() {
+        MavenProject api = project("api", "jar");
+        MavenProject other = project("other", "jar");
+        MavenProject tests = project("tests", "jar", "api", "other");
+
+        assertThatThrownBy(() -> ModuleSelection.select(tests, List.of(tests), List.of(api, other, tests), List.of()))
+                .isInstanceOf(MojoExecutionException.class)
+                .hasMessageStartingWith("modules api, other are part of the reactor but not of this build")
+                .hasMessageContaining("so tests cannot check them")
+                .hasMessageContaining("Include them in the run: add them to -pl or use -am")
+                .hasMessageContaining("-Darchgate.skip=true");
+    }
+
+    /** Regression guard: a listed module left out of the run failed as if it were not in the reactor at all. */
+    @Test
+    void listedModuleOutsideThisRunFails() {
+        MavenProject api = project("api", "jar");
+        MavenProject tests = project("tests", "jar");
+
+        assertThatThrownBy(() -> ModuleSelection.select(tests, List.of(tests), List.of(api, tests), List.of("api")))
+                .isInstanceOf(MojoExecutionException.class)
+                .hasMessageStartingWith("module api is part of the reactor but not of this build");
+    }
+
+    @Test
+    void dependenciesBuiltInThisRunAreSelected() throws MojoExecutionException {
+        MavenProject api = project("api", "jar");
+        MavenProject other = project("other", "jar");
+        MavenProject tests = project("tests", "jar", "api");
+
+        assertThat(ModuleSelection.select(tests, List.of(api, tests), List.of(api, other, tests), List.of()))
+                .containsExactlyInAnyOrder(tests, api);
+    }
+
+    @Test
+    void listedModulesBuiltInThisRunAreSelected() throws MojoExecutionException {
+        MavenProject api = project("api", "jar");
+        MavenProject other = project("other", "jar");
+        MavenProject tests = project("tests", "jar", "other");
+
+        assertThat(ModuleSelection.select(tests, List.of(api, tests), List.of(api, other, tests), List.of("api")))
+                .containsExactly(api);
+    }
+
+    @Test
+    void returnsTheProjectsOfThisRun() throws MojoExecutionException {
+        MavenProject api = project("api", "jar");
+        MavenProject apiInRun = project("api", "jar");
+        MavenProject tests = project("tests", "jar", "api");
+
+        assertThat(ModuleSelection.select(tests, List.of(apiInRun, tests), List.of(api, tests), List.of()))
+                .hasSize(2)
+                .anySatisfy(selected -> assertThat(selected).isSameAs(apiInRun))
+                .noneSatisfy(selected -> assertThat(selected).isSameAs(api));
     }
 
     private static MavenProject project(String artifactId, String packaging, String... dependsOn) {

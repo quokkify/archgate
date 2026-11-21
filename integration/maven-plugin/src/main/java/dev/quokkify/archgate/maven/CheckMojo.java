@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -85,7 +86,11 @@ public class CheckMojo extends AbstractMojo {
     }
 
     private LaunchRequest request() throws MojoExecutionException {
-        List<MavenProject> selected = ModuleSelection.select(project, session.getProjects(), modules);
+        List<MavenProject> selected = ModuleSelection.select(
+                project,
+                session.getProjects(),
+                Objects.requireNonNullElse(session.getAllProjects(), session.getProjects()),
+                modules);
         List<Path> mainClasses = new ArrayList<>();
         List<Path> testClasses = new ArrayList<>();
         List<Path> mainSources = new ArrayList<>();
