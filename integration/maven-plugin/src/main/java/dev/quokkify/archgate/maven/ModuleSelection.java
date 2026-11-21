@@ -81,9 +81,9 @@ final class ModuleSelection {
         String subject =
                 one ? "module %s is".formatted(missing.get(0)) : "modules %s are".formatted(String.join(", ", missing));
         String pronoun = one ? "it" : "them";
-        return ("%s part of the reactor but not of this build (-pl, -rf or a resume left %s out), so %s cannot check"
-                        + " %s. Build %s in the same run: add -am to -pl, list %s in -pl, or build the full reactor."
-                        + " To skip the gate in this run instead, pass -Darchgate.skip=true.")
+        return ("%s part of the reactor but not of this build (-pl, an exclusion, -rf or a resume left %s out), so %s"
+                        + " cannot check %s. Include %s in the run: add %s to -pl or use -am, or run without -pl, -rf"
+                        + " or an exclusion. To skip the gate in this run instead, pass -Darchgate.skip=true.")
                 .formatted(subject, pronoun, current.getArtifactId(), pronoun, pronoun, pronoun);
     }
 }

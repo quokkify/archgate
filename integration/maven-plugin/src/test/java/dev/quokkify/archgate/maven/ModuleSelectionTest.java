@@ -64,7 +64,7 @@ class ModuleSelectionTest {
                 .isInstanceOf(MojoExecutionException.class)
                 .hasMessageStartingWith("modules api, other are part of the reactor but not of this build")
                 .hasMessageContaining("so tests cannot check them")
-                .hasMessageContaining("add -am to -pl")
+                .hasMessageContaining("Include them in the run: add them to -pl or use -am")
                 .hasMessageContaining("-Darchgate.skip=true");
     }
 

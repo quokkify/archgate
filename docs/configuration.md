@@ -93,7 +93,7 @@ The rules run in a Gradle worker with class loader isolation. The worker classpa
 - The report is also written to `target/archgate/report.txt`.
 - A failing gate fails the build with a `MojoFailureException`; a registration problem or another unable-to-verify condition fails it with a `MojoExecutionException`.
 - `modules` replaces the default selection entirely. Entries are the `artifactId`s of reactor modules. The current module is checked only if you list it; an unknown entry fails the build.
-- Every selected module must be part of the same Maven run. `-pl <gate>` without `-am`, `-rf :<gate>` or a resume leave the gate's dependencies out of the run, so the build fails instead of checking the gate module alone. Add `-am`, list the modules in `-pl`, or build the full reactor; `-Darchgate.skip=true` skips the gate in that run instead ([ADR 0011](adr/0011-maven-partial-reactor-fails-closed.md)).
+- Every selected module must be part of the same Maven run. `-pl <gate>` without `-am`, a `-pl '!<module>'` exclusion, `-rf :<gate>` or a resume can leave the gate's dependencies out of the run, so the build fails instead of checking the gate module alone. Add the modules to `-pl` or use `-am`, or run without `-pl`, `-rf` or an exclusion; `-Darchgate.skip=true` skips the gate in that run instead ([ADR 0011](adr/0011-maven-partial-reactor-fails-closed.md)).
 
 ## Version alignment
 
@@ -217,7 +217,7 @@ platform/
 - Maven: a selected module other than the gate module has no `target/classes` (it is not built). Gradle has no such check: `archgateCheck` depends on the classes of every project in `modules(...)`, so Gradle builds them first, and a project without main classes simply adds nothing to the MAIN view.
 - The MAIN or TEST view finds no class under `rootPackage`, and a rule needs that view. A rule that reads both MAIN and TEST checks the one that has classes and fails only when both are empty.
 - A `modules` entry is not part of the build (Maven: not in the reactor; Gradle: does not apply the plugin).
-- Maven: a selected module is in the reactor but not in this run (`-pl` without `-am`, `-rf`, a resume).
+- Maven: a selected module is in the reactor but not in this run (`-pl` without `-am`, an exclusion, `-rf`, a resume).
 - A registration failure, as described above.
 - A rule throws something other than a violation.
 - An external rule cannot run in CI: variables are missing, or the service does not answer and `archgate.ci.serviceUnavailable` is not `skip`. See [Rules that call external services](#rules-that-call-external-services).

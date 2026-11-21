@@ -84,7 +84,7 @@ A dedicated last module named `<project>-archgate-rules` (for example `platform-
 
 ### Why does `mvn -pl <gate>` fail with "part of the reactor but not of this build"?
 
-The gate checks its sibling modules, and `-pl` without `-am`, `-rf` or a resume left them out of the run. The plugin reads classes and sources from the modules of the run only, so it fails instead of checking the gate module alone. Run `mvn -pl <gate> -am verify` or the full reactor, or skip the gate in that run with `-Darchgate.skip`. See [Configuration → Maven](configuration.md#maven).
+The gate checks its sibling modules, and `-pl` without `-am`, a `-pl '!<module>'` exclusion, `-rf` or a resume left them out of the run. The plugin reads classes and sources from the modules of the run only, so it fails instead of checking the gate module alone. Add them to `-pl` or use `-am` (`mvn -pl <gate> -am verify`), run without `-pl`, `-rf` or an exclusion, or skip the gate in that run with `-Darchgate.skip`. See [Configuration → Maven](configuration.md#maven).
 
 ### Does `NoWildcardImportsRule` or `ServiceFileConsistencyRule` need extra setup?
 

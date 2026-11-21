@@ -13,13 +13,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.testng.annotations.Test;
 
 /**
  * Runs the gate of a multi-module fixture in a partial Maven reactor. The gate registers only a rule over MAIN and
- * TEST, holds one test class of its own, and the violation sits in a sibling module, so a gate that sees only its own test classes passes. The full
- * reactor is installed first with the gate skipped, so the modules left out of the partial run resolve from the local
- * repository as they would on a developer machine.
+ * TEST, holds one test class of its own, and the violation sits in a sibling module, so a gate that sees only its own
+ * test classes passes. The full reactor is installed first with the gate skipped, so the modules left out of the
+ * partial run resolve from the local repository as they would on a developer machine.
  *
  * <p>The local repository is not promoted to the shared cache: it holds the fixture's own installed modules.
  */
@@ -28,7 +29,8 @@ class MavenPartialReactorFunctionalTest {
     private static final String SCENARIO = "multi-module-violation";
     private static final String GATE = "architecture";
     private static final String CLEAN = "org.apache.maven.plugins:maven-clean-plugin:clean";
-    private static final String UNCHECKED = "modules api, tests are part of the reactor but not of this build";
+    private static final Pattern UNCHECKED =
+            Pattern.compile("modules (api, tests|tests, api) are part of the reactor but not of this build");
     private static final String GATE_PASSED = "Gate PASSED";
     private static final String RULE_SERVICES =
             "architecture/src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule";
@@ -59,7 +61,7 @@ class MavenPartialReactorFunctionalTest {
             MavenRun.Outcome outcome = run(temp, project, List.of("verify", "-pl", GATE));
 
             assertThat(outcome.succeeded()).as(outcome.log()).isFalse();
-            assertThat(outcome.log()).contains(UNCHECKED, "add -am to -pl").doesNotContain(GATE_PASSED);
+            assertThat(outcome.log()).containsPattern(UNCHECKED).doesNotContain(GATE_PASSED);
         }
     }
 
@@ -72,7 +74,7 @@ class MavenPartialReactorFunctionalTest {
             MavenRun.Outcome outcome = run(temp, project, List.of("verify", "-rf", ":" + GATE));
 
             assertThat(outcome.succeeded()).as(outcome.log()).isFalse();
-            assertThat(outcome.log()).contains(UNCHECKED).doesNotContain(GATE_PASSED);
+            assertThat(outcome.log()).containsPattern(UNCHECKED).doesNotContain(GATE_PASSED);
         }
     }
 
@@ -86,7 +88,7 @@ class MavenPartialReactorFunctionalTest {
             assertThat(outcome.succeeded()).as(outcome.log()).isFalse();
             assertThat(outcome.log())
                     .contains("com.example.api.Sleeper", "Gate FAILED")
-                    .doesNotContain(UNCHECKED);
+                    .doesNotContain("part of the reactor but not of this build");
         }
     }
 
