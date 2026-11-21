@@ -1,0 +1,1 @@
+{"id":"264528758f620a7431e14a0ea7fa5c41.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.nullIndexIsUnableToVerify","name":"Regression guard: a service that returns no index fails closed","status":"passed","testResultsByEnv":{"default":"03459ef3dd4ef4fe02ed70837d91b5ad"}}

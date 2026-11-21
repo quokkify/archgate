@@ -1,0 +1,1 @@
+{"id":"d95d8c4f5436048d5d21cac82dcc03de.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.failureWithoutMessageNamesType","name":"A failure without a message is reported by its type","status":"passed","testResultsByEnv":{"default":"837cea2b1563ba850ded32e11ed588b8"}}

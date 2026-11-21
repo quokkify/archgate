@@ -1,0 +1,1 @@
+{"id":"d46d2d9698c4476b070c6e2dceee1dab.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.automationFieldIsPartOfTheShareKey","name":"The automation field is part of the share key and must be a plain system name","status":"passed","testResultsByEnv":{"default":"ebb3f8cb71d978f922f165e303af75dc"}}

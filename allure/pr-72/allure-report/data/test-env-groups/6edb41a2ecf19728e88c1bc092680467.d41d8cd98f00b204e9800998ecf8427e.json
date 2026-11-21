@@ -1,0 +1,1 @@
+{"id":"6edb41a2ecf19728e88c1bc092680467.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.LinkedCasesTest.emptyWhenNothingLinked","name":"No classes yield an empty result in a full scan","status":"passed","testResultsByEnv":{"default":"5632230e59e3bb129fa8863bc35c0429"}}

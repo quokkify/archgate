@@ -1,0 +1,1 @@
+{"id":"5d19d147eef35ae427ccb8256c7d7046.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.automationTypeOptionWithoutNameGivesUnavailableTypes","name":"An automation type option without a name gives unavailable types","status":"passed","testResultsByEnv":{"default":"882522244273d10f5457c51346d3cba2"}}

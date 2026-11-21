@@ -1,0 +1,1 @@
+{"id":"40ce5b36c1edcbfbdc4e5e9c4c759785.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.sameClassDuplicatePassesWhenAllowed","name":"Id shared within one class passes when same-class duplicates are allowed","status":"passed","testResultsByEnv":{"default":"f05b7fafd8d9b74bc4e9aa5ac3eb0764"}}

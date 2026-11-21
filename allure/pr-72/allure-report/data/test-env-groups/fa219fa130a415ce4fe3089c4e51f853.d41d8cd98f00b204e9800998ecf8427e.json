@@ -1,0 +1,1 @@
+{"id":"fa219fa130a415ce4fe3089c4e51f853.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredAnnotationTest.nestedAnnotationSimpleName","name":"simple name of a nested annotation is the part after the last dollar sign","status":"passed","testResultsByEnv":{"default":"b8cf695104797c1fabf915e8b7ff81f5"}}

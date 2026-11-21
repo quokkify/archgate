@@ -1,0 +1,1 @@
+{"id":"1d45e6ad13236ed66fa19336f4670fc3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.budgetExhaustedDuringTail","name":"Regression guard: the budget also bounds tail point lookups","status":"passed","testResultsByEnv":{"default":"060bf1c5b6f2caae923c03e6a47df84e"}}

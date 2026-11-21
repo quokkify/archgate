@@ -1,0 +1,1 @@
+{"id":"72812727abde16f91b9edf697e7695c2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.subclassesNameAnotherAutomationField","name":"Subclasses of both rules read the automation type from another field and share one load","status":"passed","testResultsByEnv":{"default":"ee5909305b3101f89357ff46514933ce"}}

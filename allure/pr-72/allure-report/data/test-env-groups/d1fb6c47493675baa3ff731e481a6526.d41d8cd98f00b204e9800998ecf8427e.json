@@ -1,0 +1,1 @@
+{"id":"d1fb6c47493675baa3ff731e481a6526.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.CaseLookupTest.budgetBoundsTheWholeLoad","name":"A load that needs more time than its budget stops and is unavailable","status":"passed","testResultsByEnv":{"default":"b25a841565e0dfc650c59f99ca1bb01e"}}

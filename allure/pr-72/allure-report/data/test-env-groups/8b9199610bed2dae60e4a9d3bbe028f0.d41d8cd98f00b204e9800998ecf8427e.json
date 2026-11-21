@@ -1,0 +1,1 @@
+{"id":"8b9199610bed2dae60e4a9d3bbe028f0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.workerDefectIsRethrown","name":"A defect in a worker is rethrown as is, not hidden as unavailable","status":"passed","testResultsByEnv":{"default":"5c13e60189090dacefb0263546037f95"}}

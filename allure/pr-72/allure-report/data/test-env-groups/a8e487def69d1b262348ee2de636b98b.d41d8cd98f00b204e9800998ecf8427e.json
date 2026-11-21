@@ -1,0 +1,1 @@
+{"id":"a8e487def69d1b262348ee2de636b98b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.probesRunInParallelBatches","name":"Probes run as parallel batches of at most P lookups","status":"passed","testResultsByEnv":{"default":"6ad696918b75c1c498ef27f4f9b06c0e"}}
