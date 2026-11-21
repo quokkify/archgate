@@ -279,6 +279,32 @@ class CachingFunctionalTest {
         }
     }
 
+    /** Regression guard: a skipped run left the report of an earlier run, which could show a stale PASSED. */
+    // shares the TestKit build and configuration caches
+    @SingleThread
+    @Test(dataProvider = "skipModes")
+    void skippedRunLeavesNoStaleReport(List<String> skipArgs) {
+        try (TempDir tempDir = TempDir.create()) {
+            Path project = materialize(tempDir);
+            Path report = project.resolve("build/reports/archgate/report.txt");
+            runner(project, List.of()).build();
+            assertThat(report).as("report after the first run").isRegularFile();
+
+            BuildResult skipped = runner(project, skipArgs).build();
+
+            assertThat(skipped.task(CHECK_TASK).getOutcome()).isEqualTo(TaskOutcome.SKIPPED);
+            assertThat(report).doesNotExist();
+            assertThat(project.resolve("build/reports/archgate/state.properties"))
+                    .doesNotExist();
+        }
+    }
+
+    @DataProvider
+    static Object[][] skipModes() {
+        return new Object[][] {{List.of("-Parchgate.skip=true")}, {List.of("-Parchgate.skip=true", CONFIGURATION_CACHE)}
+        };
+    }
+
     // shares the TestKit build and configuration caches
     @SingleThread
     @Test
