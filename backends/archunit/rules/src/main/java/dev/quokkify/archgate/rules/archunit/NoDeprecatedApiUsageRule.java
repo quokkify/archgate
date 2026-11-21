@@ -111,6 +111,20 @@ public class NoDeprecatedApiUsageRule implements ArchitectureRule<ArchUnitContex
                                         .formatted(target, call.getTargetOwner().getName())));
                     }
                 });
+                javaClass.getCodeUnitReferencesFromSelf().forEach(reference -> {
+                    String target = reference.getTarget().getFullName();
+                    if (reference.getTarget().isAnnotatedWith(Deprecated.class)) {
+                        events.add(violation(
+                                reference.getOrigin().getFullName(), "references deprecated %s".formatted(target)));
+                    } else if (deprecatedForeign(javaClass, reference.getTargetOwner())) {
+                        events.add(violation(
+                                reference.getOrigin().getFullName(),
+                                "references %s of deprecated %s"
+                                        .formatted(
+                                                target,
+                                                reference.getTargetOwner().getName())));
+                    }
+                });
                 javaClass.getFields().stream()
                         .filter(field -> !field.getModifiers().contains(JavaModifier.SYNTHETIC))
                         .filter(field -> deprecatedForeign(javaClass, field.getRawType()))

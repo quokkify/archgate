@@ -29,6 +29,27 @@ class NoConsoleOutputRuleTest {
                 .noneSatisfy(detail -> assertThat(detail).contains("LoggingWriter"));
     }
 
+    // Regression guard: javac encodes an unqualified dumpStack() inside a Thread subclass with the subclass as owner.
+    @Test
+    void unqualifiedDumpStackInThreadSubclassIsReported() {
+        JavaClasses console = new ClassFileImporter().importPackages("archfixtures.console");
+
+        assertThat(ArchRuleChecks.violations(NoConsoleOutputRule.definition(), console))
+                .anySatisfy(detail -> assertThat(detail).contains("DumpingThread.dump()", "dumpStack()"));
+    }
+
+    // Regression guard: a method reference is not a method call in ArchUnit.
+    @Test
+    void consoleMethodReferencesAreReported() {
+        JavaClasses console = new ClassFileImporter().importPackages("archfixtures.console");
+
+        assertThat(ArchRuleChecks.violations(NoConsoleOutputRule.definition(), console))
+                .anySatisfy(detail -> assertThat(detail).contains("ConsoleMethodReferences.dumpStack()", "dumpStack()"))
+                .anySatisfy(detail ->
+                        assertThat(detail).contains("ConsoleMethodReferences.printTrace()", "printStackTrace()"))
+                .anySatisfy(detail -> assertThat(detail).contains("ConsoleMethodReferences.printLine()", "System.out"));
+    }
+
     @Test
     void loggerAndExplicitStreamTraceAreAllowed() {
         JavaClasses logging = new ClassFileImporter().importClasses(archfixtures.console.LoggingWriter.class);

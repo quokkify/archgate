@@ -2,9 +2,11 @@ package dev.quokkify.archgate.rules.archunit;
 
 import static com.tngtech.archunit.base.DescribedPredicate.describe;
 import static com.tngtech.archunit.base.DescribedPredicate.not;
-import static com.tngtech.archunit.lang.conditions.ArchConditions.callMethodWhere;
+import static com.tngtech.archunit.lang.conditions.ArchConditions.accessTargetWhere;
 
+import com.tngtech.archunit.core.domain.JavaAccess;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
+import com.tngtech.archunit.core.domain.JavaMethodReference;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import dev.quokkify.archgate.api.ArchitectureRule;
@@ -54,11 +56,13 @@ public class NoThreadSleepRule implements ArchitectureRule<ArchUnitContext> {
     static ArchRule definition() {
         return ArchRuleDefinition.noClasses()
                 .that(not(GeneratedCode.EXCLUDED))
-                .should(callMethodWhere(describe(
-                        "call Thread.sleep or TimeUnit.sleep",
-                        (JavaMethodCall call) -> call.getTarget().getName().equals(SLEEP)
-                                && (call.getTarget().getOwner().isEquivalentTo(Thread.class)
-                                        || call.getTarget().getOwner().isEquivalentTo(TimeUnit.class)))))
+                .should(accessTargetWhere(describe(
+                        "call or reference Thread.sleep or TimeUnit.sleep",
+                        (JavaAccess<?> access) ->
+                                (access instanceof JavaMethodCall || access instanceof JavaMethodReference)
+                                        && access.getName().equals(SLEEP)
+                                        && (access.getTargetOwner().isAssignableTo(Thread.class)
+                                                || access.getTargetOwner().isAssignableTo(TimeUnit.class)))))
                 .allowEmptyShould(true)
                 .because("a fixed delay is either too short or wastes time");
     }
