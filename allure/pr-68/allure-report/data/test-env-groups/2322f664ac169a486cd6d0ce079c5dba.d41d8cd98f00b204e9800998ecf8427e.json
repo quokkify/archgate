@@ -1,0 +1,1 @@
+{"id":"2322f664ac169a486cd6d0ce079c5dba.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.jsonTreeInRestrictedClassIsReported","name":"Tree parsing, tree return types and node constants in a restricted class are reported","status":"passed","testResultsByEnv":{"default":"6e5c46c0eac7684dfc88fd64bb4ab50a"}}

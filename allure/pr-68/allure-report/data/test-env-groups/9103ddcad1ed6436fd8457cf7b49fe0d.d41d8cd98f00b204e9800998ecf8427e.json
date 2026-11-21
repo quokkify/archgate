@@ -1,0 +1,1 @@
+{"id":"9103ddcad1ed6436fd8457cf7b49fe0d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.treeSubclassIsReported","name":"An own subclass of a Jackson tree type is reported","status":"passed","testResultsByEnv":{"default":"074a82311a3311987044fa874c92e3c3"}}

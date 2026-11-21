@@ -1,0 +1,1 @@
+{"id":"7141cd76c6772400b480df92ff420e42.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.interfaceTypeArgumentIsReported","name":"Regression guard: a Jackson tree type as argument of a generic interface is reported","status":"passed","testResultsByEnv":{"default":"e8df1fa4e24a7ad315d4cacd20ed285b"}}

@@ -1,0 +1,1 @@
+{"id":"e3a7595ae48026325798a7a06a6857b1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.emptyProjectSuitesIsUnavailable","name":"Regression guard: a project without suites is unavailable","status":"passed","testResultsByEnv":{"default":"7950e2c92cdbe8d9e3b6f313d4f90711"}}

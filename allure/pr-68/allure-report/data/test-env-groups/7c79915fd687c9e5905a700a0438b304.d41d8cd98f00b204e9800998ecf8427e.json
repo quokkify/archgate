@@ -1,0 +1,1 @@
+{"id":"7c79915fd687c9e5905a700a0438b304.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.CaseLookupTest.slowAnswerTimesOut","name":"A response slower than the read timeout gives up and is unavailable","status":"passed","testResultsByEnv":{"default":"fafd854ac4366937f64599479db2c313"}}

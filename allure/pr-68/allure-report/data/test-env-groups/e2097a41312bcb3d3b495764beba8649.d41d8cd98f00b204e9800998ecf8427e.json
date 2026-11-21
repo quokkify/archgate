@@ -1,0 +1,1 @@
+{"id":"e2097a41312bcb3d3b495764beba8649.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.objectMapperTreeIsReported","name":"Building a JSON tree through ObjectMapper is reported","status":"passed","testResultsByEnv":{"default":"fa050027a99e288f50cec12174fd3d94"}}

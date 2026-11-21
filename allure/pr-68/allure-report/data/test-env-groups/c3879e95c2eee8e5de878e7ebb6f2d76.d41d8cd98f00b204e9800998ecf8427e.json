@@ -1,0 +1,1 @@
+{"id":"c3879e95c2eee8e5de878e7ebb6f2d76.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.jacksonTreeSignatureIsReported","name":"Jackson tree types in parameters and return types are reported","status":"passed","testResultsByEnv":{"default":"7b4df2c5361d07fa03da7547007eb213"}}

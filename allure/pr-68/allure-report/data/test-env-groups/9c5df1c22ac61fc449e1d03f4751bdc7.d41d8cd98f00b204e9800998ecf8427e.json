@@ -1,0 +1,1 @@
+{"id":"9c5df1c22ac61fc449e1d03f4751bdc7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.TestMethodsParityTest.detectsExpectedTestMethods","name":"Regression guard: test-method detection stays identical to the copy in the TmsLink rules","status":"passed","testResultsByEnv":{"default":"f1572da37aa03d82c825cf25c55d3a0b"}}

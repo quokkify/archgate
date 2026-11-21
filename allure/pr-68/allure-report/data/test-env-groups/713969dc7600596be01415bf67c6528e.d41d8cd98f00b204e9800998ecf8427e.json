@@ -1,0 +1,1 @@
+{"id":"713969dc7600596be01415bf67c6528e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.inheritedTestIsReportedOnDeclaringClass","name":"Inherited test is reported on the declaring class only","status":"passed","testResultsByEnv":{"default":"1a5e46b32ad4c67868b3c92e69cfa2a1"}}

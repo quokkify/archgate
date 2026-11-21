@@ -1,0 +1,1 @@
+{"id":"378e65cce7d5aab4e3f702829fdb6ad4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.classAnnotationDoesNotCompensate","name":"Annotation on the class does not compensate","status":"passed","testResultsByEnv":{"default":"43d4a93849851aedb9e59951062d02f4"}}
