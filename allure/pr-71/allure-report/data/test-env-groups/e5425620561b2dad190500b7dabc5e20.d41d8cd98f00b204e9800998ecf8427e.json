@@ -1,0 +1,1 @@
+{"id":"e5425620561b2dad190500b7dabc5e20.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailClientTest.failsOnServerErrorWithEndpointAndStatusButNoCredentials","name":"failsOnServerErrorWithEndpointAndStatusButNoCredentials","status":"passed","testResultsByEnv":{"default":"1b8021962629922389af172ab5347c23"}}

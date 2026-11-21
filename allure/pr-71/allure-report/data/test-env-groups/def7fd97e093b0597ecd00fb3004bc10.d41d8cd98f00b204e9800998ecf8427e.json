@@ -1,0 +1,1 @@
+{"id":"def7fd97e093b0597ecd00fb3004bc10.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.superclassLevelTestApplies","name":"Regression guard: class-level Test on a superclass applies to subclass public methods","status":"passed","testResultsByEnv":{"default":"d107a791185a7c50da2b2e44e9554e19"}}

@@ -1,0 +1,1 @@
+{"id":"d71ed7d013b5ecd49382612af838600b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.invalidPathFailsClosed","name":"Regression guard: a value that is not a valid path fails closed with a clear message","status":"passed","testResultsByEnv":{"default":"87c41a2be6e659c795960081fa6bf149"}}

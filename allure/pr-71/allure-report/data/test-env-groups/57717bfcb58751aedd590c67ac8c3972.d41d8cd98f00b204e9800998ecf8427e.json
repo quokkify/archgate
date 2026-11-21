@@ -1,0 +1,1 @@
+{"id":"57717bfcb58751aedd590c67ac8c3972.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.idsOutsideLoadedSuitesAreLookedUp","name":"Ids outside every loaded suite are looked up one by one","status":"passed","testResultsByEnv":{"default":"98a8f14e7876848b0f3443726414645f"}}

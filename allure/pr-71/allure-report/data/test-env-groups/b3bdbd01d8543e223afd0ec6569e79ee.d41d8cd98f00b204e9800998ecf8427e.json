@@ -1,0 +1,1 @@
+{"id":"b3bdbd01d8543e223afd0ec6569e79ee.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.sharedIndexForOtherInputsIsUnableToVerify","name":"A shared index built for other inputs is not handed out silently, and no value is printed","status":"passed","testResultsByEnv":{"default":"01c82228f4db9f874ade4e93381c1fd9"}}

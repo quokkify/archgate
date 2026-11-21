@@ -1,0 +1,1 @@
+{"id":"489bb9de7cd6333ea521df27890e028c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.normalizesBackslashes","name":"Backslash separators are read as slashes","status":"passed","testResultsByEnv":{"default":"3970ef0f8bd0c3b8e7652ed2d65339a2"}}

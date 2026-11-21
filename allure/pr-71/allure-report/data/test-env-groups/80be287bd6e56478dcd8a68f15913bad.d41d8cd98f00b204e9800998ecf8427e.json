@@ -1,0 +1,1 @@
+{"id":"80be287bd6e56478dcd8a68f15913bad.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.allowlistedClassIsNotReported","name":"An allowlisted class is not reported while the same usage elsewhere is","status":"passed","testResultsByEnv":{"default":"f2d810c4156dd56a60ba9219d8dba3d7"}}

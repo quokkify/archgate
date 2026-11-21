@@ -1,0 +1,1 @@
+{"id":"c1512be780504dd609e9ad5156ca3751.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseExistsRuleTest.bothRulesShareOneLoad","name":"Both rules on one context share a single load","status":"passed","testResultsByEnv":{"default":"7387b236673107e21517f7cab73a6a2a"}}

@@ -1,0 +1,1 @@
+{"id":"4c0411869fec72a98763648d8fe5fc9f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.repeatedWithoutContainerIsMissing","name":"Repeated annotation without a configured container counts as missing","status":"passed","testResultsByEnv":{"default":"cbfc60981069c85dfc63ee6ba3e79a36"}}

@@ -1,0 +1,13 @@
+============================================================
+Architecture verification (1 rule, 42 ms total)
+============================================================
+[SKIP]  MAIN+TEST     15 ms  Tracker service
+    Tracker is unavailable: Connect timed out
+    Skipped in CI because the service is unavailable (archgate.ci.serviceUnavailable=skip); the rule checked nothing.
+Model build: ArchUnitContext 7 ms
+============================================================
+Gate PASSED: 1 rule, no findings, 1 skipped
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

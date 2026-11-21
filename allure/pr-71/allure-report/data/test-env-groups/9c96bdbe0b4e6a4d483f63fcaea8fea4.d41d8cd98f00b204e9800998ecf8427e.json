@@ -1,0 +1,1 @@
+{"id":"9c96bdbe0b4e6a4d483f63fcaea8fea4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.nodeInstanceFactoriesAreReported","name":"Regression guard: creating nodes through an existing node is reported","status":"passed","testResultsByEnv":{"default":"1eb0ea958ba9c7f2028277cd4f5886cb"}}

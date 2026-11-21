@@ -1,0 +1,1 @@
+{"id":"942f3d66d7f85b6bfc9e492ebf360459.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.assertionErrorIsUnableToVerify","name":"Regression guard: an AssertionError from the service is unable-to-verify, not a finding","status":"passed","testResultsByEnv":{"default":"a5b4459661bf9adbc6c85ec06119f86a"}}

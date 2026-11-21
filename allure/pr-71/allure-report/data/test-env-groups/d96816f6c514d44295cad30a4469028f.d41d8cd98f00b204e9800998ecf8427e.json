@@ -1,0 +1,1 @@
+{"id":"d96816f6c514d44295cad30a4469028f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.nonStringValueIsBlank","name":"Non-String value counts as blank only with the option","status":"passed","testResultsByEnv":{"default":"28be0a5ec0c8edafc0f469cecd7e1140"}}
