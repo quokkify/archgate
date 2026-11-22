@@ -1,0 +1,1 @@
+{"id":"5e8c64df558acde4630a887026e8b907.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TestMethodsParityTest.detectsExpectedTestMethods","name":"Regression guard: test-method detection stays identical to the copy in the testrail artifact","status":"passed","testResultsByEnv":{"default":"0d57df8496157fd90702c388e8f51a7c"}}

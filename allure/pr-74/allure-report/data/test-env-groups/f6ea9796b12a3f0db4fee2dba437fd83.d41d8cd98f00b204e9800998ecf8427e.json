@@ -1,0 +1,1 @@
+{"id":"f6ea9796b12a3f0db4fee2dba437fd83.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.foreignSuiteLookupFailureIsUnavailable","name":"A rate-limited foreign suite lookup makes the index unavailable","status":"passed","testResultsByEnv":{"default":"ed1e206ad142e43b571b6853c981254f"}}

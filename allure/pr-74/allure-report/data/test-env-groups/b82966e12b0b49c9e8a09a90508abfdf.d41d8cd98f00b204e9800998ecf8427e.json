@@ -1,0 +1,1 @@
+{"id":"b82966e12b0b49c9e8a09a90508abfdf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.classLevelTmsLinkDoesNotCount","name":"TmsLink on the class does not satisfy the test method","status":"passed","testResultsByEnv":{"default":"904e994438d24bd1abfbc8bc6fbe34b9"}}

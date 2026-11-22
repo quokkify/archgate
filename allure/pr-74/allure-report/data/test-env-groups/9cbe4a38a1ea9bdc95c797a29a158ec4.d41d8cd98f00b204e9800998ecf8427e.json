@@ -1,0 +1,1 @@
+{"id":"9cbe4a38a1ea9bdc95c797a29a158ec4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.wrapperUsagePasses","name":"Reading and building JSON through a wrapper and reading nodes in place passes","status":"passed","testResultsByEnv":{"default":"b526c160f0a3150080ed24776394d813"}}

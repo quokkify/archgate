@@ -1,0 +1,1 @@
+{"id":"3b8bd17e8f165d7fa31e444a16ab56bf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.exclusionsAreNotChecked","name":"Excluded package, class annotation and method annotation are not checked","status":"passed","testResultsByEnv":{"default":"90ebba5727f0ffb1c8a8e73926f65756"}}

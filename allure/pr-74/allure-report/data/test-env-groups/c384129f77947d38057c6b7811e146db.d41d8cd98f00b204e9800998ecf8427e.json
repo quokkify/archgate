@@ -1,0 +1,1 @@
+{"id":"c384129f77947d38057c6b7811e146db.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.unavailableTypeOfUnlinkedCaseIsIgnored","name":"An unavailable type on a case no test links is ignored","status":"passed","testResultsByEnv":{"default":"b0acc0572944a6c5aea4a2f3b153e448"}}

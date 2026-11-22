@@ -1,0 +1,1 @@
+{"id":"e567dd93b2ff7f2048d8ba60c849b301.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.verifyPassesForCorrectLayering","name":"A correctly layered project passes verify","status":"passed","testResultsByEnv":{"default":"799caaffc39d22cbe656d4400896cd1c"}}

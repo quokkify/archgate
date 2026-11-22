@@ -1,0 +1,1 @@
+{"id":"3a6799ae63fde0060de7b3dd3b9b3c70.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.nameListsLayerAndForbiddenPackages","name":"The name lists the layer and the forbidden packages in a stable order","status":"passed","testResultsByEnv":{"default":"4f1c5ca0232a7ec95a1f114e8dfa7824"}}

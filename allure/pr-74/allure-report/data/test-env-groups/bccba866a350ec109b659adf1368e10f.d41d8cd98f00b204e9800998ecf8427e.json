@@ -1,0 +1,1 @@
+{"id":"bccba866a350ec109b659adf1368e10f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.ignoresBlankLinesAndCrlf","name":"Blank lines, surrounding spaces and CRLF line endings are ignored","status":"passed","testResultsByEnv":{"default":"4b3d0e652a05b76a0a3ebf6ff97c59c9"}}
