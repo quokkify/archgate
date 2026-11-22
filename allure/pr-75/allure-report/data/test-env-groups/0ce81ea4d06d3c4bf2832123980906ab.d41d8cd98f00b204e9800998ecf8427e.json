@@ -1,0 +1,1 @@
+{"id":"0ce81ea4d06d3c4bf2832123980906ab.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.emptySupertypesCheckEveryClass","name":"Without restricted supertypes every class in the scope is checked","status":"passed","testResultsByEnv":{"default":"56ac8cabe53356a69f2216dc6b2439ad"}}

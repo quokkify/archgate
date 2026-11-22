@@ -1,0 +1,1 @@
+{"id":"4647312be6dd737b64a9a3b11b01523b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.missingIdsCollectedInSuitePhase","name":"Ids unknown to TestRail in the suite phase are reported as missing","status":"passed","testResultsByEnv":{"default":"195511ed1c68c54798c1c090f93dee25"}}

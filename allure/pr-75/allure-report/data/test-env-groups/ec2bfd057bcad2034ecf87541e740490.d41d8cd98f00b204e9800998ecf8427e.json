@@ -1,0 +1,1 @@
+{"id":"ec2bfd057bcad2034ecf87541e740490.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.CaseLookupTest.asksInChunksAndClassifiesEveryId","name":"Ids are asked for in chunks of 200, and every id is classified","status":"passed","testResultsByEnv":{"default":"325647566da80e31e93e6b9c01e470a6"}}

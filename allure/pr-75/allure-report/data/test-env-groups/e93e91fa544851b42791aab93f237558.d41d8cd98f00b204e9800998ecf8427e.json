@@ -1,0 +1,1 @@
+{"id":"e93e91fa544851b42791aab93f237558.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.valueNodeFactoriesAreReported","name":"Value nodes built through static factories and constants are reported","status":"passed","testResultsByEnv":{"default":"de6d9f3cf8070f40f5c9c269c5651ad1"}}

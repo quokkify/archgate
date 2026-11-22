@@ -1,0 +1,1 @@
+{"id":"5c159e8024409df1a47e7ee150113d3d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.firstFailureCancelsOutstandingRequests","name":"The first failure cancels outstanding requests without waiting for them","status":"passed","testResultsByEnv":{"default":"2d8a19d9e3639f5e804e377cfa511ce2"}}

@@ -1,0 +1,1 @@
+{"id":"c5683ce4af7fc96cd092c470b50a28c5.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.foreignIdSkipped","name":"A foreign id has no case to inspect and is left to the case-exists rule","status":"passed","testResultsByEnv":{"default":"7079a5355ffbdbadf23cc44db81f9183"}}

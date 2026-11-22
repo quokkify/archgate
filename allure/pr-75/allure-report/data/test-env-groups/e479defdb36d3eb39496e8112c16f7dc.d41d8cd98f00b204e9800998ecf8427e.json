@@ -1,0 +1,1 @@
+{"id":"e479defdb36d3eb39496e8112c16f7dc.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseIndexTest.rejectsNulls","name":"Null collections and null entries are rejected","status":"passed","testResultsByEnv":{"default":"0493c461cdbfa54847b5ac4fc06437fd"}}

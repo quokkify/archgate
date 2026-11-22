@@ -1,0 +1,1 @@
+{"id":"e41523b0bae07f2a5461bb6543676510.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.LinkedCasesTest.normalizesIds","name":"Ids are stripped, lose the C prefix and drop non-numeric, zero, empty and too large values","status":"passed","testResultsByEnv":{"default":"4d1586870b7affe055f8bab6b66f695f"}}

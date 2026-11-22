@@ -1,0 +1,1 @@
+{"id":"3678132d3df0d291a0cb01d2cc21294a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.noForeignIdsAddsOnlyProjectSuitesRequest","name":"Without foreign ids the only extra request is the project suite list","status":"passed","testResultsByEnv":{"default":"26f4b272b3e24892f47fe43bf200ce14"}}

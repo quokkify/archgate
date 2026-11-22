@@ -1,0 +1,1 @@
+{"id":"f8e0cabde8bc1b5974cd9f178108185a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredAnnotationTest.rejectsMalformedNames","name":"names with a leading or trailing dot or dollar sign, or surrounding whitespace, are rejected","status":"passed","testResultsByEnv":{"default":"ce8d98bfb5148af52a2a6d2bc05c6e4b"}}

@@ -1,0 +1,1 @@
+{"id":"e65dad6f1b9751dade2bc9944a22d20a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.noLinkedTestMeansNoLoadAndNoVariables","name":"Regression guard: without a linked test nothing is loaded and no variable is needed","status":"passed","testResultsByEnv":{"default":"5ad2693901780491de02f3cc6a6352bb"}}

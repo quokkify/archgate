@@ -1,0 +1,1 @@
+{"id":"6888b9a9acf3a80e95d9c9a81925ff8f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.loadRequestsMatchTheApi","name":"The load reads every suite page, looks up each linked case and the foreign suite once","status":"passed","testResultsByEnv":{"default":"2f9357d684b6b95d2f3f3b9d6e2e6d3e"}}

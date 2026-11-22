@@ -1,0 +1,1 @@
+{"id":"dd54cc52ad7928b1cf5ed777043c2ab4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.defaultRuleInspectsTestClassesOnly","name":"The default rule inspects only test classes with warning severity","status":"passed","testResultsByEnv":{"default":"77e850999668008f6bbe0316982fdf83"}}

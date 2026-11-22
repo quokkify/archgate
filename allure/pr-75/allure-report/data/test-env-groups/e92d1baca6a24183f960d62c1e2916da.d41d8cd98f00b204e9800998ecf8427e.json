@@ -1,0 +1,1 @@
+{"id":"e92d1baca6a24183f960d62c1e2916da.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.invalidArgumentsAreRejected","name":"A blank layer package or an empty set of forbidden packages is rejected","status":"passed","testResultsByEnv":{"default":"ac2fc806ebb43b11684baa75e0f5b297"}}

@@ -1,0 +1,1 @@
+{"id":"40580a56481dca7888306f32ba576a6b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.caseFieldsWithoutAutomationTypeGiveUnavailableTypes","name":"Without the automation type field cases still load, each with an unavailable type","status":"passed","testResultsByEnv":{"default":"be72bf9664a48cc4857f7c58cc73d98f"}}
