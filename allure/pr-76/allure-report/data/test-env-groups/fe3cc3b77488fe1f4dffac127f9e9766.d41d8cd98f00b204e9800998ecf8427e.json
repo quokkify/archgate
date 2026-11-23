@@ -1,0 +1,1 @@
+{"id":"fe3cc3b77488fe1f4dffac127f9e9766.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.excludedByClassAnnotationIsNotChecked","name":"Class carrying an excluded annotation is not checked","status":"passed","testResultsByEnv":{"default":"6166bc6c329838fc9eb0dcb5de93219f"}}

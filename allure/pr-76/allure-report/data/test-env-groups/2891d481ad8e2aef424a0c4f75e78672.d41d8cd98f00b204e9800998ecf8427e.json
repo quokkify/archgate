@@ -1,0 +1,1 @@
+{"id":"2891d481ad8e2aef424a0c4f75e78672.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.sleepInLambdaAndThroughStaticImportIsReported","name":"sleepInLambdaAndThroughStaticImportIsReported","status":"passed","testResultsByEnv":{"default":"a89e258a573d5ee5dc7fd6c72887284c"}}

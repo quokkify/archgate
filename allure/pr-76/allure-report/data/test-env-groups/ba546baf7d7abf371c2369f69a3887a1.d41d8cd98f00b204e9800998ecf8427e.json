@@ -1,0 +1,1 @@
+{"id":"ba546baf7d7abf371c2369f69a3887a1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.ruleInspectsAllClassesWithErrorSeverity","name":"The rule inspects main and test classes with error severity","status":"passed","testResultsByEnv":{"default":"da8a6126543506f856a7ad4a24db92c7"}}

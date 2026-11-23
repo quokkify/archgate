@@ -1,0 +1,1 @@
+{"id":"9dff53a0b0c143c47c3f7d025a64c4e3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.exclusionsSkipPackageAndAnnotation","name":"Excluded package and excluded annotation are skipped","status":"passed","testResultsByEnv":{"default":"e6b7a799461401c42c83c8126292d75e"}}

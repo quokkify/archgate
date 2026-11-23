@@ -1,0 +1,1 @@
+{"id":"fb593fd0760cb7c9d01fd3860daf0c6a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.uniqueIdsPass","name":"Unique ids, several ids on one method and non-test methods pass","status":"passed","testResultsByEnv":{"default":"d4b3d617bcc62b38b627f61fb5857fea"}}

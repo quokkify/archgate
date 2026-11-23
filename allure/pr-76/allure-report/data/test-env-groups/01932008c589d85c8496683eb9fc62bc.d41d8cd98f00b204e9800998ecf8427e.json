@@ -1,0 +1,1 @@
+{"id":"01932008c589d85c8496683eb9fc62bc.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.nullShareKeyIsRejected","name":"A service without a share key fails closed","status":"passed","testResultsByEnv":{"default":"487b718905262a5e6725b3ba966f025a"}}

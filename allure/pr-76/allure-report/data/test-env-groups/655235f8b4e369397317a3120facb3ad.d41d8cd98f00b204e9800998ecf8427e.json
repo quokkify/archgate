@@ -1,0 +1,1 @@
+{"id":"655235f8b4e369397317a3120facb3ad.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.largeSuiteKeepsParallelism","name":"Large suite pages stay P in flight and stop after the first short page","status":"passed","testResultsByEnv":{"default":"d48a3b8f0c51360165f46f73bc049920"}}

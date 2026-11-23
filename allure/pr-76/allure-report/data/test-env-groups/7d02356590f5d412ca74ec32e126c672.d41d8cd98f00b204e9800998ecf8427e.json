@@ -1,0 +1,1 @@
+{"id":"7d02356590f5d412ca74ec32e126c672.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.foreignSuiteResolvedOnce","name":"The project of a foreign suite is requested once for all its cases","status":"passed","testResultsByEnv":{"default":"603dfded7929e45819c831fca6da5f1b"}}

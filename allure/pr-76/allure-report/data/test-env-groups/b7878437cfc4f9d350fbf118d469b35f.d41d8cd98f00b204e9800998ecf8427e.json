@@ -1,0 +1,1 @@
+{"id":"b7878437cfc4f9d350fbf118d469b35f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.layerDependingOnForbiddenPackageIsReported","name":"A class in the layer that depends on a forbidden package is reported","status":"passed","testResultsByEnv":{"default":"11eb3705206c65704315a4df72185753"}}

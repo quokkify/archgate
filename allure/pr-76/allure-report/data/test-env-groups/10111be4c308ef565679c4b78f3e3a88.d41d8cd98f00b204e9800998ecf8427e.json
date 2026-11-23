@@ -1,0 +1,1 @@
+{"id":"10111be4c308ef565679c4b78f3e3a88.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.unknownExclusionKeyIsRejected","name":"Annotation exclusion key that nothing carries is rejected","status":"passed","testResultsByEnv":{"default":"fbe1adf12304639a8a677f54aaf0ec82"}}

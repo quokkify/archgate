@@ -1,0 +1,1 @@
+{"id":"ae11746361da313f4538e88ae4a71074.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.stopsOnEmptyPageWhenSuiteIsMultipleOfPageSize","name":"Regression guard: a suite of exactly 500 cases stops on the empty page","status":"passed","testResultsByEnv":{"default":"dea6c8d8da0861f48893d92b6d54604e"}}

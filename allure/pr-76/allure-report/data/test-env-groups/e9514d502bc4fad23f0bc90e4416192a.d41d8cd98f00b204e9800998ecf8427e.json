@@ -1,0 +1,1 @@
+{"id":"e9514d502bc4fad23f0bc90e4416192a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.containerIdNextToTmsLinkIsCompared","name":"Id from a TmsLinks container next to a TmsLink is compared with other methods","status":"passed","testResultsByEnv":{"default":"fd9c06fc7272d5d5a0c5f54ef49ce043"}}

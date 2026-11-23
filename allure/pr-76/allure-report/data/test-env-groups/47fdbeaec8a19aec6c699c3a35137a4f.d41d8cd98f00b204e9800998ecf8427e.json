@@ -1,0 +1,1 @@
+{"id":"47fdbeaec8a19aec6c699c3a35137a4f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredAnnotationTest.rejectsNull","name":"null names are rejected with NullPointerException","status":"passed","testResultsByEnv":{"default":"49b9ee80bcdfa6d4ab06d1f69623a03a"}}
