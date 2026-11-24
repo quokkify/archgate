@@ -1,0 +1,1 @@
+{"id":"1e5dac3f7300e5a953c69527c700dd95.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.unavailableTypeIsUnableToVerify","name":"A linked case whose automation type is unavailable makes the rule unable to verify","status":"passed","testResultsByEnv":{"default":"79cb0e81fc6b8acf678fa97b943c254f"}}

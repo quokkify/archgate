@@ -1,0 +1,1 @@
+{"id":"c062e149f7267a4fb98c9c39dd96759e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.nonTestMethodsAreNotChecked","name":"Configuration and helper methods are not checked","status":"passed","testResultsByEnv":{"default":"d16094d25c69876ed4be117bd4981883"}}

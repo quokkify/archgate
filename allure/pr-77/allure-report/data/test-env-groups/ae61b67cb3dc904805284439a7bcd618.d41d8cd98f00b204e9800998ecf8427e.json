@@ -1,0 +1,1 @@
+{"id":"ae61b67cb3dc904805284439a7bcd618.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.contractOmitsManualClauseWithoutManualTypes","name":"The contract mentions manual cases only when manual types are configured","status":"passed","testResultsByEnv":{"default":"6c19ca4d8820c3c183dcd55173954b8e"}}

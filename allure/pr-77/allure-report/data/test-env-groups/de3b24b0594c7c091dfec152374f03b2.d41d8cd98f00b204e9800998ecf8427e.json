@@ -1,0 +1,1 @@
+{"id":"de3b24b0594c7c091dfec152374f03b2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.verifyReportsViolationInTestClasses","name":"A violation that exists only in the test classes is reported","status":"passed","testResultsByEnv":{"default":"e6f04b9d5314c1c40a2536b7f6e9f7f9"}}

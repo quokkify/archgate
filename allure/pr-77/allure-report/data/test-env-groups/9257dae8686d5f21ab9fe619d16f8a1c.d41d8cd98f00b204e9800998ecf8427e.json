@@ -1,0 +1,1 @@
+{"id":"9257dae8686d5f21ab9fe619d16f8a1c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseQueryTest.rejectsEmptyAndNonPositiveIds","name":"A query asks for at least one positive id","status":"passed","testResultsByEnv":{"default":"3130bcf9200498999b92883e4debea08"}}

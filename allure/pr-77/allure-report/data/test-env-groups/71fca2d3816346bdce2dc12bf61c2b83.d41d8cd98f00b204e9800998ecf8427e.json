@@ -1,0 +1,1 @@
+{"id":"71fca2d3816346bdce2dc12bf61c2b83.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.deletedCaseIsNotReported","name":"A deleted id has no case to inspect and is left to the case-exists rule","status":"passed","testResultsByEnv":{"default":"e2e3ff2e930752ec2c1597bbdb0ccb9e"}}

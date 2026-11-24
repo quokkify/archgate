@@ -1,0 +1,1 @@
+{"id":"2796b723ed8edf0e3208ee5bdbe5eff5.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.customPatternContractOmitsDefaultExamples","name":"Custom pattern contract does not claim the default examples","status":"passed","testResultsByEnv":{"default":"f679d8f00cfbd7d7e00a9472eb54417b"}}

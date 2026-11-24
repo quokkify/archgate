@@ -1,0 +1,1 @@
+{"id":"96cc4ed96f91dcb1e4ddb1eac408791b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.TestPlanItRulesTest.noLinksNeedNothing","name":"Without linked cases the rules pass without variables and without requests","status":"passed","testResultsByEnv":{"default":"d796f09fb2a92dfe5766e7fa5d5f57d8"}}

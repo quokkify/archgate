@@ -1,0 +1,1 @@
+{"id":"9607c682136f68bbb56a23eac1a04a9e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.LinkedCasesTest.linksAreUnmodifiable","name":"Callers cannot change the discovered links","status":"passed","testResultsByEnv":{"default":"45ae9d1b4c082a02086c285de7961ee3"}}
