@@ -67,7 +67,7 @@ public record FixtureSpec(
         return testDependsOn.getOrDefault(module, List.of());
     }
 
-    /** A module with a gate of its own that checks only that module, next to the main {@link #gate()}. */
+    /** A module that runs a gate of its own with the default module selection, next to the main {@link #gate()}. */
     public boolean isOwnGate(String module) {
         return Objects.nonNull(module) && ownGates.contains(module);
     }
