@@ -1,1 +1,1 @@
-{"id":"ee2acf7268f74091aec83593d26644e9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.concurrentCallsLoadOnce","name":"Parallel callers share one load","status":"passed","testResultsByEnv":{"default":"465ab1a84341e415e9301d9abe7daef1"}}
+{"id":"ee2acf7268f74091aec83593d26644e9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.concurrentCallsLoadOnce","name":"Parallel callers share one load","status":"passed","testResultsByEnv":{"default":"19a1e6f90f87e804220ecface9e8b5c8"}}
