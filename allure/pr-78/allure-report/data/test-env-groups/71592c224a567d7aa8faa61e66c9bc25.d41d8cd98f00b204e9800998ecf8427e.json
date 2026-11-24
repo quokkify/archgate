@@ -1,0 +1,1 @@
+{"id":"71592c224a567d7aa8faa61e66c9bc25.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.missingFileFailsClosed","name":"Regression guard: a list file that cannot be read fails closed","status":"passed","testResultsByEnv":{"default":"eb32a31db5bb018eaf337d74f03325db"}}

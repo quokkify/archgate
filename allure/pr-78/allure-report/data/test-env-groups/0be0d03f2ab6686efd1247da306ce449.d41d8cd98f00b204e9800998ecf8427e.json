@@ -1,0 +1,1 @@
+{"id":"0be0d03f2ab6686efd1247da306ce449.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.fullWidthLatinLetterIsReportedWithoutHint","name":"Full-width Latin C is reported without the Cyrillic hint","status":"passed","testResultsByEnv":{"default":"6ba812a6c2ed77a6544986e328848b87"}}

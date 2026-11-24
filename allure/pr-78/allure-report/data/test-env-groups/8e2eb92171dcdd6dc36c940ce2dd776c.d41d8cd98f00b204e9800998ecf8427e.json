@@ -1,0 +1,1 @@
+{"id":"8e2eb92171dcdd6dc36c940ce2dd776c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.CaseLookupTest.connectionHidesTheToken","name":"The connection never prints the token","status":"passed","testResultsByEnv":{"default":"d7daa1970cc06b8fe726ec3351083102"}}

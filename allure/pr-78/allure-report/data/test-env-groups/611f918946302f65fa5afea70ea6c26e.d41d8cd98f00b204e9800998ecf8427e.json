@@ -1,0 +1,1 @@
+{"id":"611f918946302f65fa5afea70ea6c26e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.excludedPackageIsNotCompared","name":"Excluded package does not take part in the comparison","status":"passed","testResultsByEnv":{"default":"d7de1a4fcf59387dc024b14440281f06"}}

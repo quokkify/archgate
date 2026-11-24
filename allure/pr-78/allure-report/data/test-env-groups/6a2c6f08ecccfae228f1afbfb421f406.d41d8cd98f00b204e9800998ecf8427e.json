@@ -1,0 +1,1 @@
+{"id":"6a2c6f08ecccfae228f1afbfb421f406.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.jacksonTreeFieldIsReported","name":"Jackson tree types in fields are reported, including generic arguments","status":"passed","testResultsByEnv":{"default":"97d48732ce7f7d8bc9aa98d65633577f"}}

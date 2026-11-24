@@ -1,0 +1,1 @@
+{"id":"9bc51c9b6df38ba06a430f9a162ea359.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.classLevelTestMethodsAreCompared","name":"Public methods of a class annotated with Test are compared","status":"passed","testResultsByEnv":{"default":"6c450688c466770e4f0881b85879426a"}}

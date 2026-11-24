@@ -1,0 +1,1 @@
+{"id":"ec2989143e2ae7b88e6389ed5bfecba1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.everyRestrictedSupertypeIsChecked","name":"Each restricted supertype selects its own subclasses","status":"passed","testResultsByEnv":{"default":"ababd0fa88c2049a82435a4ada441d46"}}

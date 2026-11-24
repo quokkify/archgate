@@ -1,0 +1,1 @@
+{"id":"047bf2e59ff477dd19f30f49f2e23fde.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.deletedCaseIsDeletedInProbe","name":"A deleted case found by a probe is deleted, not missing","status":"passed","testResultsByEnv":{"default":"4277f724c4d2fd5e9f775045c74a9dc8"}}

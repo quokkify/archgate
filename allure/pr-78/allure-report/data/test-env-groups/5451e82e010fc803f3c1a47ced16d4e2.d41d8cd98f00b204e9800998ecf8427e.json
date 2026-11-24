@@ -1,0 +1,1 @@
+{"id":"5451e82e010fc803f3c1a47ced16d4e2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.foreignIdInTailIsForeign","name":"Regression guard: a tail case of another project is foreign","status":"passed","testResultsByEnv":{"default":"6cea65d078ae45558c99a9b0d08e08b7"}}

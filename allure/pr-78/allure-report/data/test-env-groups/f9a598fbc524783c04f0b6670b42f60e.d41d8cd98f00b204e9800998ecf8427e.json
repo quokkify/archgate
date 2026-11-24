@@ -1,0 +1,1 @@
+{"id":"f9a598fbc524783c04f0b6670b42f60e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.classLevelTestMethodsAreChecked","name":"Public methods of a class annotated with Test are checked, helpers and lambdas are not","status":"passed","testResultsByEnv":{"default":"374ce796c0a90adecc62f9ca8462719d"}}

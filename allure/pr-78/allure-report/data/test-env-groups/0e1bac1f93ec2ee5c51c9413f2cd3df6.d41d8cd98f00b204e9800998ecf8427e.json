@@ -1,0 +1,1 @@
+{"id":"0e1bac1f93ec2ee5c51c9413f2cd3df6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.everyIdIsClassified","name":"Every queried id lands in exactly one category","status":"passed","testResultsByEnv":{"default":"efaa3e444d9fc34fb459bf2359c51ac0"}}

@@ -1,0 +1,1 @@
+{"id":"a296c7cd7221b1736a45fb4e488245b9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailClientTest.failsWhenTheServerDoesNotAnswerWithinTheReadTimeout","name":"failsWhenTheServerDoesNotAnswerWithinTheReadTimeout","status":"passed","testResultsByEnv":{"default":"9b8b7310edd40e215a3b0a6536004da7"}}

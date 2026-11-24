@@ -1,0 +1,1 @@
+{"id":"0020430cb1eb34a9efef7c27633ff1d2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.tinySuiteRequestsOnlyPageZero","name":"A suite smaller than one page costs exactly one page request","status":"passed","testResultsByEnv":{"default":"e951de30758b059a2fe851594f39d8d8"}}
