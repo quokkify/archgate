@@ -218,7 +218,8 @@ platform/
         └── resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule
 ```
 
-- The gate module may contain only `src/test`.
+- The gate module may contain only `src/test`. The dedicated module stays the recommendation, but a gate may also live in a module with main sources; that module's own classes are then checked as well.
+- One build may run more than one gate, for example the dedicated gate module plus a gate in a module whose rules need a test dependency only that module has. The gates do not conflict: [Service registration](rules/service-registration.md) leaves each `dev.quokkify.archgate.api.ArchitectureRule` services file to the gate of the module that holds it. On Gradle, a project in `modules(...)` that runs a gate of its own sets `rootPackage` in its `archgate` block instead of `skip = true`.
 - The modules it checks must be built, or the build fails.
 - Maven: each selected module's `target/classes` is imported as MAIN and its `target/test-classes` as TEST. The plugin finds them through the Maven reactor.
 - Gradle: list the checked projects in `modules(...)`, see [Selecting modules](#selecting-modules).
