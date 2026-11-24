@@ -1,5 +1,77 @@
 # Changelog
 
+## [0.4.0](https://github.com/quokkify/archgate/compare/v0.3.0...v0.4.0) (2026-11-24)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 4 breaking · 3 new · 2 fixed · 7 internal
+
+### ⚠️ Breaking changes
+
+> [!WARNING]
+> **core:** detect CI on Jenkins and TeamCity; catch more rule bypasses — Jenkins, TeamCity and other CI systems that do not set `CI` now count as CI, so an external rule that cannot run fails the build there. Built-in rules now catch method references, calls through subclasses and composed JUnit annotations. ([#69](https://github.com/quokkify/archgate/pull/69))
+>
+> 1. If your CI system is listed in `docs/configuration.md#how-ci-is-detected` and does not set `CI`, provide the variables your external rules need, such as the TestRail or TestPlanIt credentials, for the CI build.
+> 2. If the service may be unreachable from CI and a skip is acceptable, pass `-Darchgate.ci.serviceUnavailable=skip`.
+> 3. To keep the old lenient behaviour on purpose, pass `-Darchgate.ci=false` (Gradle: `-Parchgate.ci=false`).
+> 4. Builds run on a machine that carries one of the listed variables, such as a Jenkins or TeamCity agent image used locally, now get CI behaviour. Pass `archgate.ci=false` to force local behaviour; `CI=false` is not enough.
+> 5. Expect new findings in these cases:
+>    - `NoThreadSleepRule`: `Thread::sleep`, `TimeUnit.X::sleep`, an unqualified `sleep(..)` in a `Thread` subclass, `SubThread.sleep(..)`.
+>    - `NoConsoleOutputRule`: `Thread::dumpStack`, `Throwable::printStackTrace`, an unqualified `dumpStack()` in a `Thread` subclass.
+>    - `NoDeprecatedApiUsageRule`: method and constructor references to deprecated members or signatures.
+>    - `NoDisabledTestsRule`: tests disabled through a composed `@Disabled`.
+>    - `TestAssertionsRule` and `TestClassNamingRule`: tests marked by a composed JUnit `@Test`.
+
+> [!WARNING]
+> **gradle:** gate no longer passes without checking anything — The Gradle plugin no longer passes without checking anything. It now scans sibling classes compiled by the Groovy, Scala or Kotlin plugins, fails when applied without the `java` plugin, and deletes the previous report when the gate is skipped. ([#71](https://github.com/quokkify/archgate/pull/71))
+>
+> 1. A project that sets `archgate { rootPackage … }` or `modules(...)` without the `java` plugin (for example a `base`-only root or an Android module) now fails at configuration with `applies dev.quokkify.archgate but not the java plugin`. Apply the plugin with `java` in the project whose `src/test/resources` lists the rules, and list other projects in `archgate { modules(...) }`. If the project only configures the plugin for others, set `archgate { skip = true }` in it; `-Parchgate.skip=true` skips the gate in every project.
+> 2. If you apply the plugin to every subproject, apply it only where `java` is:
+>
+>    ```groovy
+>    subprojects {
+>        plugins.withId('java') {
+>            apply plugin: 'dev.quokkify.archgate'
+>        }
+>    }
+>    ```
+>
+>    Subprojects without `java` and without `archgate { }` settings keep working without this; they only log one line.
+> 3. If a module in `modules(...)` has Groovy, Scala or Kotlin classes, they are now checked and may report new findings.
+
+> [!WARNING]
+> **gradle:** a project that applies dev.quokkify.archgate without the java plugin and without skip = true now fails at configuration time instead of silently checking nothing.
+
+> [!WARNING]
+> **core:** builds on Jenkins, TeamCity, Azure Pipelines, AWS CodeBuild or another listed system that does not set CI now fail when an external rule cannot run, where they used to pass with the rule skipped. Provide the rule's variables, set archgate.ci.serviceUnavailable=skip for an unreachable service, or pass archgate.ci=false to keep the old behaviour.
+
+### ✨ New
+
+- **rules:** add API-test hygiene rules — **Keep tests on typed models and layers apart.** Add `archgate-rules-archunit-api` and list `JsonTreeUsageRule` to stop tests from building JSON through the Jackson tree API; subclass `LayerBoundaryRule` to forbid dependencies from one package layer to others. 🤖 Generated with [Claude Code](https://claude.com/claude-code) ([#66](https://github.com/quokkify/archgate/pull/66))
+- **rules:** add TmsLink rules for test-management links — **Check test-management links in tests.** Add `archgate-rules-archunit-tms` and list `TmsLinkRequiredRule`, `TmsLinkUniqueRule` or `TmsLinkFormatRule` in your services file to require, de-duplicate and validate `@TmsLink` ids on TestNG test methods. 🤖 Generated with [Claude Code](https://claude.com/claude-code) ([#64](https://github.com/quokkify/archgate/pull/64))
+- **rules:** check TmsLink ids against TestRail and TestPlanIt — Check that every `@TmsLink` id points at a real case in your test-management system. Add `archgate-rules-archunit-testrail` or `archgate-rules-archunit-testplanit`, list the exists or automated rule, and set the connection variables; outside CI an unreachable server skips the rule. ([#67](https://github.com/quokkify/archgate/pull/67))
+
+### 🐛 Fixed
+
+- **maven:** fail when -pl or -rf leaves checked modules out of the run — **Maven:** `mvn -pl <gate>` and `mvn -rf :<gate>` no longer pass silently when the gate checks sibling modules that are not part of the run; the build now fails and names them. Add them to `-pl` or use `-am`, run without `-pl`/`-rf`, or pass `-Darchgate.skip=true` to skip the gate in that run. ([#68](https://github.com/quokkify/archgate/pull/68))
+- **rules:** stop Service registration failing on another gate's rules — **Two gates in one build no longer fail each other.** Service registration reported another gate's rules as `class not found` when they came from a test-only dependency; it now leaves ArchGate's own services file to the gate that owns it. ([#79](https://github.com/quokkify/archgate/pull/79))
+
+<details><summary>Internal changes (7 PRs)</summary>
+
+**Dependencies**
+
+- actions/setup-java v6.2.0 → v6.3.0 ([#76](https://github.com/quokkify/archgate/pull/76))
+- com.diffplug.spotless:spotless-plugin-gradle 8.11.0 → 8.12.0 ([#77](https://github.com/quokkify/archgate/pull/77))
+- dev.quokkify:testng 0.15.0 → 0.16.0 ([#78](https://github.com/quokkify/archgate/pull/78))
+- gradle 9.9.1 → 9.9.2 ([#75](https://github.com/quokkify/archgate/pull/75))
+- org.apache.maven:apache-maven 3.10.1 → 3.10.2 ([#74](https://github.com/quokkify/archgate/pull/74))
+
+**Maintenance**
+
+- **renovate:** adopt the supply-chain hardening and stack grouping presets ([#72](https://github.com/quokkify/archgate/pull/72))
+- **template:** update shared project template ([#73](https://github.com/quokkify/archgate/pull/73))
+
+</details>
+
 ## [0.3.0](https://github.com/quokkify/archgate/compare/v0.2.1...v0.3.0) (2026-11-20)
 
 <!-- project-toolkit:release-notes v2 -->
