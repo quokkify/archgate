@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import dev.quokkify.archgate.api.ArchitectureRule;
 import dev.quokkify.archgate.api.ArchitectureViolation;
 import dev.quokkify.archgate.api.Scope;
 import dev.quokkify.archgate.api.Severity;
@@ -118,6 +119,29 @@ class ServiceRegistrationRuleTest {
         assertThatThrownBy(() -> verifyCase("no-providers"))
                 .isInstanceOf(UnableToVerifyError.class)
                 .hasMessageContaining("META-INF/services");
+    }
+
+    // regression: a second gate's own rule registration is left to that gate
+    @Test
+    void archgateRuleFileAloneCountsAsFoundButIsNotChecked() {
+        assertThatCode(() -> verifyCase("archgate-own")).doesNotThrowAnyException();
+    }
+
+    // regression: a second gate's own rule registration is left to that gate
+    @Test
+    void archgateRuleFileIsSkippedWhileOtherProviderFilesAreChecked() {
+        assertThatThrownBy(() -> verifyCase("archgate-own-and-missing"))
+                .isInstanceOf(ArchitectureViolation.class)
+                .hasMessageContaining(PROVIDER_FILE + ": archfixtures.services.NoSuchGreeter class not found")
+                .hasMessageNotContaining("NoSuchRule")
+                .hasMessageNotContaining(ArchitectureRule.class.getName());
+    }
+
+    @Test
+    void fileNamedLikeArchgateRuleFileIsChecked() {
+        assertThatThrownBy(() -> verifyCase("archgate-own-lookalike"))
+                .isInstanceOf(ArchitectureViolation.class)
+                .hasMessageContaining("service interface " + ArchitectureRule.class.getName() + "X not found");
     }
 
     @Test

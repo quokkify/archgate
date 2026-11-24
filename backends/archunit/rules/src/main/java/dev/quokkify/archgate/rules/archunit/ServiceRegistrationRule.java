@@ -24,6 +24,8 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
 
     private static final String SERVICES_DIR = "META-INF/services";
     private static final String COMMENT_MARK = "#";
+    // The gate that owns this file loads and checks it; another gate may lack that module's test classpath.
+    private static final String ARCHGATE_RULE_FILE = ArchitectureRule.class.getName();
     private static final String EXPECTED_CONTRACT = """
       Every class listed in a META-INF/services provider file must exist, implement the service interface named \
       by the file, be a public concrete class and have a public no-arg constructor.""";
@@ -102,6 +104,9 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
         }
         List<String> violations = new ArrayList<>();
         for (ProviderFile file : providerFiles) {
+            if (file.isArchgateRuleFile()) {
+                continue;
+            }
             violations.addAll(violationsOf(file, loader));
         }
         checkViolations(EXPECTED_CONTRACT, violations);
@@ -185,6 +190,10 @@ public class ServiceRegistrationRule implements ArchitectureRule<ArchUnitContext
     }
 
     private record ProviderFile(Path classDir, Path file) {
+
+        boolean isArchgateRuleFile() {
+            return file.toFile().getName().equals(ARCHGATE_RULE_FILE);
+        }
 
         String displayPath() {
             return classDir.relativize(file).toString().replace('\\', '/');

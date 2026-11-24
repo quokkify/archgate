@@ -51,6 +51,27 @@ class MavenProjectWriterTest {
     }
 
     @Test
+    void ownGateBindsCheckGoalWithItsOwnTestDependencies() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path work = tempDir.path();
+            Path project =
+                    Fixture.materialize("two-gates", BuildTool.MAVEN, work.resolve("p"), work.resolve("repo"), "1.2.3");
+
+            assertThat(Files.readString(project.resolve("app/pom.xml")))
+                    .contains("<artifactId>archgate-maven-plugin</artifactId>")
+                    .contains("<goal>check</goal>")
+                    .contains("<artifactId>helpers</artifactId>")
+                    .contains("<scope>test</scope>")
+                    .contains("<artifactId>archgate-rules-archunit</artifactId>");
+            assertThat(Files.readString(project.resolve("architecture/pom.xml")))
+                    .contains("<artifactId>archgate-maven-plugin</artifactId>")
+                    .contains("<artifactId>app</artifactId>")
+                    .doesNotContain("<artifactId>helpers</artifactId>");
+            assertThat(Files.readString(project.resolve("helpers/pom.xml"))).doesNotContain("archgate-maven-plugin");
+        }
+    }
+
+    @Test
     void singleModuleProjectHasPluginInRootPom() throws Exception {
         try (TempDir tempDir = TempDir.create()) {
             Path work = tempDir.path();

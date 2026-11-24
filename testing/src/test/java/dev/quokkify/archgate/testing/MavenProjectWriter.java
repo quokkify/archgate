@@ -120,7 +120,7 @@ public final class MavenProjectWriter {
         }
         writeFile(target.resolve("pom.xml"), parentPom(scenario, spec));
         for (String module : spec.modules()) {
-            boolean isGate = spec.gate().filter(module::equals).isPresent();
+            boolean isGate = spec.gate().filter(module::equals).isPresent() || spec.isOwnGate(module);
             writeFile(
                     target.resolve(module).resolve("pom.xml"),
                     modulePom(scenario, spec, scenario, module, archgateVersion, isGate));
@@ -171,9 +171,14 @@ public final class MavenProjectWriter {
         for (String sibling : spec.dependenciesOf(module)) {
             out.append(dependency(GROUP_ID, sibling, VERSION, null));
         }
+        for (String sibling : spec.testDependenciesOf(module)) {
+            out.append(dependency(GROUP_ID, sibling, VERSION, "test"));
+        }
         if (isGate) {
-            for (String library : spec.ruleLibraries().keySet()) {
-                out.append(dependency(GROUP_ID, library, VERSION, "test"));
+            if (!spec.isOwnGate(module)) {
+                for (String library : spec.ruleLibraries().keySet()) {
+                    out.append(dependency(GROUP_ID, library, VERSION, "test"));
+                }
             }
             for (String artifact : spec.testDependencies()) {
                 out.append(dependency(ARCHGATE_GROUP, artifact, archgateVersion, "test"));

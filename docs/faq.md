@@ -80,7 +80,7 @@ Subclass the rule, pass the parameters to its `protected` constructor or overrid
 
 ### How does it work in a multi-module project?
 
-A dedicated last module named `<project>-archgate-rules` (for example `platform-archgate-rules` for the `platform` project) depends on the modules it checks and holds the plugin, the services file and your rules. That module can contain only `src/test`. See [Configuration → Multi-module projects](configuration.md#multi-module-projects).
+A dedicated last module named `<project>-archgate-rules` (for example `platform-archgate-rules` for the `platform` project) depends on the modules it checks and holds the plugin, the services file and your rules. That module can contain only `src/test`. This stays the recommendation, but a gate may also live in a module with main sources, which is then checked as well, and two gates in one build do not conflict: each gate's own rule list is checked by that gate only. See [Configuration → Multi-module projects](configuration.md#multi-module-projects).
 
 ### Why does `mvn -pl <gate>` fail with "part of the reactor but not of this build"?
 
