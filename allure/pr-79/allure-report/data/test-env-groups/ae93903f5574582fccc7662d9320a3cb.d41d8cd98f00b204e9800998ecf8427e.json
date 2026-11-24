@@ -1,0 +1,1 @@
+{"id":"ae93903f5574582fccc7662d9320a3cb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.missingVariablesWithLinksAreUnavailable","name":"Missing variables are reported together, after one scan, when some test links a case","status":"passed","testResultsByEnv":{"default":"81c8a5ec0c0368682e0f223394540c97"}}

@@ -1,0 +1,1 @@
+{"id":"00d12cfb9eac319cd2d216a9bd921c4d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.restrictedRuleWithoutMatchingClassesPasses","name":"A restricted rule passes when no class in the scope matches the supertypes","status":"passed","testResultsByEnv":{"default":"3720f03e740c85fb3fbc9150d324633d"}}

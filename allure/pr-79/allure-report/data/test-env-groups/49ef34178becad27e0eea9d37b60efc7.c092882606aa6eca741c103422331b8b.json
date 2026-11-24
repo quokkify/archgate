@@ -1,0 +1,1 @@
+{"id":"49ef34178becad27e0eea9d37b60efc7.c092882606aa6eca741c103422331b8b","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.TestPlanItRulesTest.badAnswerIsUnavailable","name":"Server errors, redirects and unreadable answers give the service-unavailable signal","status":"passed","testResultsByEnv":{"default":"c57b19f8fc02a02e2d36b6a6818a000a"}}

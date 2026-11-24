@@ -1,0 +1,1 @@
+{"id":"6d9f3597625544e05433b48eb1663b5e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseExistsRuleTest.brokenLoadIsUnableToVerifyInBothRules","name":"Regression guard: a defect in the load fails both rules as unable to verify, not as a finding","status":"passed","testResultsByEnv":{"default":"306c730d7ae3759e8b6540095d700ba4"}}

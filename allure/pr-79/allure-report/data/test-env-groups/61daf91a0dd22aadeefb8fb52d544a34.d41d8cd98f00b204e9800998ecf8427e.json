@@ -1,0 +1,1 @@
+{"id":"61daf91a0dd22aadeefb8fb52d544a34.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.otherServiceConfigurationIsKeyMismatch","name":"Regression guard: two configurations of one service class do not share an index","status":"passed","testResultsByEnv":{"default":"4d0cf69ed914ba2d4f716a04a6b99d3c"}}

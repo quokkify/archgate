@@ -1,0 +1,1 @@
+{"id":"28fa70b9695994e216ce6df7b9586889.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.subclassNamesItsOwnTypes","name":"A subclass names the automation types of its TestRail instance","status":"passed","testResultsByEnv":{"default":"4ff02adbfb4557f8ee7158158672cc60"}}

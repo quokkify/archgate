@@ -1,0 +1,1 @@
+{"id":"2fff6b3bbf74b7b22eccbfa5d543b59e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.nameListsRestrictedSupertypes","name":"The name lists the simple names of the restricted supertypes, sorted","status":"passed","testResultsByEnv":{"default":"803b85555224577a7477c416699a05cc"}}

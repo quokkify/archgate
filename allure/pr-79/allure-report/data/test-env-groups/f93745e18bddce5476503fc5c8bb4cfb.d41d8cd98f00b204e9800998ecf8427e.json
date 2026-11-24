@@ -1,0 +1,1 @@
+{"id":"f93745e18bddce5476503fc5c8bb4cfb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.emptyScopesAreRejected","name":"An empty set of scopes is rejected","status":"passed","testResultsByEnv":{"default":"343c3594743b16c889d3f7acd8133f0e"}}

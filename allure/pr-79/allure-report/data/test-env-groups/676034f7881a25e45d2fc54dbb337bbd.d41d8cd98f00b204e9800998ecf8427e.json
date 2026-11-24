@@ -1,0 +1,1 @@
+{"id":"676034f7881a25e45d2fc54dbb337bbd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.unsetReported","name":"A case without automation type is reported as not set","status":"passed","testResultsByEnv":{"default":"42de4c5740281e1def4763e9632c2720"}}

@@ -1,0 +1,1 @@
+{"id":"50a2bafa20defd4cd0ee3010c3137be7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.emptyMainScopeIsSkipped","name":"An empty main view is reported as skipped, not as a failure","status":"passed","testResultsByEnv":{"default":"4893e38d5af0b48e323341f3a6d467b6"}}

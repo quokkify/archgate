@@ -1,0 +1,1 @@
+{"id":"d40170076cfb5ba1df2f1c18942b35f9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.serviceWithoutVariablesStillHonoursOffline","name":"A service that needs no variables still honours switched-off external rules","status":"passed","testResultsByEnv":{"default":"778834257a0c2054a0e7bd47fb79326c"}}

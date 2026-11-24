@@ -1,0 +1,58 @@
+> Task :app:compileJava
+> Task :app:processResources NO-SOURCE
+> Task :app:classes
+> Task :helpers:compileJava
+> Task :app:compileTestJava
+> Task :app:processTestResources
+> Task :app:testClasses
+> Task :helpers:processResources NO-SOURCE
+> Task :helpers:classes
+> Task :helpers:jar
+> Task :app:jar
+> Task :app:test
+> Task :architecture:compileJava NO-SOURCE
+> Task :architecture:processResources NO-SOURCE
+> Task :architecture:classes UP-TO-DATE
+> Task :architecture:compileTestJava NO-SOURCE
+> Task :architecture:processTestResources
+> Task :architecture:testClasses
+> Task :architecture:test NO-SOURCE
+> Task :helpers:compileTestJava NO-SOURCE
+> Task :helpers:processTestResources NO-SOURCE
+> Task :helpers:testClasses UP-TO-DATE
+> Task :helpers:test NO-SOURCE
+> Task :helpers:check UP-TO-DATE
+
+> Task :architecture:archgateCheck
+============================================================
+Architecture verification (1 rule, 6 ms total)
+============================================================
+[PASS]  MAIN+TEST      5 ms  Service registration
+Model build: ArchUnitContext 0 ms
+============================================================
+Gate PASSED: 1 rule, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
+
+> Task :architecture:check
+
+> Task :app:archgateCheck
+============================================================
+Architecture verification (1 rule, 1.2 s total)
+============================================================
+[PASS]  MAIN+TEST   1150 ms  App naming
+Model build: ArchUnitContext 2 ms, main 711 ms, test 427 ms
+============================================================
+Gate PASSED: 1 rule, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
+
+> Task :app:check
+
+BUILD SUCCESSFUL in 3s
+10 actionable tasks: 10 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.9.2/userguide/configuration_cache_enabling.html

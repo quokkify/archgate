@@ -1,0 +1,1 @@
+{"id":"8bcb87df041db4903b97f6ec20ca4161.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.mainScopeRuleWithoutMainClassesIsUnableToVerify","name":"A rule over main classes fails closed when there are no main classes","status":"passed","testResultsByEnv":{"default":"a52cd8bbd1e35b322bb62c7ec3398c16"}}
