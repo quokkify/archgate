@@ -24,7 +24,8 @@ class FixtureSpecTest {
             "incompatible-rule-library",
             "missing-context-provider",
             "javaparser-wildcard",
-            "service-registration");
+            "service-registration",
+            "two-gates");
 
     @Test
     void loadsMultiModuleViolation() {
@@ -41,6 +42,18 @@ class FixtureSpecTest {
         FixtureSpec spec = FixtureSpec.load(Fixture.root().resolve("incompatible-rule-library"));
 
         assertThat(spec.ruleLibraries()).containsEntry("rules-lib", "not-a-version");
+    }
+
+    @Test
+    void loadsOwnGatesAndTestDependencies() {
+        FixtureSpec spec = FixtureSpec.load(Fixture.root().resolve("two-gates"));
+
+        assertThat(spec.gate()).isEqualTo(Optional.of("architecture"));
+        assertThat(spec.ownGates()).containsExactly("app");
+        assertThat(spec.isOwnGate("app")).isTrue();
+        assertThat(spec.isOwnGate("architecture")).isFalse();
+        assertThat(spec.testDependenciesOf("app")).containsExactly("helpers");
+        assertThat(spec.testDependenciesOf("architecture")).isEmpty();
     }
 
     @Test

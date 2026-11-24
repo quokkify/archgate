@@ -82,6 +82,28 @@ class GradleProjectWriterTest {
     }
 
     @Test
+    void ownGateChecksItselfWithItsOwnTestDependencies() throws Exception {
+        try (TempDir tempDir = TempDir.create()) {
+            Path work = tempDir.path();
+            Path project = Fixture.materialize(
+                    "two-gates", BuildTool.GRADLE, work.resolve("p"), work.resolve("repo"), "1.2.3");
+
+            assertThat(Files.readString(project.resolve("app/build.gradle")))
+                    .contains("id 'dev.quokkify.archgate'")
+                    .contains("archgate {\n    rootPackage = 'com.example'\n}")
+                    .contains("testImplementation project(':helpers')")
+                    .contains("'dev.quokkify.archgate:archgate-rules-archunit:1.2.3'")
+                    .doesNotContain("skip = true")
+                    .doesNotContain("modules(");
+            assertThat(Files.readString(project.resolve("architecture/build.gradle")))
+                    .contains("modules(':app')")
+                    .doesNotContain(":helpers");
+            assertThat(Files.readString(project.resolve("helpers/build.gradle")))
+                    .doesNotContain("id 'dev.quokkify.archgate'");
+        }
+    }
+
+    @Test
     void singleModuleUsesRootBuildFile() throws Exception {
         try (TempDir tempDir = TempDir.create()) {
             Path work = tempDir.path();

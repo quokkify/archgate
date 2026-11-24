@@ -60,6 +60,13 @@ public final class GradleProjectWriter {
             }
             """;
 
+    private static final String OWN_GATE_BLOCK = """
+
+            archgate {
+                rootPackage = '%s'
+            }
+            """;
+
     private GradleProjectWriter() {}
 
     public static void write(
@@ -91,7 +98,8 @@ public final class GradleProjectWriter {
 
     static String buildFile(
             FixtureSpec spec, String module, String archgateVersion, boolean isGate, boolean exposesElements) {
-        boolean appliesPlugin = isGate || exposesElements;
+        boolean ownGate = spec.isOwnGate(module);
+        boolean appliesPlugin = isGate || ownGate || exposesElements;
         String pluginLine = appliesPlugin ? "    id '" + PLUGIN_ID + "'\n" : "";
         StringBuilder out = new StringBuilder(BUILD_HEADER.formatted(pluginLine));
         String ruleLibrary =
@@ -112,10 +120,12 @@ public final class GradleProjectWriter {
         }
         if (isGate) {
             out.append(archgateBlock(spec));
+        } else if (ownGate) {
+            out.append(OWN_GATE_BLOCK.formatted(spec.rootPackage()));
         } else if (exposesElements) {
             out.append(ELEMENTS_ONLY_BLOCK);
         }
-        out.append(dependencies(spec, module, archgateVersion, isGate, Objects.nonNull(ruleLibrary)));
+        out.append(dependencies(spec, module, archgateVersion, isGate, ownGate, Objects.nonNull(ruleLibrary)));
         return out.toString();
     }
 
@@ -132,17 +142,27 @@ public final class GradleProjectWriter {
     }
 
     private static String dependencies(
-            FixtureSpec spec, String module, String archgateVersion, boolean isGate, boolean isRuleLibrary) {
+            FixtureSpec spec,
+            String module,
+            String archgateVersion,
+            boolean isGate,
+            boolean ownGate,
+            boolean isRuleLibrary) {
         StringBuilder deps = new StringBuilder();
         if (Objects.nonNull(module)) {
             for (String sibling : spec.dependenciesOf(module)) {
                 deps.append("    implementation project(':").append(sibling).append("')\n");
+            }
+            for (String sibling : spec.testDependenciesOf(module)) {
+                deps.append("    testImplementation project(':").append(sibling).append("')\n");
             }
         }
         if (isGate) {
             for (String library : spec.ruleLibraries().keySet()) {
                 deps.append("    testImplementation project(':").append(library).append("')\n");
             }
+        }
+        if (isGate || ownGate) {
             for (String artifact : spec.testDependencies()) {
                 deps.append("    testImplementation '")
                         .append(ARCHGATE_GROUP)
