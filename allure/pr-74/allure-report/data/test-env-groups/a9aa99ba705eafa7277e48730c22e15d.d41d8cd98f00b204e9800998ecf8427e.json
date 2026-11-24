@@ -1,1 +1,1 @@
-{"id":"a9aa99ba705eafa7277e48730c22e15d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoJavaUtilDateRuleTest.localDateTimePasses","name":"localDateTimePasses","status":"passed","testResultsByEnv":{"default":"ae5818fef1747676f1f138a321a5afc5"}}
+{"id":"a9aa99ba705eafa7277e48730c22e15d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoJavaUtilDateRuleTest.localDateTimePasses","name":"localDateTimePasses","status":"passed","testResultsByEnv":{"default":"174a3df7290c2fdb95461746bb085482"}}
