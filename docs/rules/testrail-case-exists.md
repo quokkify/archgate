@@ -11,8 +11,10 @@ Every `@TmsLink` case id on a TestNG test method, such as `C123` or `123`, must 
     Every @io.qameta.allure.TmsLink case id on a test method must identify an existing TestRail case.
     Violations (1) "case does not exist in TestRail":
         - C9        PaymentTest.java:14
+
     Violations (1) "case is deleted in TestRail":
         - C10       PaymentTest.java:18
+
     Violations (1) "case belongs to another TestRail project":
         - C1234567  PaymentTest.java:22 (project 3)
 ```

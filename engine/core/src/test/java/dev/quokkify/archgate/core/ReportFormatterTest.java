@@ -262,6 +262,7 @@ class ReportFormatterTest {
                         + "    Every case id on a test method must identify an existing case." + NL
                         + "    Violations (1) \"case does not exist\":" + NL
                         + "        - C101      FirstTest.java:12" + NL
+                        + NL
                         + "    Violations (2) \"case is deleted\":" + NL
                         + "        - C102      SecondTest.java:26" + NL
                         + "        - C103      ThirdTest.java:51");
@@ -293,7 +294,7 @@ class ReportFormatterTest {
                         "----------  ---------  --------  --------  -----  -----  ---------",
                         "Green rule  MAIN+TEST  ERROR     passed        -  -          12 ms",
                         "Tracker     MAIN+TEST  ERROR     skipped       -  -           5 ms",
-                        "Layer rule  MAIN+TEST  WARNING   violated      -  fails    1500 ms",
+                        "Layer rule  MAIN+TEST  WARNING   violated      1  fails    1500 ms",
                         "-".repeat(60));
     }
 
@@ -354,5 +355,32 @@ class ReportFormatterTest {
 
         assertThat(ReportFormatter.format(result, Optional.empty(), ReportStyle.CLASSIC))
                 .isEqualTo(ReportFormatter.format(result, Optional.empty()));
+    }
+
+    @Test
+    void tableStyleShowsHowManyViolationsARuleFound() {
+        ArchitectureViolation grouped = ArchitectureViolation.grouped(
+                "contract",
+                List.of(
+                        new ViolationGroup("flat", List.of("a", "b")),
+                        ViolationGroup.table("table", List.of("ID"), List.of(List.of("1")))));
+        RuleOutcome violated = new RuleOutcome(TestRules.satisfied("grouped", Severity.ERROR), grouped, Duration.ZERO);
+        RuleOutcome thrown = new RuleOutcome(
+                TestRules.satisfied("asserted", Severity.ERROR), new AssertionError("broken"), Duration.ZERO);
+
+        assertThat(ReportFormatter.format(result(violated, thrown), Optional.empty(), ReportStyle.TABLE))
+                .anyMatch(block -> block.matches("grouped +MAIN\\+TEST +ERROR +violated +3 +report +0 ms"))
+                .anyMatch(block -> block.matches("asserted +MAIN\\+TEST +ERROR +violated +- +report +0 ms"));
+    }
+
+    @Test
+    void emptyLineBetweenGroupsCarriesNoIndent() {
+        ArchitectureViolation grouped = ArchitectureViolation.grouped(
+                "contract", List.of(new ViolationGroup("a", List.of("x")), new ViolationGroup("b", List.of("y"))));
+        GateResult result =
+                result(new RuleOutcome(TestRules.satisfied("grouped", Severity.ERROR), grouped, Duration.ZERO));
+
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .anyMatch(block -> block.contains("        - x" + NL + NL + "    Violations (1) \"b\":"));
     }
 }

@@ -356,7 +356,7 @@ Failure policy (failOn=WARNING):
   INFO     reported only
 ```
 
-Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. The verdict line then counts such rules, for example `Gate PASSED: 7 rules (2 partially checked), no findings`; see [Partial checks](#partial-checks). Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. A rule row and its detail lines form one block. In the Maven log only the row carries the `[INFO]`, `[WARNING]` or `[ERROR]` prefix, so the details stay attached to it; the report file always uses LF line endings. The `Model build:` line shows how long each analysis model took to build. The `Shared:` line follows it when rules used `context.shared`, and shows how long each shared value took to build, once per name, including builds that failed. A rule that reports its findings in groups prints each non-empty group as `Violations (N) "<title>":` followed by its entries; empty groups are left out. The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
+Each line shows the status, the class views the rule checks, its duration and its name. When a rule over MAIN and TEST found one of them empty, for example in a module without tests, it checks the other one and its line ends with the skipped scope, for example `No Thread.sleep (TEST not checked: empty)`. The verdict line then counts such rules, for example `Gate PASSED: 7 rules (2 partially checked), no findings`; see [Partial checks](#partial-checks). Passed rules come first, findings last, so the violations are easy to spot when scrolling. Violations are listed below the rule. Rules run in parallel, and the results are sorted by rule name. A rule row and its detail lines form one block. In the Maven log only the row carries the `[INFO]`, `[WARNING]` or `[ERROR]` prefix, so the details stay attached to it; the report file always uses LF line endings. The `Model build:` line shows how long each analysis model took to build. The `Shared:` line follows it when rules used `context.shared`, and shows how long each shared value took to build, once per name, including builds that failed. A rule that reports its findings in groups prints each non-empty group as `Violations (N) "<title>":` followed by its entries; empty groups are left out, and an empty line separates consecutive groups. A table group prints its entries as aligned columns under a header row, see [Table groups](#table-groups). The verdict line repeats the counts that decided it, and the failure policy table shows for each severity whether it fails the build with the current `failOn`.
 
 A rule that could not reach what it needs outside the build is shown as `[SKIP]` with two detail lines: what the rule reported, and why the run treats it as a skip.
 
@@ -370,6 +370,24 @@ The second line varies: `Skipped because this is not a CI run (archgate.ci=false
 
 Maven and Gradle print the same text for the same sources, rules, `failOn` and `reportStyle`.
 
+### Table groups
+
+A rule can hand ArchGate the cells of a group with `ViolationGroup.table(title, columns, rows)`, and ArchGate aligns the columns and prints a header row, in either report style:
+
+```
+    Every case id on a test method must identify an existing case.
+    Violations (1) "case is deleted":
+        - C7  LoginTest.java:12
+
+    Violations (2) "case is in another stage":
+        CASE  ACTUAL      LOCATION
+        ----  ----------  --------------------
+        C101  staging     CheckoutTest.java:40
+        C2    production  CartTest.java:7
+```
+
+See [Writing a backend or rule](extending.md#rules) for the API.
+
 ### Table style
 
 `reportStyle=table` (`-Darchgate.reportStyle=table` in Maven, `-Parchgate.reportStyle=table` or `archgate { reportStyle = 'table' }` in Gradle) prints the rules as one summary table, then the details of each skipped or violated rule under its name. The header, the verdict line and the failure policy stay the same as in the classic style.
@@ -381,7 +399,7 @@ Architecture verification (2 rules, 8.1 s total)
 RULE                                    SCOPE      SEVERITY  RESULT    FOUND  BUILD       TIME
 --------------------------------------  ---------  --------  --------  -----  -----  ---------
 No Thread.sleep                         MAIN+TEST  ERROR     passed        -  -          41 ms
-Tests do not call RestAssured directly  TEST       ERROR     violated      -  fails      18 ms
+Tests do not call RestAssured directly  TEST       ERROR     violated      1  fails      18 ms
 ------------------------------------------------------------
 Tests do not call RestAssured directly
     Tests call RestAssured only through steps
@@ -397,7 +415,7 @@ Failure policy (failOn=WARNING):
   INFO     reported only
 ```
 
-`RESULT` is `passed`, `skipped` or `violated`. `BUILD` says what a violation does with the current `failOn`: `fails` the build or is only reported (`report`); it is `-` for a rule that passed or was skipped. `FOUND` is `-`. Rows follow the classic order: passes, then skips, then findings. A partially checked rule keeps its `(TEST not checked: empty)` note next to its name. Every line of the table is a log entry of its own, so in the Maven log each one carries the same `[INFO]`, `[WARNING]` or `[ERROR]` prefix and the columns stay aligned. `detailed` is reserved for a later style and fails the build for now.
+`RESULT` is `passed`, `skipped` or `violated`. `BUILD` says what a violation does with the current `failOn`: `fails` the build or is only reported (`report`); it is `-` for a rule that passed or was skipped. `FOUND` is the number of violations a rule reported through `ArchitectureViolation`, counting every entry and row of every group, and `-` for a finding thrown as an `AssertionError`. Rows follow the classic order: passes, then skips, then findings. A partially checked rule keeps its `(TEST not checked: empty)` note next to its name. Every line of the table is a log entry of its own, so in the Maven log each one carries the same `[INFO]`, `[WARNING]` or `[ERROR]` prefix and the columns stay aligned. `detailed` is reserved for a later style and fails the build for now.
 
 ## Partial checks
 
