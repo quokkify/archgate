@@ -1,0 +1,20 @@
+============================================================
+Architecture verification (1 rule, 603 ms total)
+============================================================
+[ERROR] MAIN+TEST    597 ms  Case links
+    Every case id on a test method must identify an existing case.
+    Violations (1) "case is deleted":
+        - C7  LoginTest.java:12
+
+    Violations (2) "case is in another stage":
+        CASE  ACTUAL      LOCATION
+        ----  ----------  --------------------
+        C101  staging     CheckoutTest.java:40
+        C2    production  CartTest.java:7
+Model build: ArchUnitContext 1 ms, main 433 ms, test 151 ms
+============================================================
+Gate FAILED: 1 rule, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
