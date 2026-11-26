@@ -1,0 +1,1 @@
+{"id":"1b6ecc9b28560bf74b06f79c37f0e8fc.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseAutomatedRuleTest.unknownTypeNamed","name":"A raw value the service could not name is reported as unknown, not thrown","status":"passed","testResultsByEnv":{"default":"d28253357951dfc2a2dd80ab1b0593e2"}}

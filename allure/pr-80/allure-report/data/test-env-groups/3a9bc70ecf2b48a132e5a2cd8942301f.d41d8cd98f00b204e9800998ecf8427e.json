@@ -1,0 +1,1 @@
+{"id":"3a9bc70ecf2b48a132e5a2cd8942301f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseExistsRuleTest.deletedCaseIsReportedAsDeleted","name":"Missing ids come first, deleted ids get their own group","status":"passed","testResultsByEnv":{"default":"04f06273979553b5de80ece843c943a8"}}

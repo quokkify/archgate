@@ -1,0 +1,1 @@
+{"id":"47da4e76f9936f3e29922aa6afc494d7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.parallelismNeverExceeded","name":"Concurrent source calls never exceed the parallelism","status":"passed","testResultsByEnv":{"default":"78f3291ba355082a8dc73f8613afa6f3"}}

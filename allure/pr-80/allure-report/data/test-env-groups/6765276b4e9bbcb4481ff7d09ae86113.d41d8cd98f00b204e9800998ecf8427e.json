@@ -1,0 +1,1 @@
+{"id":"6765276b4e9bbcb4481ff7d09ae86113.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkFormatRuleTest.containerValuesAreReportedOneByOne","name":"Each malformed value in TmsLinks is reported separately","status":"passed","testResultsByEnv":{"default":"248f9d9347f9eb6f8e8a8e424be5446a"}}

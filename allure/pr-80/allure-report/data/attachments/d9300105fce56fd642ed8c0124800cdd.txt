@@ -1,0 +1,32 @@
+> Task :compileJava UP-TO-DATE
+> Task :processResources NO-SOURCE
+> Task :classes UP-TO-DATE
+> Task :compileTestJava UP-TO-DATE
+> Task :processTestResources UP-TO-DATE
+> Task :testClasses UP-TO-DATE
+> Task :test UP-TO-DATE
+
+> Task :archgateCheck
+============================================================
+Architecture verification (2 rules, 434 ms total)
+============================================================
+[SKIP]  MAIN+TEST      6 ms  Tracker token
+    Missing TRACKER_TOKEN. Pass them as -DNAME=value or as environment variables.
+    Skipped because this is not a CI run (archgate.ci=false); in CI this fails the build.
+[INFO]  MAIN+TEST    432 ms  Changed files
+    Reports the changed files this run saw.
+    Violations (1):
+        - changed files: changed.txt
+Model build: ArchUnitContext 0 ms, main 326 ms, test 93 ms
+============================================================
+Gate PASSED: 2 rules, 1 info, 1 skipped
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
+
+> Task :check
+
+BUILD SUCCESSFUL in 609ms
+5 actionable tasks: 1 executed, 4 up-to-date
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.9.2/userguide/configuration_cache_enabling.html

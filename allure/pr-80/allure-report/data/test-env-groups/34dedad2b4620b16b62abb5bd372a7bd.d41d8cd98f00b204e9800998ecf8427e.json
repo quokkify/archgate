@@ -1,0 +1,1 @@
+{"id":"34dedad2b4620b16b62abb5bd372a7bd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.wrapperTreeMutationIsReported","name":"Mutating the tree a wrapper hands out is reported","status":"passed","testResultsByEnv":{"default":"13e38a7c9075bd44d865c2ff23445370"}}

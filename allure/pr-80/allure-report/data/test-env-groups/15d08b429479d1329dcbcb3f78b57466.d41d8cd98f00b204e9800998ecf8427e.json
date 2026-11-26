@@ -1,0 +1,1 @@
+{"id":"15d08b429479d1329dcbcb3f78b57466.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.emptyPageEndsSuiteMultipleOfPageSize","name":"A suite of exactly 500 cases costs one empty page","status":"passed","testResultsByEnv":{"default":"874dbae687b53fefd0b3fa83d1d26caa"}}

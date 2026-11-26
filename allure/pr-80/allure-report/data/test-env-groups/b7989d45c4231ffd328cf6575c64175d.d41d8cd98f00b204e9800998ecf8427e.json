@@ -1,0 +1,1 @@
+{"id":"b7989d45c4231ffd328cf6575c64175d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.defaultRuleWithoutTestClassesIsUnableToVerify","name":"The default rule fails closed when there are no test classes","status":"passed","testResultsByEnv":{"default":"0ca585113888124f022072017c847535"}}

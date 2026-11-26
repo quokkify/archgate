@@ -1,0 +1,1 @@
+{"id":"db85ee2a74a6290b86b6cb26d1bbbe9e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.budgetExhaustedFailsWithProgress","name":"An exhausted budget fails with progress and leaves no running request","status":"passed","testResultsByEnv":{"default":"e4a914b324c4eebd98dc55480528ac69"}}

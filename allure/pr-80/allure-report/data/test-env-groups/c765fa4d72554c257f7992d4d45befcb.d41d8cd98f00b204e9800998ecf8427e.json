@@ -1,0 +1,1 @@
+{"id":"c765fa4d72554c257f7992d4d45befcb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.overlappingPackagesAreRejected","name":"A forbidden package equal to, inside or around the layer package is rejected","status":"passed","testResultsByEnv":{"default":"65fab25a806b9899243f4c95649826dc"}}

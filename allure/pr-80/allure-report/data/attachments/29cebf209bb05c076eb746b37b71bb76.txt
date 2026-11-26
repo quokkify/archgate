@@ -1,0 +1,11 @@
+============================================================
+Architecture verification (1 rule, 21 ms total)
+============================================================
+[PASS]  MAIN+TEST     16 ms  Service registration
+Model build: ArchUnitContext 0 ms
+============================================================
+Gate PASSED: 1 rule, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

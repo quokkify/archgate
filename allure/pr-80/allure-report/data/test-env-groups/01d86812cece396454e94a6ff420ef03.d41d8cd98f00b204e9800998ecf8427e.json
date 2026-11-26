@@ -1,0 +1,1 @@
+{"id":"01d86812cece396454e94a6ff420ef03.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.projectWithoutLayerIsUnableToVerify","name":"A project with no class in the layer package cannot be verified","status":"passed","testResultsByEnv":{"default":"8d64be6e97f93bb755889033bf45ce6d"}}

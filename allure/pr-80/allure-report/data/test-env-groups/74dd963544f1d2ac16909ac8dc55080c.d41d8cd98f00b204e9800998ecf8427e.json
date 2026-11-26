@@ -1,0 +1,1 @@
+{"id":"74dd963544f1d2ac16909ac8dc55080c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.ChangedFilesTest.matchesTopLevelBySuffix","name":"A listed file marks its top-level class as changed, others are not","status":"passed","testResultsByEnv":{"default":"b31610625b59696acb3cc8ab128d1f73"}}

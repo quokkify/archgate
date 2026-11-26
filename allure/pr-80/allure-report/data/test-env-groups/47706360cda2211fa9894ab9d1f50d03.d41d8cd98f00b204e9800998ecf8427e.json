@@ -1,0 +1,1 @@
+{"id":"47706360cda2211fa9894ab9d1f50d03.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.NoThreadSleepRuleTest.unqualifiedSleepInThreadSubclassIsReported","name":"unqualifiedSleepInThreadSubclassIsReported","status":"passed","testResultsByEnv":{"default":"3b3b9e11b5288f15411286cde82c7cdf"}}

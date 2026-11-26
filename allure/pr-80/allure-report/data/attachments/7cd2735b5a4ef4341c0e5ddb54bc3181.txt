@@ -1,0 +1,12 @@
+============================================================
+Architecture verification (2 rules, 2.5 s total)
+============================================================
+[PASS]  MAIN+TEST   2502 ms  Changed files
+[PASS]  MAIN+TEST   2502 ms  Tracker token
+Model build: ArchUnitContext 9 ms, main 1916 ms, test 566 ms
+============================================================
+Gate PASSED: 2 rules, no findings
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

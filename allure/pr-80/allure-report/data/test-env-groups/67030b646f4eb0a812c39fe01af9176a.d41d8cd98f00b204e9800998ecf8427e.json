@@ -1,0 +1,1 @@
+{"id":"67030b646f4eb0a812c39fe01af9176a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkUniqueRuleTest.excludedByMethodAnnotationSkipsOnlyThatMethod","name":"Method carrying an excluded annotation is skipped, other methods sharing its id are reported","status":"passed","testResultsByEnv":{"default":"c925b96014a47fe4120b3d1edbdef4e4"}}

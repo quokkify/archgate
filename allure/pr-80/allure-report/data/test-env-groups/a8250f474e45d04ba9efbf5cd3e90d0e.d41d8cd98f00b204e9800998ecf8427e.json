@@ -1,0 +1,1 @@
+{"id":"a8250f474e45d04ba9efbf5cd3e90d0e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.TmsLinkRequiredRuleTest.classLevelTestSkipsNonTestMethods","name":"Regression guard: configuration, factory, data provider and value-returning methods are skipped","status":"passed","testResultsByEnv":{"default":"2ef467814744697f53e1111db2893599"}}

@@ -1,0 +1,14 @@
+============================================================
+Architecture verification (2 rules, 1.5 s total)
+============================================================
+[PASS]  MAIN+TEST   1506 ms  Changed files
+[SKIP]  MAIN+TEST     42 ms  Tracker token
+    External rules are switched off by archgate.offline=true.
+    Skipped because this is not a CI run (archgate.ci=false); in CI this fails the build.
+Model build: ArchUnitContext 0 ms, main 1098 ms, test 368 ms
+============================================================
+Gate PASSED: 2 rules, no findings, 1 skipped
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
