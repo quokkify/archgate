@@ -30,6 +30,8 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
 
     private static final String ROOT_PACKAGE_PROPERTY = "archgate.rootPackage";
     private static final String FAIL_ON_PROPERTY = "archgate.failOn";
+    private static final String REPORT_STYLE_PROPERTY = "archgate.reportStyle";
+    private static final String DEFAULT_REPORT_STYLE = "classic";
     private static final String SKIP_PROPERTY = "archgate.skip";
     private static final String REPORT_PATH = "reports/archgate/report.txt";
     private static final String STATE_PATH = "reports/archgate/state.properties";
@@ -56,6 +58,9 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
         extension
                 .getFailOn()
                 .convention(providers.gradleProperty(FAIL_ON_PROPERTY).orElse(FailOn.DEFAULT.name()));
+        extension
+                .getReportStyle()
+                .convention(providers.gradleProperty(REPORT_STYLE_PROPERTY).orElse(DEFAULT_REPORT_STYLE));
         extension
                 .getSkip()
                 .convention(providers
@@ -103,6 +108,7 @@ public abstract class ArchgatePlugin implements Plugin<Project> {
                             .set(extension.getRootPackage().orElse(providers.gradleProperty(ROOT_PACKAGE_PROPERTY)));
                     task.getProjectPath().set(project.getPath());
                     task.getFailOn().set(extension.getFailOn());
+                    task.getReportStyle().set(extension.getReportStyle());
                     task.getCi().set(providers.gradleProperty(ExternalPolicy.CI_PROPERTY));
                     task.getOffline().set(providers.gradleProperty(ExternalPolicy.OFFLINE_PROPERTY));
                     task.getServiceUnavailable()

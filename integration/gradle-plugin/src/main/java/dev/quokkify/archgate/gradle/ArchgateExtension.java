@@ -10,6 +10,8 @@ public abstract class ArchgateExtension {
 
     public abstract Property<String> getFailOn();
 
+    public abstract Property<String> getReportStyle();
+
     public abstract Property<Boolean> getSkip();
 
     public abstract ListProperty<String> getModules();

@@ -276,4 +276,83 @@ class ReportFormatterTest {
         assertThat(blocks).anyMatch(block -> block.contains("\r\n"));
         assertThat(ReportFormatter.fileContent(blocks)).doesNotContain("\r").contains("\n    Violations (1):\n");
     }
+
+    @Test
+    void tableStyleSummarizesRulesInAlignedColumns() {
+        RuleOutcome pass =
+                new RuleOutcome(TestRules.satisfied("Green rule", Severity.ERROR), null, Duration.ofMillis(12));
+        RuleOutcome warning =
+                new RuleOutcome(TestRules.satisfied("Layer rule", Severity.WARNING), BOOM, Duration.ofMillis(1500));
+
+        List<String> blocks = ReportFormatter.format(
+                result(pass, warning, skipped("Tracker")), Optional.of(Severity.WARNING), ReportStyle.TABLE);
+
+        assertThat(blocks)
+                .containsSubsequence(
+                        "RULE        SCOPE      SEVERITY  RESULT    FOUND  BUILD       TIME",
+                        "----------  ---------  --------  --------  -----  -----  ---------",
+                        "Green rule  MAIN+TEST  ERROR     passed        -  -          12 ms",
+                        "Tracker     MAIN+TEST  ERROR     skipped       -  -           5 ms",
+                        "Layer rule  MAIN+TEST  WARNING   violated      -  fails    1500 ms",
+                        "-".repeat(60));
+    }
+
+    @Test
+    void tableStyleListsDetailsUnderTheRuleName() {
+        RuleOutcome warning = new RuleOutcome(TestRules.satisfied("Layer rule", Severity.WARNING), BOOM, Duration.ZERO);
+
+        List<String> blocks = ReportFormatter.format(
+                result(warning, skipped("Tracker")), Optional.of(Severity.ERROR), ReportStyle.TABLE);
+
+        assertThat(blocks)
+                .contains(
+                        "Tracker" + NL
+                                + "    Missing T. Pass them as -DNAME=value or as environment variables." + NL
+                                + "    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.",
+                        "Layer rule" + NL + "    contract" + NL + "    Violations (1):" + NL + "        - SomeClass")
+                .anyMatch(block ->
+                        block.startsWith("Layer rule  MAIN+TEST  WARNING   violated") && block.contains("report"))
+                .noneMatch(block ->
+                        block.startsWith("[PASS]") || block.startsWith("[WARNING]") || block.startsWith("[SKIP]"));
+    }
+
+    @Test
+    void tableStyleKeepsTheVerdictAndPolicy() {
+        RuleOutcome pass = new RuleOutcome(TestRules.satisfied("ok", Severity.ERROR), null, Duration.ZERO);
+
+        assertThat(ReportFormatter.format(result(pass), Optional.empty(), ReportStyle.TABLE))
+                .contains(
+                        "Gate PASSED: 1 rule, no findings",
+                        "Failure policy (failOn=NEVER): findings are reported, the build never fails");
+    }
+
+    @Test
+    void tableStyleShowsSkippedScopesNextToTheRuleName() {
+        RuleOutcome partial = new RuleOutcome(
+                TestRules.satisfied("partial", Severity.ERROR), null, Duration.ZERO, Set.of(Scope.TEST));
+
+        assertThat(ReportFormatter.format(result(partial), Optional.empty(), ReportStyle.TABLE))
+                .anyMatch(block -> block.startsWith("partial (TEST not checked: empty)  MAIN+TEST  ERROR     passed"));
+    }
+
+    // regression guard: the header and dashes must not depend on how long a rule took, or the Maven and Gradle
+    // reports of one fixture differ
+    @Test
+    void tableHeaderDoesNotDependOnRuleDurations() {
+        RuleOutcome fast = new RuleOutcome(TestRules.satisfied("r", Severity.ERROR), null, Duration.ofMillis(3));
+        RuleOutcome slow = new RuleOutcome(TestRules.satisfied("r", Severity.ERROR), null, Duration.ofMillis(45_000));
+
+        List<String> fastBlocks = ReportFormatter.format(result(fast), Optional.empty(), ReportStyle.TABLE);
+        List<String> slowBlocks = ReportFormatter.format(result(slow), Optional.empty(), ReportStyle.TABLE);
+
+        assertThat(slowBlocks.subList(3, 5)).isEqualTo(fastBlocks.subList(3, 5));
+    }
+
+    @Test
+    void classicIsTheDefaultStyle() {
+        GateResult result = result(new RuleOutcome(TestRules.satisfied("e", Severity.ERROR), BOOM, Duration.ZERO));
+
+        assertThat(ReportFormatter.format(result, Optional.empty(), ReportStyle.CLASSIC))
+                .isEqualTo(ReportFormatter.format(result, Optional.empty()));
+    }
 }

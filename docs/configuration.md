@@ -6,6 +6,7 @@
 |---|---|---|---|
 | `rootPackage` | required | `archgate.rootPackage` | `-Parchgate.rootPackage` |
 | `failOn` | `WARNING` (`INFO`, `WARNING`, `ERROR`, `NEVER`) | `archgate.failOn` | `-Parchgate.failOn` |
+| `reportStyle` | `classic` (`classic`, `table`) | `archgate.reportStyle` | `-Parchgate.reportStyle` |
 | `modules` | Maven: the current module plus the reactor modules it directly depends on, except `pom` packaging; entries are artifactIds and a list replaces the default entirely. Gradle: the current project; `modules(...)` adds the listed projects to it | — | — |
 | `skip` | `false` | `archgate.skip` | `-Parchgate.skip` |
 
@@ -25,6 +26,7 @@ plugins {
 archgate {
     rootPackage = 'com.acme'
     failOn = 'WARNING'
+    reportStyle = 'classic'
     skip = false
     modules(':api', ':domain')
 }
@@ -57,9 +59,10 @@ Both plugins follow one rule: a value set in the build file wins, and the comman
 |---|---|
 | `rootPackage` | `archgate { rootPackage = … }`, then `-Parchgate.rootPackage`; unset fails the build |
 | `failOn` | `archgate { failOn = … }`, then `-Parchgate.failOn`, then `WARNING` |
+| `reportStyle` | `archgate { reportStyle = … }`, then `-Parchgate.reportStyle`, then `classic` |
 | `skip` | `archgate { skip = … }`, then `-Parchgate.skip`, then `false` |
 
-Maven behaves the same: `<configuration>` in the POM wins over `-Darchgate.rootPackage`, `-Darchgate.failOn` and `-Darchgate.skip`. To drive a parameter from the command line, leave it out of the build file.
+Maven behaves the same: `<configuration>` in the POM wins over `-Darchgate.rootPackage`, `-Darchgate.failOn`, `-Darchgate.reportStyle` and `-Darchgate.skip`. To drive a parameter from the command line, leave it out of the build file.
 
 ### `rootPackage` is required
 
@@ -96,6 +99,7 @@ The rules run in a Gradle worker with class loader isolation. The worker classpa
 |---|---|---|
 | `rootPackage` | required | `archgate.rootPackage` |
 | `failOn` | `WARNING` | `archgate.failOn` |
+| `reportStyle` | `classic` | `archgate.reportStyle` |
 | `modules` | the current module plus the reactor modules it directly depends on, except those with `pom` packaging | — |
 | `skip` | `false` | `archgate.skip` |
 
@@ -232,6 +236,7 @@ platform/
 - Maven: a selected module is in the reactor but not in this run (`-pl` without `-am`, an exclusion, `-rf`, a resume).
 - A registration failure, as described above.
 - A rule throws something other than a violation.
+- `reportStyle` has an unknown value, including the reserved `detailed`. This fails before any rule runs.
 - An external rule cannot run in CI: variables are missing, or the service does not answer and `archgate.ci.serviceUnavailable` is not `skip`. See [Rules that call external services](#rules-that-call-external-services).
 
 ## Rules that call external services
@@ -363,7 +368,36 @@ A rule that could not reach what it needs outside the build is shown as `[SKIP]`
 
 The second line varies: `Skipped because this is not a CI run (archgate.ci=false); in CI this fails the build.` outside CI, and `Skipped in CI because the service is unavailable (archgate.ci.serviceUnavailable=skip); the rule checked nothing.` when that property lets the service case skip. For `archgate.offline=true` the first line reads `External rules are switched off by archgate.offline=true.` The verdict line gets a count, for example `Gate PASSED: 3 rules, 1 info, 1 skipped`. A report with a skip is logged at WARNING at least, so a skipped rule is easy to see in the build log. A skip is not a pass: the rule checked nothing.
 
-Maven and Gradle print the same text for the same sources, rules and `failOn`.
+Maven and Gradle print the same text for the same sources, rules, `failOn` and `reportStyle`.
+
+### Table style
+
+`reportStyle=table` (`-Darchgate.reportStyle=table` in Maven, `-Parchgate.reportStyle=table` or `archgate { reportStyle = 'table' }` in Gradle) prints the rules as one summary table, then the details of each skipped or violated rule under its name. The header, the verdict line and the failure policy stay the same as in the classic style.
+
+```
+============================================================
+Architecture verification (2 rules, 8.1 s total)
+============================================================
+RULE                                    SCOPE      SEVERITY  RESULT    FOUND  BUILD       TIME
+--------------------------------------  ---------  --------  --------  -----  -----  ---------
+No Thread.sleep                         MAIN+TEST  ERROR     passed        -  -          41 ms
+Tests do not call RestAssured directly  TEST       ERROR     violated      -  fails      18 ms
+------------------------------------------------------------
+Tests do not call RestAssured directly
+    Tests call RestAssured only through steps
+    Violations (1):
+        - Method <com.acme.tests.LoginTest.login()> calls method <io.restassured.RestAssured.given()> in (LoginTest.java:21)
+Model build: ArchUnitContext 0 ms, main 380 ms, test 210 ms
+Shared: issue index 120 ms
+============================================================
+Gate FAILED: 2 rules, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only
+```
+
+`RESULT` is `passed`, `skipped` or `violated`. `BUILD` says what a violation does with the current `failOn`: `fails` the build or is only reported (`report`); it is `-` for a rule that passed or was skipped. `FOUND` is `-`. Rows follow the classic order: passes, then skips, then findings. A partially checked rule keeps its `(TEST not checked: empty)` note next to its name. Every line of the table is a log entry of its own, so in the Maven log each one carries the same `[INFO]`, `[WARNING]` or `[ERROR]` prefix and the columns stay aligned. `detailed` is reserved for a later style and fails the build for now.
 
 ## Partial checks
 

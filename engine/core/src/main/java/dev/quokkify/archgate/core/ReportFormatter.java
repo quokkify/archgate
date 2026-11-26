@@ -3,12 +3,15 @@ package dev.quokkify.archgate.core;
 import dev.quokkify.archgate.api.Severity;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public final class ReportFormatter {
 
@@ -19,6 +22,15 @@ public final class ReportFormatter {
     private static final String SCOPE_SEPARATOR = "+";
     private static final String NEVER = "NEVER";
     private static final List<Severity> DISPLAY_ORDER = List.of(Severity.ERROR, Severity.WARNING, Severity.INFO);
+    private static final List<String> TABLE_HEADER =
+            List.of("RULE", "SCOPE", "SEVERITY", "RESULT", "FOUND", "BUILD", "TIME");
+    private static final int FOUND_COLUMN = 4;
+    private static final int TIME_COLUMN = 6;
+    private static final Set<Integer> RIGHT_ALIGNED_COLUMNS = Set.of(FOUND_COLUMN, TIME_COLUMN);
+    private static final String COLUMN_GAP = "  ";
+    private static final String NO_VALUE = "-";
+    private static final String TABLE_END = "-".repeat(60);
+    private static final String TIME_FORMAT = "%6d ms";
 
     private ReportFormatter() {}
 
@@ -31,7 +43,21 @@ public final class ReportFormatter {
      * @return the report blocks, in order
      */
     public static List<String> format(GateResult result, Optional<Severity> failOn) {
-        return format(result, failOn, System.lineSeparator());
+        return format(result, failOn, ReportStyle.CLASSIC);
+    }
+
+    /**
+     * Formats a gate run as report blocks in the given style. In {@link ReportStyle#TABLE} every line of the summary
+     * table is a block of its own, so each line gets the same log prefix and the columns stay aligned; the details of
+     * skipped and violated rules follow the table, each block headed by the rule name.
+     *
+     * @param result the outcome of the run
+     * @param failOn the failure threshold, empty when the build never fails
+     * @param style the report style
+     * @return the report blocks, in order
+     */
+    public static List<String> format(GateResult result, Optional<Severity> failOn, ReportStyle style) {
+        return format(result, failOn, style, System.lineSeparator());
     }
 
     /**
@@ -45,32 +71,20 @@ public final class ReportFormatter {
     }
 
     static List<String> format(GateResult result, Optional<Severity> failOn, String lineSeparator) {
+        return format(result, failOn, ReportStyle.CLASSIC, lineSeparator);
+    }
+
+    static List<String> format(GateResult result, Optional<Severity> failOn, ReportStyle style, String lineSeparator) {
         List<String> lines = new ArrayList<>();
         lines.add(SEPARATOR);
         lines.add("Architecture verification (%s, %s total)"
                 .formatted(rulesPhrase(result.outcomes().size()), total(result)));
         lines.add(SEPARATOR);
-        result.outcomes().stream()
-                .filter(outcome -> Objects.isNull(outcome.finding()) && !outcome.externallySkipped())
-                .forEach(outcome -> lines.add(row("[PASS]", outcome)));
-        result.outcomes().stream().filter(RuleOutcome::externallySkipped).forEach(outcome -> {
-            lines.add(block(
-                    lineSeparator,
-                    row("[SKIP]", outcome),
-                    CONTINUATION_INDENT + outcome.externalSkip().message(),
-                    CONTINUATION_INDENT + outcome.externalSkip().reason()));
-        });
-        result.outcomes().stream()
-                .filter(outcome -> Objects.nonNull(outcome.finding()))
-                .forEach(outcome -> {
-                    List<String> parts = new ArrayList<>();
-                    parts.add(row("[%s]".formatted(outcome.rule().severity().name()), outcome));
-                    describe(outcome.finding())
-                            .lines()
-                            .map(CONTINUATION_INDENT::concat)
-                            .forEach(parts::add);
-                    lines.add(String.join(lineSeparator, parts));
-                });
+        if (style == ReportStyle.TABLE) {
+            addTableRules(lines, result, failOn, lineSeparator);
+        } else {
+            addClassicRules(lines, result, lineSeparator);
+        }
         addTimes(lines, "Model build: ", result.modelBuildTimes());
         addTimes(lines, "Shared: ", result.sharedBuildTimes());
         lines.add(SEPARATOR);
@@ -79,8 +93,97 @@ public final class ReportFormatter {
         return List.copyOf(lines);
     }
 
-    private static String block(String lineSeparator, String... parts) {
-        return String.join(lineSeparator, parts);
+    private static void addClassicRules(List<String> lines, GateResult result, String lineSeparator) {
+        passed(result).forEach(outcome -> lines.add(row("[PASS]", outcome)));
+        skipped(result)
+                .forEach(
+                        outcome -> lines.add(withDetails(lineSeparator, row("[SKIP]", outcome), skipDetails(outcome))));
+        findings(result)
+                .forEach(outcome -> lines.add(withDetails(
+                        lineSeparator,
+                        row("[%s]".formatted(outcome.rule().severity().name()), outcome),
+                        findingDetails(outcome))));
+    }
+
+    private static void addTableRules(
+            List<String> lines, GateResult result, Optional<Severity> failOn, String lineSeparator) {
+        List<List<String>> rows = new ArrayList<>();
+        passed(result).forEach(outcome -> rows.add(tableRow(outcome, "passed", NO_VALUE, NO_VALUE)));
+        skipped(result).forEach(outcome -> rows.add(tableRow(outcome, "skipped", NO_VALUE, NO_VALUE)));
+        findings(result).forEach(outcome -> rows.add(tableRow(outcome, "violated", NO_VALUE, build(outcome, failOn))));
+        int[] widths = columnWidths(rows);
+        lines.add(tableLine(TABLE_HEADER, widths));
+        lines.add(Arrays.stream(widths).mapToObj(NO_VALUE::repeat).collect(Collectors.joining(COLUMN_GAP)));
+        rows.forEach(row -> lines.add(tableLine(row, widths)));
+        lines.add(TABLE_END);
+        skipped(result)
+                .forEach(outcome ->
+                        lines.add(withDetails(lineSeparator, outcome.rule().name(), skipDetails(outcome))));
+        findings(result)
+                .forEach(outcome ->
+                        lines.add(withDetails(lineSeparator, outcome.rule().name(), findingDetails(outcome))));
+    }
+
+    private static List<String> tableRow(RuleOutcome outcome, String status, String found, String build) {
+        return List.of(
+                outcome.rule().name() + skippedNote(outcome),
+                scope(outcome),
+                outcome.rule().severity().name(),
+                status,
+                found,
+                build,
+                TIME_FORMAT.formatted(outcome.duration().toMillis()));
+    }
+
+    private static String build(RuleOutcome outcome, Optional<Severity> failOn) {
+        Severity severity = outcome.rule().severity();
+        return failOn.filter(threshold -> severity.compareTo(threshold) >= 0).isPresent() ? "fails" : "report";
+    }
+
+    private static int[] columnWidths(List<List<String>> rows) {
+        int[] widths = TABLE_HEADER.stream().mapToInt(String::length).toArray();
+        rows.forEach(row -> {
+            for (int column = 0; column < widths.length; column++) {
+                widths[column] = Math.max(widths[column], row.get(column).length());
+            }
+        });
+        return widths;
+    }
+
+    private static String tableLine(List<String> cells, int[] widths) {
+        List<String> padded = new ArrayList<>();
+        for (int column = 0; column < widths.length; column++) {
+            String alignment = RIGHT_ALIGNED_COLUMNS.contains(column) ? "" : "-";
+            padded.add(("%" + alignment + widths[column] + "s").formatted(cells.get(column)));
+        }
+        return String.join(COLUMN_GAP, padded).stripTrailing();
+    }
+
+    private static Stream<RuleOutcome> passed(GateResult result) {
+        return result.outcomes().stream()
+                .filter(outcome -> Objects.isNull(outcome.finding()) && !outcome.externallySkipped());
+    }
+
+    private static Stream<RuleOutcome> skipped(GateResult result) {
+        return result.outcomes().stream().filter(RuleOutcome::externallySkipped);
+    }
+
+    private static Stream<RuleOutcome> findings(GateResult result) {
+        return result.outcomes().stream().filter(outcome -> Objects.nonNull(outcome.finding()));
+    }
+
+    private static Stream<String> skipDetails(RuleOutcome outcome) {
+        return Stream.of(
+                outcome.externalSkip().message(), outcome.externalSkip().reason());
+    }
+
+    private static Stream<String> findingDetails(RuleOutcome outcome) {
+        return describe(outcome.finding()).lines();
+    }
+
+    private static String withDetails(String lineSeparator, String head, Stream<String> details) {
+        return Stream.concat(Stream.of(head), details.map(CONTINUATION_INDENT::concat))
+                .collect(Collectors.joining(lineSeparator));
     }
 
     private static void addTimes(List<String> lines, String prefix, Map<String, Duration> times) {
@@ -141,14 +244,16 @@ public final class ReportFormatter {
     }
 
     private static String row(String label, RuleOutcome outcome) {
-        String scope =
-                outcome.rule().scopes().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
         return LINE_FORMAT.formatted(
                         label,
-                        scope,
+                        scope(outcome),
                         outcome.duration().toMillis(),
                         outcome.rule().name())
                 + skippedNote(outcome);
+    }
+
+    private static String scope(RuleOutcome outcome) {
+        return outcome.rule().scopes().stream().sorted().map(Enum::name).collect(Collectors.joining(SCOPE_SEPARATOR));
     }
 
     private static String skippedNote(RuleOutcome outcome) {
