@@ -1,5 +1,6 @@
 package dev.quokkify.archgate.core;
 
+import dev.quokkify.archgate.api.ArchitectureViolation;
 import dev.quokkify.archgate.api.Severity;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -110,7 +111,8 @@ public final class ReportFormatter {
         List<List<String>> rows = new ArrayList<>();
         passed(result).forEach(outcome -> rows.add(tableRow(outcome, "passed", NO_VALUE, NO_VALUE)));
         skipped(result).forEach(outcome -> rows.add(tableRow(outcome, "skipped", NO_VALUE, NO_VALUE)));
-        findings(result).forEach(outcome -> rows.add(tableRow(outcome, "violated", NO_VALUE, build(outcome, failOn))));
+        findings(result)
+                .forEach(outcome -> rows.add(tableRow(outcome, "violated", found(outcome), build(outcome, failOn))));
         int[] widths = columnWidths(rows);
         lines.add(tableLine(TABLE_HEADER, widths));
         lines.add(Arrays.stream(widths).mapToObj(NO_VALUE::repeat).collect(Collectors.joining(COLUMN_GAP)));
@@ -133,6 +135,12 @@ public final class ReportFormatter {
                 found,
                 build,
                 TIME_FORMAT.formatted(outcome.duration().toMillis()));
+    }
+
+    private static String found(RuleOutcome outcome) {
+        return outcome.finding() instanceof ArchitectureViolation violation
+                ? String.valueOf(violation.count())
+                : NO_VALUE;
     }
 
     private static String build(RuleOutcome outcome, Optional<Severity> failOn) {
@@ -182,7 +190,7 @@ public final class ReportFormatter {
     }
 
     private static String withDetails(String lineSeparator, String head, Stream<String> details) {
-        return Stream.concat(Stream.of(head), details.map(CONTINUATION_INDENT::concat))
+        return Stream.concat(Stream.of(head), details.map(line -> line.isEmpty() ? line : CONTINUATION_INDENT + line))
                 .collect(Collectors.joining(lineSeparator));
     }
 
