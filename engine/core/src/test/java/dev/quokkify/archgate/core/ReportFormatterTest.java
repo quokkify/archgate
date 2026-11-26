@@ -262,6 +262,7 @@ class ReportFormatterTest {
                         + "    Every case id on a test method must identify an existing case." + NL
                         + "    Violations (1) \"case does not exist\":" + NL
                         + "        - C101      FirstTest.java:12" + NL
+                        + NL
                         + "    Violations (2) \"case is deleted\":" + NL
                         + "        - C102      SecondTest.java:26" + NL
                         + "        - C103      ThirdTest.java:51");
@@ -275,5 +276,111 @@ class ReportFormatterTest {
 
         assertThat(blocks).anyMatch(block -> block.contains("\r\n"));
         assertThat(ReportFormatter.fileContent(blocks)).doesNotContain("\r").contains("\n    Violations (1):\n");
+    }
+
+    @Test
+    void tableStyleSummarizesRulesInAlignedColumns() {
+        RuleOutcome pass =
+                new RuleOutcome(TestRules.satisfied("Green rule", Severity.ERROR), null, Duration.ofMillis(12));
+        RuleOutcome warning =
+                new RuleOutcome(TestRules.satisfied("Layer rule", Severity.WARNING), BOOM, Duration.ofMillis(1500));
+
+        List<String> blocks = ReportFormatter.format(
+                result(pass, warning, skipped("Tracker")), Optional.of(Severity.WARNING), ReportStyle.TABLE);
+
+        assertThat(blocks)
+                .containsSubsequence(
+                        "RULE        SCOPE      SEVERITY  RESULT    FOUND  BUILD       TIME",
+                        "----------  ---------  --------  --------  -----  -----  ---------",
+                        "Green rule  MAIN+TEST  ERROR     passed        -  -          12 ms",
+                        "Tracker     MAIN+TEST  ERROR     skipped       -  -           5 ms",
+                        "Layer rule  MAIN+TEST  WARNING   violated      1  fails    1500 ms",
+                        "-".repeat(60));
+    }
+
+    @Test
+    void tableStyleListsDetailsUnderTheRuleName() {
+        RuleOutcome warning = new RuleOutcome(TestRules.satisfied("Layer rule", Severity.WARNING), BOOM, Duration.ZERO);
+
+        List<String> blocks = ReportFormatter.format(
+                result(warning, skipped("Tracker")), Optional.of(Severity.ERROR), ReportStyle.TABLE);
+
+        assertThat(blocks)
+                .contains(
+                        "Tracker" + NL
+                                + "    Missing T. Pass them as -DNAME=value or as environment variables." + NL
+                                + "    Skipped because this is not a CI run (no CI variable set); in CI this fails the build.",
+                        "Layer rule" + NL + "    contract" + NL + "    Violations (1):" + NL + "        - SomeClass")
+                .anyMatch(block ->
+                        block.startsWith("Layer rule  MAIN+TEST  WARNING   violated") && block.contains("report"))
+                .noneMatch(block ->
+                        block.startsWith("[PASS]") || block.startsWith("[WARNING]") || block.startsWith("[SKIP]"));
+    }
+
+    @Test
+    void tableStyleKeepsTheVerdictAndPolicy() {
+        RuleOutcome pass = new RuleOutcome(TestRules.satisfied("ok", Severity.ERROR), null, Duration.ZERO);
+
+        assertThat(ReportFormatter.format(result(pass), Optional.empty(), ReportStyle.TABLE))
+                .contains(
+                        "Gate PASSED: 1 rule, no findings",
+                        "Failure policy (failOn=NEVER): findings are reported, the build never fails");
+    }
+
+    @Test
+    void tableStyleShowsSkippedScopesNextToTheRuleName() {
+        RuleOutcome partial = new RuleOutcome(
+                TestRules.satisfied("partial", Severity.ERROR), null, Duration.ZERO, Set.of(Scope.TEST));
+
+        assertThat(ReportFormatter.format(result(partial), Optional.empty(), ReportStyle.TABLE))
+                .anyMatch(block -> block.startsWith("partial (TEST not checked: empty)  MAIN+TEST  ERROR     passed"));
+    }
+
+    // regression guard: the header and dashes must not depend on how long a rule took, or the Maven and Gradle
+    // reports of one fixture differ
+    @Test
+    void tableHeaderDoesNotDependOnRuleDurations() {
+        RuleOutcome fast = new RuleOutcome(TestRules.satisfied("r", Severity.ERROR), null, Duration.ofMillis(3));
+        RuleOutcome slow = new RuleOutcome(TestRules.satisfied("r", Severity.ERROR), null, Duration.ofMillis(45_000));
+
+        List<String> fastBlocks = ReportFormatter.format(result(fast), Optional.empty(), ReportStyle.TABLE);
+        List<String> slowBlocks = ReportFormatter.format(result(slow), Optional.empty(), ReportStyle.TABLE);
+
+        assertThat(slowBlocks.subList(3, 5)).isEqualTo(fastBlocks.subList(3, 5));
+    }
+
+    @Test
+    void classicIsTheDefaultStyle() {
+        GateResult result = result(new RuleOutcome(TestRules.satisfied("e", Severity.ERROR), BOOM, Duration.ZERO));
+
+        assertThat(ReportFormatter.format(result, Optional.empty(), ReportStyle.CLASSIC))
+                .isEqualTo(ReportFormatter.format(result, Optional.empty()));
+    }
+
+    @Test
+    void tableStyleShowsHowManyViolationsARuleFound() {
+        ArchitectureViolation grouped = ArchitectureViolation.grouped(
+                "contract",
+                List.of(
+                        new ViolationGroup("flat", List.of("a", "b")),
+                        ViolationGroup.table("table", List.of("ID"), List.of(List.of("1")))));
+        RuleOutcome violated = new RuleOutcome(TestRules.satisfied("grouped", Severity.ERROR), grouped, Duration.ZERO);
+        RuleOutcome thrown = new RuleOutcome(
+                TestRules.satisfied("asserted", Severity.ERROR), new AssertionError("broken"), Duration.ZERO);
+
+        assertThat(ReportFormatter.format(result(violated, thrown), Optional.empty(), ReportStyle.TABLE))
+                .anyMatch(block -> block.matches("grouped +MAIN\\+TEST +ERROR +violated +3 +report +0 ms"))
+                .anyMatch(block -> block.matches("asserted +MAIN\\+TEST +ERROR +violated +- +report +0 ms"));
+    }
+
+    @Test
+    void emptyLineBetweenGroupsCarriesNoIndent() {
+        ArchitectureViolation grouped = ArchitectureViolation.grouped(
+                "contract", List.of(new ViolationGroup("a", List.of("x")), new ViolationGroup("b", List.of("y"))));
+        GateResult result =
+                result(new RuleOutcome(TestRules.satisfied("grouped", Severity.ERROR), grouped, Duration.ZERO));
+
+        assertThat(ReportFormatter.format(result, Optional.empty()))
+                .anyMatch(block -> block.contains("        - x" + NL + NL + "    Violations (1) \"b\":"));
     }
 }

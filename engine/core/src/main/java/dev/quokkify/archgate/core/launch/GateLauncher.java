@@ -11,6 +11,7 @@ import dev.quokkify.archgate.core.GateRunServices;
 import dev.quokkify.archgate.core.GateRunner;
 import dev.quokkify.archgate.core.RegistrationCheck;
 import dev.quokkify.archgate.core.ReportFormatter;
+import dev.quokkify.archgate.core.ReportStyle;
 import dev.quokkify.archgate.core.RootPackage;
 import dev.quokkify.archgate.core.RuleRegistry;
 import dev.quokkify.archgate.core.SimpleProjectLayout;
@@ -35,6 +36,7 @@ public final class GateLauncher {
         request.stateFile().ifPresent(file -> delete(file, "state file"));
         String rootPackage = RootPackage.validate(request.rootPackage());
         Optional<Severity> threshold = FailOn.parse(request.failOn());
+        ReportStyle style = ReportStyle.parse(request.reportStyle());
         ExternalPolicy policy = ExternalPolicy.detect(request.lookup());
         Thread thread = Thread.currentThread();
         ClassLoader previous = thread.getContextClassLoader();
@@ -44,7 +46,7 @@ public final class GateLauncher {
             VariableEnvironment environment = new VariableEnvironment(request.lookup(), policy.offline());
             GateResult result = evaluate(request, rootPackage, loader, policy, environment);
             policy.offlineWarning().ifPresent(warning -> sink.line(Severity.WARNING, warning));
-            report(result, threshold, request.reportFile(), sink);
+            report(result, threshold, style, request.reportFile(), sink);
             boolean readEnvironment = environment.wasRead() || result.externallySkipped() > 0;
             request.stateFile().ifPresent(file -> writeState(file, readEnvironment));
             if (result.failsOn(threshold)) {
@@ -85,8 +87,12 @@ public final class GateLauncher {
     }
 
     private static void report(
-            GateResult result, Optional<Severity> threshold, Optional<Path> reportFile, ReportSink sink) {
-        List<String> lines = ReportFormatter.format(result, threshold);
+            GateResult result,
+            Optional<Severity> threshold,
+            ReportStyle style,
+            Optional<Path> reportFile,
+            ReportSink sink) {
+        List<String> lines = ReportFormatter.format(result, threshold, style);
         Severity level = result.worst().orElse(Severity.INFO);
         if (result.externallySkipped() > 0 && level.compareTo(Severity.WARNING) < 0) {
             level = Severity.WARNING;

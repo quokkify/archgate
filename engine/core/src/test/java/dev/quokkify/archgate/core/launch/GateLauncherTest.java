@@ -113,11 +113,37 @@ class GateLauncherTest {
     }
 
     @Test
+    void tableStyleSummarizesTheRulesInTheReport() throws IOException {
+        try (Env env = new Env()) {
+            Path report = env.tempDir.resolve("gate.txt");
+
+            GateLauncher.run(styled(env.tempDir, "table", report, CleanLaunchRule.class), env.sink);
+
+            assertThat(Files.readString(report, StandardCharsets.UTF_8).lines())
+                    .anyMatch(line -> line.matches("RULE +SCOPE +SEVERITY +RESULT +FOUND +BUILD +TIME"))
+                    .noneMatch(line -> line.startsWith("[PASS]"));
+        }
+    }
+
+    @Test
+    void unknownReportStyleIsUnableToVerifyBeforeAnyRuleRuns() {
+        try (Env env = new Env()) {
+            assertThatThrownBy(() -> GateLauncher.run(
+                            styled(env.tempDir, "fancy", env.tempDir.resolve("gate.txt"), CleanLaunchRule.class),
+                            env.sink))
+                    .isInstanceOf(UnableToVerifyError.class)
+                    .hasMessage("Unknown reportStyle value 'fancy'. Use classic or table.");
+            assertThat(env.texts).isEmpty();
+        }
+    }
+
+    @Test
     void invalidRootPackageIsUnableToVerify() {
         try (Env env = new Env()) {
             LaunchRequest bad = new LaunchRequest(
                     "not a package!",
                     "WARNING",
+                    "classic",
                     dirs(),
                     List.of(),
                     List.of(rulesDir(env.tempDir, CleanLaunchRule.class)),
@@ -178,6 +204,7 @@ class GateLauncherTest {
             LaunchRequest bad = new LaunchRequest(
                     "not a package!",
                     "WARNING",
+                    "classic",
                     dirs(),
                     List.of(),
                     List.of(rulesDir(env.tempDir, CleanLaunchRule.class)),
@@ -407,6 +434,19 @@ class GateLauncherTest {
         return request(tempDir, failOn, ownDirs, report, rule, name -> null, Optional.empty());
     }
 
+    private static LaunchRequest styled(Path tempDir, String reportStyle, Path report, Class<?> rule) {
+        return new LaunchRequest(
+                "com.example",
+                "WARNING",
+                reportStyle,
+                dirs(),
+                List.of(),
+                List.of(rulesDir(tempDir, rule)),
+                Optional.of(report),
+                name -> null,
+                Optional.empty());
+    }
+
     private static LaunchRequest request(
             Path tempDir,
             String failOn,
@@ -418,6 +458,7 @@ class GateLauncherTest {
         return new LaunchRequest(
                 "com.example",
                 failOn,
+                "classic",
                 dirs(),
                 ownDirs,
                 List.of(rulesDir(tempDir, rule)),

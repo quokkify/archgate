@@ -37,6 +37,7 @@ public abstract class GateWorkAction implements WorkAction<GateWorkParameters> {
         return new LaunchRequest(
                 parameters.getRootPackage().get(),
                 parameters.getFailOn().get(),
+                parameters.getReportStyle().get(),
                 new ModuleDirs(
                         paths(parameters.getMainClassesDirs()),
                         paths(parameters.getTestClassesDirs()),

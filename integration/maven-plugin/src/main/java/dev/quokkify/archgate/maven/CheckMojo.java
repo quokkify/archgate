@@ -43,6 +43,9 @@ public class CheckMojo extends AbstractMojo {
     @Parameter(property = "archgate.failOn", defaultValue = "WARNING")
     private String failOn;
 
+    @Parameter(property = "archgate.reportStyle", defaultValue = "classic")
+    private String reportStyle;
+
     @Parameter
     private List<String> modules;
 
@@ -106,6 +109,7 @@ public class CheckMojo extends AbstractMojo {
         return new LaunchRequest(
                 rootPackage,
                 failOn,
+                reportStyle,
                 new ModuleDirs(mainClasses, testClasses, mainSources, testSources),
                 ownDirs(),
                 testClasspath(),

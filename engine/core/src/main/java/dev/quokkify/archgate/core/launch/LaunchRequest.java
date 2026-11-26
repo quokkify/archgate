@@ -8,6 +8,7 @@ import java.util.function.Function;
 public record LaunchRequest(
         String rootPackage,
         String failOn,
+        String reportStyle,
         ModuleDirs dirs,
         List<Path> ownDirs,
         List<Path> ruleClasspath,

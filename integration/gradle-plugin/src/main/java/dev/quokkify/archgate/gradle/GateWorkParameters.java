@@ -12,6 +12,8 @@ public interface GateWorkParameters extends WorkParameters {
 
     Property<String> getFailOn();
 
+    Property<String> getReportStyle();
+
     ConfigurableFileCollection getMainClassesDirs();
 
     ConfigurableFileCollection getTestClassesDirs();

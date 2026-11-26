@@ -46,6 +46,9 @@ public abstract class ArchgateCheckTask extends DefaultTask {
     @Input
     public abstract Property<String> getFailOn();
 
+    @Input
+    public abstract Property<String> getReportStyle();
+
     /**
      * Returns the {@code archgate.ci} Gradle property, which the worker reads before system properties.
      *
@@ -129,6 +132,7 @@ public abstract class ArchgateCheckTask extends DefaultTask {
         queue.submit(GateWorkAction.class, parameters -> {
             parameters.getRootPackage().set(getRootPackage());
             parameters.getFailOn().set(getFailOn());
+            parameters.getReportStyle().set(getReportStyle());
             parameters.getMainClassesDirs().from(getMainClassesDirs());
             parameters.getTestClassesDirs().from(getTestClassesDirs());
             parameters.getMainSourceDirs().from(getMainSourceDirs());
