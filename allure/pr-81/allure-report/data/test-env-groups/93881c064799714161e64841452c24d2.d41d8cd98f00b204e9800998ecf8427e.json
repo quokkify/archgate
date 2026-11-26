@@ -1,0 +1,1 @@
+{"id":"93881c064799714161e64841452c24d2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.serverErrorIsUnavailable","name":"A server error gives the service-unavailable signal for TestRail","status":"passed","testResultsByEnv":{"default":"f2b65fb714c9e4757f2d0fe26cffcca3"}}

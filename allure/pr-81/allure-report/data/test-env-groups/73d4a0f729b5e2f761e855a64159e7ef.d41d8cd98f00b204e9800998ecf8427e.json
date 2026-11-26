@@ -1,0 +1,1 @@
+{"id":"73d4a0f729b5e2f761e855a64159e7ef.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.syntheticLambdaSignatureIsNotReported","name":"Lambda parameters of Jackson tree types are not reported as signatures","status":"passed","testResultsByEnv":{"default":"64eb399d6296cdf7cff59e2ade038096"}}

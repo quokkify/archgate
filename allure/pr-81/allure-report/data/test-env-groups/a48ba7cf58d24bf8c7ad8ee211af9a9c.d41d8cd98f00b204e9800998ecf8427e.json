@@ -1,0 +1,1 @@
+{"id":"a48ba7cf58d24bf8c7ad8ee211af9a9c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.ServiceRegistrationRuleTest.archgateRuleFileIsSkippedWhileOtherProviderFilesAreChecked","name":"archgateRuleFileIsSkippedWhileOtherProviderFilesAreChecked","status":"passed","testResultsByEnv":{"default":"60ef90f1f7c40eb0e9400503b6cc32cb"}}

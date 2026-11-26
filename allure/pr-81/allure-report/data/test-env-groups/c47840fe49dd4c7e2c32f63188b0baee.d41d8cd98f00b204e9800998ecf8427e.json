@@ -1,0 +1,1 @@
+{"id":"c47840fe49dd4c7e2c32f63188b0baee.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.cases.archunit.CaseLoadTest.otherServiceClassIsKeyMismatch","name":"A different service under the same display name is a key mismatch","status":"passed","testResultsByEnv":{"default":"9fba08e7b35546a4ef6a1f08f7804436"}}

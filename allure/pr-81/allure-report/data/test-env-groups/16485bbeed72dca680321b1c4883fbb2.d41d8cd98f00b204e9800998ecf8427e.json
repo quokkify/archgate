@@ -1,0 +1,1 @@
+{"id":"16485bbeed72dca680321b1c4883fbb2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.deletedForeignCaseIsDeleted","name":"A deleted case of another project is deleted, not foreign or missing","status":"passed","testResultsByEnv":{"default":"3ea33c5a8a5aba729a59f3da139f0aa4"}}

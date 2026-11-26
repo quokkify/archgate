@@ -1,0 +1,1 @@
+{"id":"b72674557e3f6e915568834f937dcd02.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.unreachableServerIsUnavailable","name":"An unreachable server gives the service-unavailable signal","status":"passed","testResultsByEnv":{"default":"4de6d35b36db60be3edffe9d1cb6228a"}}

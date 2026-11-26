@@ -1,0 +1,1 @@
+{"id":"e40d4307240912995cd76a314a2f13bf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.absentCaseIsMissingNotDeleted","name":"A case TestRail does not return at all is missing, not deleted","status":"passed","testResultsByEnv":{"default":"2f8e599b05621f1102e4e1d4cef6e450"}}

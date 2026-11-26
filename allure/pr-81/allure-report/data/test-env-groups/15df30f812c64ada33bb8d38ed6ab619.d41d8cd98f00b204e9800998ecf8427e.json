@@ -1,0 +1,1 @@
+{"id":"15df30f812c64ada33bb8d38ed6ab619.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.networkFailureIsUnavailable","name":"Network failures keep their message and cause","status":"passed","testResultsByEnv":{"default":"1c397681894e3013ef6c59e23bafa118"}}

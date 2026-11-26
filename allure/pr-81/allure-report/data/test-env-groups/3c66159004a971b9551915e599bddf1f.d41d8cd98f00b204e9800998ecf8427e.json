@@ -1,0 +1,1 @@
+{"id":"3c66159004a971b9551915e599bddf1f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.malformedAutomationTypeOptionGivesUnavailableTypes","name":"A malformed automation type option gives unavailable types","status":"passed","testResultsByEnv":{"default":"beadc15105ced2fc7699179fe9a5ef09"}}

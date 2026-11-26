@@ -1,0 +1,24 @@
+============================================================
+Architecture verification (1 rule, 1.1 s total)
+============================================================
+RULE        SCOPE      SEVERITY  RESULT    FOUND  BUILD       TIME
+----------  ---------  --------  --------  -----  -----  ---------
+Case links  MAIN+TEST  ERROR     violated      3  fails    1058 ms
+------------------------------------------------------------
+Case links
+    Every case id on a test method must identify an existing case.
+    Violations (1) "case is deleted":
+        - C7  LoginTest.java:12
+
+    Violations (2) "case is in another stage":
+        CASE  ACTUAL      LOCATION
+        ----  ----------  --------------------
+        C101  staging     CheckoutTest.java:40
+        C2    production  CartTest.java:7
+Model build: ArchUnitContext 0 ms, main 735 ms, test 313 ms
+============================================================
+Gate FAILED: 1 rule, 1 error
+Failure policy (failOn=WARNING):
+  ERROR    fails the build
+  WARNING  fails the build
+  INFO     reported only

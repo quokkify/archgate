@@ -1,0 +1,1 @@
+{"id":"02841fb45b6eb17194230454a0e499d2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.TestRailRulesTest.malformedAnswerIsUnavailable","name":"A malformed answer gives the service-unavailable signal","status":"passed","testResultsByEnv":{"default":"bae376eff1d8c87eec360b9ba940a8a0"}}

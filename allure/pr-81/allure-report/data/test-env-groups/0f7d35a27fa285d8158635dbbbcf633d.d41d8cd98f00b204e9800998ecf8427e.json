@@ -1,0 +1,1 @@
+{"id":"0f7d35a27fa285d8158635dbbbcf633d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.tms.RequiredTestAnnotationRuleTest.verifyReportsViolationsWithContract","name":"Violations are reported together with the contract","status":"passed","testResultsByEnv":{"default":"761f74849cdd6e2db2cf3369dddb1adc"}}

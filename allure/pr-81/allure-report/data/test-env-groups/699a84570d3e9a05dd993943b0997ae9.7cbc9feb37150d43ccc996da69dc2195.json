@@ -1,0 +1,1 @@
+{"id":"699a84570d3e9a05dd993943b0997ae9.7cbc9feb37150d43ccc996da69dc2195","fullName":"dev.quokkify.archgate.rules.archunit.testplanit.TestPlanItRulesTest.unusableSettingsAreUnableToVerify","name":"Unusable settings fail as unable to verify, naming the variable but not its value","status":"passed","testResultsByEnv":{"default":"10dac102583529edba9640f3f9225710"}}

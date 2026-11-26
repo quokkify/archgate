@@ -1,0 +1,1 @@
+{"id":"e82445255d741b46a3622f41a9858675.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.testrail.IndexLoaderTest.resultIndependentOfIdPosition","name":"A foreign case is reported the same wherever its id sorts","status":"passed","testResultsByEnv":{"default":"e98332c07ff5146a11d44d9291ba3545"}}

@@ -1,0 +1,1 @@
+{"id":"25fb8a446dd214fbf2a709dec2a27f51.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.LayerBoundaryRuleTest.correctLayeringPasses","name":"Upper layers depending on the layer, and the layer on itself, pass","status":"passed","testResultsByEnv":{"default":"2de697f4b225d10b82a350fcb4e6f180"}}

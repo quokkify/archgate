@@ -1,0 +1,1 @@
+{"id":"db3aebfd0b6a487df1562fa0c80117f0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.archgate.rules.archunit.api.JsonTreeUsageRuleTest.classLiteralIsReported","name":"Converting to a Jackson tree type by class literal is reported","status":"passed","testResultsByEnv":{"default":"076b9f1e0f15fed49232b8313cea5b6b"}}
